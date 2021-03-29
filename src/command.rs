@@ -1,6 +1,6 @@
-use arma_rs::{ArmaValue, ToArma};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use arma_rs::{ToArma, ArmaValue};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Command {

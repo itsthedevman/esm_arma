@@ -136,7 +136,7 @@ pub fn a3_reward(command: &Command, parameters: &Reward, metadata: &DefaultMetad
         command.id.clone(),
         parameters.clone(),
         metadata.clone()
-    )
+    );
 }
 
 ///////////////////////////////////////////////////////////////////////
