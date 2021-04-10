@@ -23,8 +23,8 @@ command :build do |c|
   c.option '--target=TARGET', String, 'The target OS to build to. Valid options: linux, windows. Defaults to: windows'
   c.option '--release', 'Build for release to public'
   c.action do |args, options|
-    build_target = (options.target || "windows").to_sym
-    next say("Invalid build target. Valid options are: linux, windows") if ![:linux, :windows].include?(build_target)
+    build_target = (options.target || "windows")
+    next say("Invalid build target. Valid options are: linux, windows") if !["linux", "windows"].include?(build_target)
 
     Dotenv.load("./tools/esm.#{build_target}.env")
 
@@ -56,8 +56,8 @@ command :run do |c|
   c.option '--target=TARGET', String, 'The target OS to build to. Valid options: linux, windows. Defaults to: windows'
   c.option '--release', 'Build for release to public'
   c.action do |args, options|
-    build_target = (options.target || "windows").to_sym
-    next say("Invalid build target. Valid options are: linux, windows") if ![:linux, :windows].include?(build_target)
+    build_target = (options.target || "windows")
+    next say("Invalid build target. Valid options are: linux, windows") if !["linux", "windows"].include?(build_target)
 
     Dotenv.load("./tools/esm.#{build_target}.env")
 
@@ -114,7 +114,7 @@ class Utils
       x86: "i686-unknown-linux-gnu",
       x64: "x86_64-unknown-linux-gnu"
     }
-  }.freeze
+  }.with_indifferent_access.freeze
 
   def self.config
     @config ||= OpenStruct.new(
@@ -124,7 +124,7 @@ class Utils
       mikeros_directory: ENV["ESM_MIKEROS_PATH"],
       build_script_x86: ENV["ESM_BUILD_SCRIPT_X86"],
       build_script_x64: ENV["ESM_BUILD_SCRIPT_X64"],
-      remote_host: ENV["ESM_REMOTE_HOST"],
+      remote_host: ENV["ESM_UBUNTU_HOST"]
     ).freeze
   end
 
@@ -134,15 +134,19 @@ class Utils
     puts "done".colorize(:blue)
   end
 
-  def self.remote_execute(command, ssh_options: {})
-    options = ssh_options.map { |option, value| "-o \"#{option}=#{value}\"" }.join(" ")
+  def self.execute(command)
+    command_return =
+      if @target.linux?
+        `ssh #{config.remote_host} #{command}`
+      else
+        `#{command}`
+      end
 
-    puts "\t[#{config.remote_host} #{options}]: #{command}".colorize(:light_black)
-    `ssh #{config.remote_host} #{options} #{command}`
+    command_return.strip
   end
 
   def self.flags(target:, arch:, env:)
-    @target = target
+    @target = ActiveSupport::StringInquirer.new(target)
     @arch = arch
     @env = env
   end
@@ -157,7 +161,7 @@ class Utils
       return "" if path.empty?
 
       if @arch == :x64
-        path + "_x64"
+        "#{path}_x64"
       else
         path
       end
@@ -167,19 +171,22 @@ class Utils
   def self.temp_directory
     @temp_directory ||= lambda do
       temp_directory =
-        if @target == :windows
-          resolved_dir = remote_execute("echo %Temp%").strip.gsub("\\", "/")
-          "#{resolved_dir}/esm_arma"
-        else
+        if @target.linux?
           "/tmp/esm_arma"
+        else
+          # Windows needs to have an ending slash
+          execute("echo %Temp%\\esm_arma\\")
         end
 
       # Create the temp directory
       command =
-        if @target == :windows
-
+        if @target.linux?
+          "mkdir -p #{temp_directory}"
         else
+          "if not exist \"#{temp_directory}\" mkdir #{temp_directory}"
         end
+
+      execute(command)
 
       temp_directory
     end.call
@@ -190,13 +197,13 @@ class Utils
       arch = @arch == :x64 ? "_x64" : ""
 
       command =
-        if @target == :windows
-          "taskkill /IM \"arma3server#{arch}.exe\" /F"
-        else
+        if @target.linux?
           "killall arma3server#{arch}"
+        else
+          "taskkill /IM \"arma3server#{arch}.exe\" /F"
         end
 
-      remote_execute(command)
+      execute(command)
     end
   end
 
@@ -215,9 +222,6 @@ class Utils
 
       # Create the addons folder in target/arma/@esm
       FileUtils.mkdir_p("#{config.build_directory}/@esm/addons")
-
-      # Remove src in case of file changes
-      remove_dir("#{temp_directory}/src") if path_exist?("#{temp_directory}/src")
     end
   end
 
@@ -228,28 +232,20 @@ class Utils
 
   def self.build_extension
     say "Building extension..." do
-      # Copy the extension over to the host to allow building the extension natively
-      [
-        "src", ".cargo", "Cargo.toml", "diesel.toml", "Win32.def"
-      ].each do |item|
-        copy("#{config.extension_directory}/#{item}", temp_directory, remote_destination: true)
-      end
-
-      command = "cd #{temp_directory} && cargo build --target #{build_target}"
+      command = "cd #{config.extension_directory} && cargo build --target #{build_target}"
       command += " --release" if @env == :release
 
-      remote_execute("\"#{command}\"")
+      execute(command)
     end
   end
 
   def self.copy_extension
     say "Copying extension..." do
-      source_ext_name = @target == :windows ? "esm.dll" : "libesm.so"
-      destination_ext_name = @target == :windows ? "esm#{@target == :x64 ? '_x64' : ''}.dll" : "esm.so"
+      source_ext_name = @target.linux? ? "libesm.so" : "esm.dll"
+      destination_ext_name = @target.linux? ? "esm.so" : "esm#{@arch == :x64 ? '_x64' : ''}.dll"
 
-      source_ext = "#{temp_directory}/target/#{build_target}/#{@env}/#{source_ext_name}"
-      command = "copy /y #{source_ext} #{deploy_directory}/@esm/#{destination_ext_name}"
-      remote_execute(command)
+      source_ext = "#{config.extension_directory}/target/#{build_target}/#{@env}/#{source_ext_name}"
+      copy(source_ext, "#{config.build_directory}/@esm/#{destination_ext_name}", file: true)
     end
   end
 
@@ -271,8 +267,8 @@ class Utils
   def self.copy_mod
     say "Copying mod..." do
       # Remove the @esm mod in the destination
-      remove_dir("#{deploy_directory}/@esm", remote_path: true) if path_exist?("#{deploy_directory}/@esm", remote_path: true)
-      copy("#{config.build_directory}/@esm", deploy_directory, remote_destination: true)
+      remove_dir("#{deploy_directory}/@esm") if path_exist?("#{deploy_directory}/@esm")
+      copy("#{config.build_directory}/@esm", "#{deploy_directory}/@esm")
     end
   end
 
@@ -281,12 +277,7 @@ class Utils
       script = config.send("build_script_#{@arch}")
 
       command =
-        if @target == :windows
-          script = { program_name: script.gsub("\\", "\\\\\\"), arguments: [] }.to_json
-
-          #"curl -H \\\"Content-Type: application/json\\\" -d '#{script}' localhost:3030/run"
-          
-        else
+        if @target.linux?
           <<~STRING
             cd #{config.server_directory} && \
             rm -rf @esm && \
@@ -296,27 +287,29 @@ class Utils
             cp -r #{deploy_directory}/* #{config.server_directory}/ && \
             #{script}
           STRING
+        else
+          script
         end
 
-      remote_execute(command, ssh_options: { ServerAliveInterval: 240, ServerAliveCountMax: 2 })
+      execute(command)
     end
   end
 
-  def self.remove_dir(path, remote_path: false)
+  def self.remove_dir(path, remote_path: @target.linux?)
     return FileUtils.remove_dir(path) if !remote_path
 
     command =
-      if @target == :windows
+      if @target.linux?
+        "rm -rf \"#{path}\""
+      else
         path = path.gsub("/", "\\")
         "rmdir \"#{path}\" /s /q"
-      else
-        "rm -rf \"#{path}\""
       end
 
-    remote_execute(command)
+    execute(command)
   end
 
-  def self.copy(source_path, destination_path, remote_destination: false, file: false)
+  def self.copy(source_path, destination_path, remote_destination: @target.linux?, file: false)
     if remote_destination
       `scp #{file ? "" : "-r"} #{source_path} #{config.remote_host}:/#{destination_path}`
     else
@@ -324,29 +317,31 @@ class Utils
     end
   end
 
-  def self.path_exist?(path, remote_path: false, target: @target)
+  def self.path_exist?(path, remote_path: @target.linux?)
     return File.exist?(path) if !remote_path
 
-    if target == :windows
-      remote_execute("if exist #{path} echo True") == "True"
-    else
-      remote_execute('test -f #{path} && echo "true" || echo "false"') == "true"
-    end
+    execute("test -f #{path} && echo \"true\" || echo \"false\"") == "true"
   end
 
   def self.open_logs
     say "Opening logs" do
       path = "#{config.server_directory}/@esm/log/esm.log"
       25.times do
-        next sleep(1) if !path_exist?(path, remote_path: true)
+        next sleep(1) if !path_exist?(path)
 
-        remote_execute("tail -f #{path}")
+        File.open(path) do |log|
+          log.extend(File::Tail)
+          log.interval = 1
+          log.backward(100)
+          log.tail { |line| puts line }
+        end
       end
 
-      puts "Failed to open esm.log"
+      puts "Failed to open esm.log".colorize(:red)
     rescue SystemExit, Interrupt
-      kill_arma_server
       exit
+    ensure
+      kill_arma_server
     end
   end
 end
