@@ -101,7 +101,7 @@ try
 	private _flagStolen = _territory getVariable ["ExileFlagStolen", const!(FLAG_OK)];
 	if (_flagStolen isEqualTo const!(FLAG_STOLEN)) then
 	{
-		throw [["player", localize!("Upgrade_StolenFlag", _playerMention, _encodedTerritoryID)]];
+		throw [["player", localize!("StolenFlag", _playerMention, _encodedTerritoryID)]];
 	};
 
 	// Max level check
@@ -123,7 +123,7 @@ try
 
 	// Calculate a payment tax. ESM_Taxes_TerritoryUpgrade is a decimal between 0 and 1
 	private _tax = round(_territoryPrice * ESM_Taxes_TerritoryUpgrade);
-	_territoryPriceSubTotal = _territoryPrice + _tax;
+	private _territoryPriceSubTotal = _territoryPrice + _tax;
 
 	//////////////////////
 	// Modification
@@ -144,7 +144,7 @@ try
 			throw [[
 				"player",
 				format[
-					localize!("Upgrade_TooPoor"),
+					localize!("TooPoor"),
 					_playerMention,
 					_territoryPriceSubTotal call ESMs_util_number_toString,
 					_playerMoney call ESMs_util_number_toString
@@ -163,7 +163,7 @@ try
 			throw [[
 				"player",
 				format[
-					localize!("Upgrade_TooPoor"),
+					localize!("TooPoor"),
 					_playerMention,
 					_territoryPriceSubTotal call ESMs_util_number_toString,
 					_playerMoney call ESMs_util_number_toString
@@ -229,7 +229,7 @@ try
 			[
 				[
 					"author",
-					localize!("Upgrade_Response_Author", ESM_ServerID)
+					localize!("ResponseAuthor", ESM_ServerID)
 				],
 				[
 					"title",
