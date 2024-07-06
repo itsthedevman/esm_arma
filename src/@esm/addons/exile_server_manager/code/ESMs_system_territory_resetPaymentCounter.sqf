@@ -27,20 +27,31 @@ Author:
 	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/.
 ---------------------------------------------------------------------------- */
 
-private _territoryIDs =
+private _playerUID = _this;
+
+private _territories =
 [
-	("Exile_Construction_Flag_Static" allObjects 0), // Much faster than allMissionObjects
+	// Much faster than allMissionObjects
+	"Exile_Construction_Flag_Static" allObjects 0,
 	{
-		private _buildRights = _x getVariable ["ExileTerritoryBuildRights", []];
-		if (_playerUID in _buildRights) then
-		{
-			_x getVariable ["ExileDatabaseID", -1]
-		};
+		private _buildRights = _this getVariable ["ExileTerritoryBuildRights", []];
+		if (_playerUID in _buildRights) then { _this };
 	},
 	true
 ]
 call ESMs_util_array_map;
 
+if (_territories isEqualTo []) exitWith {};
+
+private _territoryIDs = [
+	_territories,
+	{ _x getVariable ["ExileDatabaseID", -1] }
+] call ESMs_util_array_map;
+
+// Reset the database
 ["set_territory_payment_counter", _territoryIDs, 0] call ESMs_system_extension_call;
+
+// Reset the territory counters
+{ _x setVariable ["ESM_PaymentCounter", 0] } forEach _territories;
 
 nil
