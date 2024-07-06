@@ -370,20 +370,18 @@ fn set_territory_payment_counter(
         }
     };
 
-    std::thread::spawn(move || {
-        TOKIO_RUNTIME.block_on(async {
-            for database_id in database_ids {
-                DATABASE
-                    .set_territory_payment_counter(database_id, counter_value)
-                    .await
-            }
-
-            debug!(
-                "[set_territory_payment_counter] ⏲ Took {:.2?}",
-                timer.elapsed()
-            );
-        })
+    TOKIO_RUNTIME.block_on(async {
+        for database_id in database_ids {
+            DATABASE
+                .set_territory_payment_counter(database_id, counter_value)
+                .await
+        }
     });
+
+    debug!(
+        "[set_territory_payment_counter] ⏲ Took {:.2?}",
+        timer.elapsed()
+    );
 
     Ok(())
 }
