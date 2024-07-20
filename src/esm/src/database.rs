@@ -112,6 +112,8 @@ impl Database {
         query_result
     }
 
+    /// Attempts to decode a hashed territory ID or custom ID
+    /// Do not use if you already have access to the database and connection (i.e in query files)
     pub async fn decode_territory_id(&self, territory_id: &str) -> Result<u64, Error> {
         let mut connection = self.connection().await?;
         queries::decode_territory_id(&self, &mut connection, territory_id).await
