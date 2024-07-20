@@ -20,8 +20,8 @@ pub async fn command_set_id(
         return Err("error".into());
     };
 
-    // This handles both hashed IDs or custom IDs
-    let territory_id = context.decode_territory_id(territory_id).await?;
+    // This handles both hashed IDs or custom 
+    let territory_id = queries::decode_territory_id(context, connection, territory_id).await?;
 
     // Territory admins can bypass this check.
     // Otherwise, check to see if the steam_uid is the owner's

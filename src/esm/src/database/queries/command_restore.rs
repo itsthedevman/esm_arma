@@ -11,7 +11,7 @@ pub async fn command_restore(
     };
 
     // This handles both hashed IDs or custom IDs
-    let territory_id = context.decode_territory_id(territory_id).await?;
+    let territory_id = queries::decode_territory_id(context, connection, territory_id).await?;
 
     // Three separate SQL queries
     // The driver doesn't support preparing and executing a multi-command statement
