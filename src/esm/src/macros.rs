@@ -67,7 +67,7 @@ macro_rules! include_sql {
 // Generates the Statements struct from the SQL files
 #[macro_export]
 macro_rules! statements {
-    ($( $names:ident ),*) => {
+    ($( $names:ident ),* $(,)?) => {
         #[derive(Clone, Debug, Default)]
         struct Statements {
             $($names: String),*
