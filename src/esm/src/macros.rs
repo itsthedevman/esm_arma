@@ -101,6 +101,22 @@ macro_rules! statements {
     };
 }
 
+#[macro_export]
+macro_rules! import_and_export {
+    ($name:ident) => {
+        pub mod $name;
+        pub use $name::*;
+    };
+}
+
+#[macro_export]
+macro_rules! import {
+    ($name:ident) => {
+        pub mod $name;
+        use $name::*;
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use tokio::sync::Mutex;
