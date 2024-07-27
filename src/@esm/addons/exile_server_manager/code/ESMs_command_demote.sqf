@@ -153,7 +153,22 @@ try
 	//////////////////////
 	[
 		// Response
-		[_id],
+		[
+			_id,
+			[
+				["author", localize!("ResponseAuthor", ESM_ServerID)],
+				["title", localize!("Demote_Response_Title")],
+				[
+					"description",
+					format[
+						localize!("Demote_Response_Description"),
+						_playerMention,
+						_targetMention,
+						_encodedTerritoryID
+					]
+				]
+			]
+		],
 
 		// Log the following?
 		_loggingEnabled,

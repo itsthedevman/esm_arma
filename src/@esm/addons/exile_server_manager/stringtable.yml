@@ -179,6 +179,17 @@ ESMs_command_demote:
     - "Player mention"
     english: "Hey %1, you can't demote someone you have no power over."
 
+  # Discord message to player
+  Demote_Response_Title:
+    english: "Player demoted"
+
+  Demote_Response_Description:
+    arguments:
+    - "Player mention"
+    - "Target mention"
+    - "Territory ID"
+    english: "Hey %1, `%2` has been demoted to builder in territory `%3`"
+
   # Discord message to logging channel
   Demote_Log_Title:
     english: "`ESMs_command_demote` executed successfully"
