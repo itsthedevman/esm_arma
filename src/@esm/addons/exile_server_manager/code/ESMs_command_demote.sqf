@@ -47,6 +47,7 @@ if (isNil "_id" || { isNil "_data" || { isNil "_metadata" } }) exitWith { nil };
 // Initialization
 //////////////////////
 private _loggingEnabled = ESM_Logging_DemotePlayer;
+
 private _encodedTerritoryID = get!(_data, "territory_id");
 private _territoryDatabaseID = get!(_data, "territory_database_id");
 
@@ -66,6 +67,8 @@ try
 	//////////////////////
 	// Validation
 	//////////////////////
+
+	// Territory flag must exist in game
 	if (isNull _territory) then
 	{
 		throw [
@@ -81,7 +84,7 @@ try
 		];
 	};
 
-	// Ensure the player has joined the server at least once
+	// Player must have joined the server at least once
 	if !(_playerUID call ESMs_system_account_isKnown) then
 	{
 		throw [
@@ -89,7 +92,7 @@ try
 		];
 	};
 
-	// Ensure the target player has joined the server at least once
+	// Target player must have joined the server at least once
 	if !(_targetUID call ESMs_system_account_isKnown) then
 	{
 		throw [
@@ -97,8 +100,7 @@ try
 		];
 	};
 
-	// Ensure the player is at least a moderator
-	// Territory admins bypass this
+	// Player must have moderator permissions
 	if !([_territory, _playerUID, "moderator"] call ESMs_system_territory_checkAccess) then
 	{
 		throw [
