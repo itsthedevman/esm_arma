@@ -98,7 +98,7 @@ General:
     - "Territory ID"
     english: "Not to worry you, %1, but `%2`'s flag has been stolen at some point. The flag must be returned before you can perform this action"
 
-  TooPoor:
+  TooPoor_WithCost:
     arguments:
     - "Player mention"
     - "Cost"
