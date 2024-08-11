@@ -124,6 +124,12 @@ General:
     - "Server ID"
     english: "Sent from %1"
 
+  LockerBefore:
+    english: "Locker before"
+
+  LockerAfter:
+    english: "Locker after"
+
 ################################################################################
 # /territory add_player
 ESMs_command_add:
@@ -479,4 +485,6 @@ ESMs_command_gamble:
     english: "`ESMs_command_gamble` executed successfully"
 
   Gamble_Log_Description:
-    english: "Player gambled"
+    arguments:
+    - "Gamble status (won/lost)"
+    english: "Player gambled and %1"

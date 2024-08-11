@@ -48,6 +48,10 @@ private _playerMention = get!(_playerMetadata, "discord_mention");
 
 try
 {
+	//////////////////////
+	// Validation
+	//////////////////////
+
 	// Player must have joined the server at least once
 	if !(_playerUID call ESMs_system_account_isKnown) then
 	{
@@ -59,7 +63,6 @@ try
 	// If the player is online make sure to adjust their in-game data
 	// Otherwise, we'll get their poptabs from the database itself
 	private _playerObject = _playerUID call ExileClient_util_player_objectFromPlayerUID;
-
 	private _lockerBefore = if (null?(_playerObject)) then
 	{
 		format[
@@ -72,6 +75,7 @@ try
 		_playerObject getVariable ["ExileLocker", 0];
 	};
 
+	// Determine how much the player is gambling
 	_amountToGamble = switch (_amountToGamble) do
 	{
 		case "all":
@@ -90,17 +94,20 @@ try
 		};
 	};
 
-	// At least 1 poptab has to be gambled
+	// Player must gamble at least 1 poptab
+	// abs just in case
 	if (abs(_amountToGamble) isEqualTo 0) then
 	{
 		throw [["player", localize!("Gamble_CannotGambleNothing")]];
 	};
 
+	// Player must have enough poptabs
 	if (_amountToGamble > _lockerBefore) then
 	{
 		throw [["player", localize!("TooPoor", _playerMention)]];
 	};
 
+	// If check is enabled, player must not have a full locker
 	private _maxDeposit = getNumber(missionConfigFile >> "CfgLocker" >> "maxDeposit");
 	if (ESM_Gambling_LockerLimitEnabled && { _lockerBefore >= _maxDeposit }) then
 	{
@@ -145,10 +152,10 @@ try
 			_responseDescription = format[
 				localize!("Gambling_Response_Description_WinMaxLocker"),
 				_playerMention,
-				_amountToGamble,
-				_payout,
-				_payout - _amountToGamble,
-				_lockerAfter
+				_amountToGamble call ESMs_util_number_toString,
+				_payout call ESMs_util_number_toString,
+				(_payout - _amountToGamble) call ESMs_util_number_toString,
+				_lockerAfter call ESMs_util_number_toString
 			];
 		}
 		else
@@ -156,10 +163,10 @@ try
 			_responseDescription = format[
 				localize!("Gambling_Response_Description_Win"),
 				_playerMention,
-				_amountToGamble,
-				_payout,
-				_payout - _amountToGamble,
-				_lockerAfter
+				_amountToGamble call ESMs_util_number_toString,
+				_payout call ESMs_util_number_toString,
+				(_payout - _amountToGamble) call ESMs_util_number_toString,
+				_lockerAfter call ESMs_util_number_toString
 			];
 		};
 
@@ -177,8 +184,8 @@ try
 				1 + (floor(random(5))) // 1 through 5
 			]),
 			_playerMention,
-			_amountToGamble,
-			_lockerAfter
+			_amountToGamble call ESMs_util_number_toString,
+			_lockerAfter call ESMs_util_number_toString
 		];
 
 		_responseTitle = localize!("Gamble_Response_Title_Loss");
@@ -228,13 +235,15 @@ try
 				[
 					"description",
 					format [
-						localize!("Gamble_Log_Description")
-						"TODO"
+						localize!("Gamble_Log_Description"),
+						if (_areYaWinningSon) then { "won" } else { "lost" }
 					]
 				],
 				["color", "green"],
 				["fields", [
-					[localize!("Player"), _playerMetadata, true]
+					[localize!("Player"), _playerMetadata, true],
+					[localize!("LockerBefore"), _lockerBefore call ESMs_util_number_toString, true],
+					[localize!("LockerAfter"), _lockerAfter call ESMs_util_number_toString, true]
 				]]
 			]
 		}
