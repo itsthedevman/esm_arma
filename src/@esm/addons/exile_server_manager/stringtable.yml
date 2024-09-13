@@ -457,7 +457,7 @@ ESMs_command_gamble:
     - "Player mention"
     - "Gamble amount"
     - "Locker amount"
-    english: "%1, you've bravely sacrificed %2 poptabs to the gambling gods. Surely they're appeased now, right? Your remaining %3 poptabs are tingling with anticipation. The next big win could be just a click away!""
+    english: "%1, you've bravely sacrificed %2 poptabs to the gambling gods. Surely they're appeased now, right? Your remaining %3 poptabs are tingling with anticipation. The next big win could be just a click away!"
 
   Gambling_Response_Description_Loss_3:
     arguments:

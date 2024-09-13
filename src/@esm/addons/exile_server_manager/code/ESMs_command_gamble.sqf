@@ -90,7 +90,7 @@ try
 
 		default
 		{
-			round(abs(parseNumber(_amountToGamble)));
+			round(_amountToGamble);
 		};
 	};
 
@@ -120,6 +120,8 @@ try
 
 	private _lockerAfter = _lockerBefore;
 	private _areYaWinningSon = random(1) < ESM_Gambling_WinPercentage;
+	private _responseTitle = "";
+	private _responseDescription = "";
 
 	if (_areYaWinningSon) then
 	{
