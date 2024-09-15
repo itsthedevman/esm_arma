@@ -118,6 +118,7 @@ try
 	// Modification
 	//////////////////////
 
+	private _amountChanged = _amountToGamble;
 	private _lockerAfter = _lockerBefore;
 	private _areYaWinningSon = random(1) < ESM_Gambling_WinPercentage;
 	private _responseTitle = "";
@@ -140,10 +141,10 @@ try
 		// Calculate the final payout
 		// This ensures the player always gets back at least their original bet (1x)
 		// plus any additional winnings determined by the win multiplier
-		private _payout = round(_amountToGamble * (1 + _winMultiplier));
+		_amountChanged = round(_amountToGamble * (1 + _winMultiplier));
 
 		// Give them their winnings
-		_lockerAfter = _lockerBefore + _payout;
+		_lockerAfter = _lockerBefore + _amountChanged;
 
 		// Impose the limit if there is one
 		if (ESM_Gambling_LockerLimitEnabled && { _lockerAfter > _maxDeposit }) then
@@ -155,8 +156,8 @@ try
 				localize!("Gambling_Response_Description_WinMaxLocker"),
 				_playerMention,
 				_amountToGamble call ESMs_util_number_toString,
-				_payout call ESMs_util_number_toString,
-				(_payout - _amountToGamble) call ESMs_util_number_toString,
+				_amountChanged call ESMs_util_number_toString,
+				(_amountChanged - _amountToGamble) call ESMs_util_number_toString,
 				_lockerAfter call ESMs_util_number_toString
 			];
 		}
@@ -166,8 +167,8 @@ try
 				localize!("Gambling_Response_Description_Win"),
 				_playerMention,
 				_amountToGamble call ESMs_util_number_toString,
-				_payout call ESMs_util_number_toString,
-				(_payout - _amountToGamble) call ESMs_util_number_toString,
+				_amountChanged call ESMs_util_number_toString,
+				(_amountChanged - _amountToGamble) call ESMs_util_number_toString,
 				_lockerAfter call ESMs_util_number_toString
 			];
 		};
@@ -218,6 +219,7 @@ try
 			_id,
 			[
 				["win", _areYaWinningSon],
+				["amount", _amountChanged],
 				[
 					"response",
 					[
