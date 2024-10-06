@@ -90,7 +90,7 @@ try
 
 		default
 		{
-			round(_amountToGamble);
+			round(parseNumber(_amountToGamble));
 		};
 	};
 
@@ -98,7 +98,7 @@ try
 	// abs just in case
 	if (abs(_amountToGamble) isEqualTo 0) then
 	{
-		throw [["player", localize!("Gamble_CannotGambleNothing")]];
+		throw [["player", localize!("Gamble_CannotGambleNothing", _playerMention)]];
 	};
 
 	// Player must have enough poptabs
@@ -111,7 +111,7 @@ try
 	private _maxDeposit = getNumber(missionConfigFile >> "CfgLocker" >> "maxDeposit");
 	if (ESM_Gambling_LockerLimitEnabled && { _lockerBefore >= _maxDeposit }) then
 	{
-		throw [["player", localize!("Gamble_LockerFull")]];
+		throw [["player", localize!("Gamble_LockerFull", _playerMention)]];
 	};
 
 	//////////////////////
