@@ -227,12 +227,15 @@ impl System {
     }
 
     pub fn command_string(&self) -> String {
-        format!("{} {}", self.command, self.arguments.join(" "))
+        let result = format!("{} {}", self.command, self.arguments.join(" "));
+        if result.trim().is_empty() {
+            self.script.to_owned()
+        } else {
+            result
+        }
     }
 
     pub fn execute(&mut self, endpoint: Option<&dyn NetworkSend>) -> Result<String, BuildError> {
-        // println!("\nRunning \"{}\"", self.command_string());
-
         if !self.script.is_empty() {
             if self.target_os == "windows" {
                 self.command("powershell");
@@ -245,6 +248,16 @@ impl System {
                 self.arguments.clear();
                 self.arguments(&["-c", self.script.to_string().as_ref()]);
             }
+        }
+
+        let command_string = self.command_string();
+        if !command_string.is_empty() {
+            // println!(
+            //     "{} - {} - {}",
+            //     "<esm_bt>".blue().bold(),
+            //     "local".yellow().bold(),
+            //     command_string.bright_black()
+            // );
         }
 
         let mut child = SystemCommand::new(&self.command)
@@ -486,6 +499,16 @@ impl System {
                 self.command("powershell");
                 self.arguments(&["-EncodedCommand", encoded_script.as_ref()]);
             }
+        }
+
+        let command_string = self.command_string();
+        if !command_string.is_empty() {
+            println!(
+                "{} - {} - {}",
+                "<esm_bt>".blue().bold(),
+                "remote".yellow().bold(),
+                command_string.bright_black()
+            );
         }
 
         let result = endpoint.send(Command::System(self.to_owned()))?;

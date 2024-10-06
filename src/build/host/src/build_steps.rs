@@ -426,11 +426,12 @@ pub fn prepare_directories(builder: &mut Builder) -> BuildResult {
                 rm -rf "{server_path}/@esm";
 
                 {rebuild_mod} && rm -rf "{build_path}/@esm";
-                {rebuild_extension} \
-                    && mv "{build_path}/esm/target" "{build_path}/esm_target" \
-                    && rm -rf "{build_path}/esm" \
-                    && mkdir -p "{build_path}/esm" \
-                    && mv "{build_path}/esm_target" "{build_path}/esm/target";
+                if {rebuild_extension}; then
+                    mv "{build_path}/esm/target" "{build_path}/esm_target";
+                    rm -rf "{build_path}/esm";
+                    mkdir -p "{build_path}/esm";
+                    mv "{build_path}/esm_target" "{build_path}/esm/target";
+                fi;
 
                 mkdir -p "{server_path}/@esm/addons";
             "#,
