@@ -36,7 +36,7 @@ private _variablesHash = (getArray (configFile >> "CfgESM" >> "globalVariables")
 
 	private _value = get!(_data, _attributeName);
 	if (nil?(_value)) then {
-		error!("Failed to a value for %1", _attributeName);
+		error!("Failed to find value for %1", _attributeName);
 		continue;
 	};
 
