@@ -17,21 +17,21 @@ pub async fn command_restore(
     // The driver doesn't support preparing and executing a multi-command statement
     execute_statement(
         connection,
-        &context.statements.command_restore_territory,
+        &context.sql.command_restore_territory,
         territory_id,
     )
     .await?;
 
     execute_statement(
         connection,
-        &context.statements.command_restore_construction,
+        &context.sql.command_restore_construction,
         territory_id,
     )
     .await?;
 
     execute_statement(
         connection,
-        &context.statements.command_restore_container,
+        &context.sql.command_restore_container,
         territory_id,
     )
     .await?;

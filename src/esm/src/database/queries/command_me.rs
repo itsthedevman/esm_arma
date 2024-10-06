@@ -35,7 +35,7 @@ pub async fn command_me(
 
     let result = connection
         .exec_map(
-            &context.statements.command_me,
+            &context.sql.command_me,
             params! { "player_uid" => player_uid, "wildcard_uid" => format!("%{}%", player_uid) },
             |(locker, score, name, money, damage, hunger, thirst, kills, deaths, territories)| {
                 let territories_json: Option<String> = territories;

@@ -20,7 +20,7 @@ pub async fn command_set_id(
         return Err("error".into());
     };
 
-    // This handles both hashed IDs or custom 
+    // This handles both hashed IDs or custom
     let territory_id = queries::decode_territory_id(context, connection, territory_id).await?;
 
     // Territory admins can bypass this check.
@@ -38,7 +38,7 @@ pub async fn command_set_id(
 
     let result = connection
         .exec_drop(
-            &context.statements.command_set_id,
+            &context.sql.command_set_id,
             params! {
                 "territory_id" => territory_id,
                 "custom_id" => new_territory_id

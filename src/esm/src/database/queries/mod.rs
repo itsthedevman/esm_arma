@@ -12,30 +12,24 @@ import_and_export!(command_set_id);
 import_and_export!(decode_territory_id);
 import_and_export!(set_territory_payment_counter);
 
+// Generates a Queries struct containing these attributes and the contents of their
+// corresponding SQL file. These files MUST exist in @esm/sql/queries or there will be errors
+load_sql! {
+    check_if_territory_exists,
+    check_if_territory_owner,
+    decode_territory_id,
+    set_territory_payment_counter,
+
+    // Command queries
+    command_all_territories,
+    command_me,
+    command_restore_construction,
+    command_restore_container,
+    command_restore_territory,
+    command_set_id
+}
+
 /*
-{
-    "list_territories",
-    @"SELECT
-        t.id as id,
-        owner_uid,
-        (SELECT name FROM account WHERE uid = owner_uid) as owner_name,
-        name as territory_name,
-        radius,
-        level,
-        flag_texture,
-        flag_stolen,
-        CONVERT_TZ(`last_paid_at`, @@session.time_zone, '+00:00') AS `last_paid_at`,
-        build_rights,
-        moderators,
-        (SELECT COUNT(*) FROM construction WHERE territory_id = t.id) as object_count,
-        esm_custom_id
-    FROM
-        territory t
-    WHERE
-        deleted_at IS NULL
-    AND
-        (owner_uid = @uid OR build_rights LIKE CONCAT('%', @uid, '%') OR moderators LIKE CONCAT('%', @uid, '%'))"
-},
 {
     "territory_info",
     @"SELECT

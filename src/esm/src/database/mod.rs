@@ -4,9 +4,11 @@ use crate::*;
 
 use ini::Ini;
 pub use mysql_async::{params, prelude::Queryable, Conn, Opts, Params, Pool, Result as SQLResult};
-use parking_lot::RwLock;
+use queries::Queries;
 pub use serde::{Deserialize, Serialize};
 pub use std::{collections::HashMap, path::Path};
+
+import!(hasher);
 
 pub type DatabaseResult = Result<Vec<String>, Error>;
 
@@ -15,7 +17,7 @@ pub struct Database {
     pub extdb_version: u8,
     pub hasher: Hasher,
     connection_pool: Arc<Mutex<Option<Pool>>>,
-    statements: Statements,
+    sql: Queries,
 }
 
 impl Default for Database {
@@ -37,7 +39,7 @@ impl Default for Database {
             extdb_version,
             connection_pool: Arc::new(Mutex::new(None)),
             hasher: Hasher::new(),
-            statements: Statements::new(),
+            sql: Queries::new(),
         }
     }
 }
@@ -48,7 +50,7 @@ impl Database {
     }
 
     pub async fn connect(&self, base_ini_path: &str) -> ESMResult {
-        self.statements.validate()?;
+        self.sql.validate()?;
 
         // Build the connection URI
         let database_url = match connection_string(base_ini_path, self.extdb_version) {
@@ -98,6 +100,7 @@ impl Database {
             "all_territories" => {
                 queries::command_all_territories(&self, &mut connection, &arguments).await
             }
+            // "player_territories" => {}
             "set_id" => queries::command_set_id(&self, &mut connection, &arguments).await,
             "restore" => queries::command_restore(&self, &mut connection, &arguments).await,
             _ => {
@@ -129,23 +132,6 @@ impl Database {
         queries::set_territory_payment_counter(&self, &mut connection, database_id, counter_value)
             .await
     }
-}
-
-// Generates a Statements struct containing these attributes and the contents of their
-// corresponding SQL file. These files MUST exist in @esm/sql/queries or there will be errors
-statements! {
-    check_if_territory_exists,
-    check_if_territory_owner,
-    decode_territory_id,
-    set_territory_payment_counter,
-
-    // Command queries
-    command_all_territories,
-    command_me,
-    command_restore_territory,
-    command_restore_construction,
-    command_restore_container,
-    command_set_id,
 }
 
 /*
@@ -252,50 +238,5 @@ fn extdb_conf_path(base_ini_path: &str) -> String {
     } else {
         // extDB2 is being used
         format!("{}/extdb-conf.ini", base_ini_path)
-    }
-}
-
-#[derive(Clone)]
-pub struct Hasher {
-    builder: Arc<RwLock<harsh::Harsh>>,
-}
-
-impl Hasher {
-    const ALPHABET: &'static str = "abcdefghijklmnopqrstuvwxyz";
-    const LENGTH: usize = 5;
-
-    pub fn new() -> Self {
-        Hasher {
-            builder: Arc::new(RwLock::new(Self::builder(&random_bs_go!()))),
-        }
-    }
-
-    fn builder(salt: &str) -> harsh::Harsh {
-        harsh::Harsh::builder()
-            .length(Hasher::LENGTH)
-            .alphabet(Hasher::ALPHABET)
-            .salt(salt)
-            .build()
-            .unwrap()
-    }
-
-    pub fn encode(&self, id: String) -> String {
-        let Ok(id) = id.parse() else {
-            return String::new();
-        };
-
-        self.builder.read().encode(&[id])
-    }
-
-    pub fn decode(&self, input: &str) -> Option<u64> {
-        let Ok(numbers) = self.builder.read().decode(input) else {
-            return None;
-        };
-
-        numbers.get(0).copied()
-    }
-
-    pub fn set_salt(&self, salt: &str) {
-        *self.builder.write() = Self::builder(salt)
     }
 }

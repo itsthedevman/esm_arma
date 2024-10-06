@@ -16,7 +16,7 @@ pub async fn command_all_territories(
 
     let result = connection
         .exec_map(
-            &context.statements.command_all_territories,
+            &context.sql.command_all_territories,
             Params::Empty,
             |(id, esm_custom_id, territory_name, owner_uid, owner_name)| TerritoryResult {
                 id: context.hasher.encode(id),
