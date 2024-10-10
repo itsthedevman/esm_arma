@@ -3,7 +3,9 @@ mod queries;
 use crate::*;
 
 use ini::Ini;
-pub use mysql_async::{params, prelude::Queryable, Conn, Opts, Params, Pool, Result as SQLResult};
+pub use mysql_async::{
+    params, prelude::Queryable, Conn, Opts, Params, Pool, Result as SQLResult,
+};
 use queries::Queries;
 pub use serde::{Deserialize, Serialize};
 pub use std::{collections::HashMap, path::Path};
@@ -11,6 +13,7 @@ pub use std::{collections::HashMap, path::Path};
 import!(hasher);
 
 pub type DatabaseResult = Result<Vec<String>, Error>;
+pub type QueryResult = Result<Vec<String>, QueryError>;
 
 #[derive(Clone)]
 pub struct Database {
@@ -29,7 +32,9 @@ impl Default for Database {
 
         let extdb_version = if crate::CONFIG.extdb_version != 0 {
             crate::CONFIG.extdb_version
-        } else if Path::new(&x86_default_path).exists() || Path::new(&x64_default_path).exists() {
+        } else if Path::new(&x86_default_path).exists()
+            || Path::new(&x64_default_path).exists()
+        {
             3
         } else {
             2
@@ -70,7 +75,11 @@ impl Database {
         if let Err(e) = self.connection().await {
             error!("{e}");
 
-            return Err(format!("[connect] Failed to connect to MySQL at {}", database_url).into());
+            return Err(format!(
+                "[connect] Failed to connect to MySQL at {}",
+                database_url
+            )
+            .into());
         };
 
         Ok(())
@@ -88,21 +97,30 @@ impl Database {
         }
     }
 
-    pub async fn query(&self, name: &str, arguments: HashMap<String, String>) -> DatabaseResult {
+    pub async fn query(
+        &self,
+        name: &str,
+        arguments: HashMap<String, String>,
+    ) -> DatabaseResult {
         let mut connection = self.connection().await?;
 
         // Need a better way of doing this...
-        let query_result = match name {
+        let query_result: QueryResult = match name {
             "reward_territories" => {
-                queries::command_reward_territories(&self, &mut connection, &arguments).await
+                queries::command_reward_territories(&self, &mut connection, &arguments)
+                    .await
             }
             "me" => queries::command_me(&self, &mut connection, &arguments).await,
             "all_territories" => {
                 queries::command_all_territories(&self, &mut connection, &arguments).await
             }
-            // "player_territories" => {}
+            "player_territories" => {
+                queries::player_territories(&self, &mut connection, &arguments).await
+            }
             "set_id" => queries::command_set_id(&self, &mut connection, &arguments).await,
-            "restore" => queries::command_restore(&self, &mut connection, &arguments).await,
+            "restore" => {
+                queries::command_restore(&self, &mut connection, &arguments).await
+            }
             _ => {
                 return Err(format!(
                     "[query] ❌ Unexpected query \"{}\" with arguments {:?}",
@@ -112,7 +130,17 @@ impl Database {
             }
         };
 
-        query_result
+        match query_result {
+            Ok(r) => Ok(r),
+            Err(e) => match e {
+                QueryError::System(e) => {
+                    error!("[{name}] ❌ {e}");
+                    Err("error".into())
+                }
+                QueryError::User(e) => Err(Error::message(e)),
+                QueryError::Code(e) => Err(Error::code(e)),
+            },
+        }
     }
 
     /// Attempts to decode a hashed territory ID or custom ID
@@ -129,8 +157,13 @@ impl Database {
     ) -> Result<(), Error> {
         let mut connection = self.connection().await?;
 
-        queries::set_territory_payment_counter(&self, &mut connection, database_id, counter_value)
-            .await
+        queries::set_territory_payment_counter(
+            &self,
+            &mut connection,
+            database_id,
+            counter_value,
+        )
+        .await
     }
 }
 
@@ -238,5 +271,20 @@ fn extdb_conf_path(base_ini_path: &str) -> String {
     } else {
         // extDB2 is being used
         format!("{}/extdb-conf.ini", base_ini_path)
+    }
+}
+
+pub enum QueryError {
+    System(String),
+    User(String),
+    Code(String),
+}
+
+impl From<Error> for QueryError {
+    fn from(value: Error) -> Self {
+        match value.error_type {
+            ErrorType::Code => Self::Code(value.error_content),
+            ErrorType::Message => Self::User(value.error_content),
+        }
     }
 }

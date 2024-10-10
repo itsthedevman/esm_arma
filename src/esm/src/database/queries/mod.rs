@@ -1,3 +1,7 @@
+use mysql_async::prelude::FromValue;
+use mysql_async::FromValueError;
+pub use mysql_async::Row;
+
 pub use crate::database::*;
 pub use crate::*;
 
@@ -9,12 +13,14 @@ import_and_export!(command_me);
 import_and_export!(command_restore);
 import_and_export!(command_reward);
 import_and_export!(command_set_id);
+import_and_export!(player_territories);
 import_and_export!(decode_territory_id);
 import_and_export!(set_territory_payment_counter);
 
 // Generates a Queries struct containing these attributes and the contents of their
 // corresponding SQL file. These files MUST exist in @esm/sql/queries or there will be errors
 load_sql! {
+    account_name_lookup,
     check_if_territory_exists,
     check_if_territory_owner,
     decode_territory_id,
@@ -26,7 +32,17 @@ load_sql! {
     command_restore_construction,
     command_restore_container,
     command_restore_territory,
-    command_set_id
+    command_set_id,
+    player_territories // Used by multiple commands
+}
+
+pub fn select_column<T>(row: &Row, index: &str) -> Result<T, String>
+where
+    T: FromValue,
+{
+    row.get_opt(index)
+        .ok_or_else(|| format!("{index} does not exist on row: {row:?}"))
+        .and_then(|v| v.map_err(|e: FromValueError| e.to_string()))
 }
 
 /*

@@ -24,12 +24,13 @@ pub async fn command_me(
     context: &Database,
     connection: &mut Conn,
     arguments: &HashMap<String, String>,
-) -> DatabaseResult {
+) -> QueryResult {
     let player_uid = match arguments.get("uid") {
         Some(uid) => uid,
         None => {
-            error!("[command_me] ❌ Missing key `uid` in provided query arguments");
-            return Err("error".into());
+            return Err(QueryError::User(
+                "Missing key `uid` in provided query arguments".into(),
+            ));
         }
     };
 
@@ -77,9 +78,6 @@ pub async fn command_me(
 
             Ok(results)
         }
-        Err(e) => {
-            error!("[command_me] ❌ Query failed - {}", e);
-            Err("error".into())
-        }
+        Err(e) => Err(QueryError::System(format!("Query failed - {}", e))),
     }
 }
