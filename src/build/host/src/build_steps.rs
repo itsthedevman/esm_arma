@@ -614,8 +614,11 @@ fn compile_mod(builder: &mut Builder) -> BuildResult {
 }
 
 fn check_sqf(builder: &Builder, addons_path: &Path) -> BuildResult {
-    let Ok(file_paths) = glob(&format!("{}/**/*.sqf", addons_path.to_string_lossy())) else {
-        return Err(format!("Failed to find any SQF files in {}", addons_path.display()).into());
+    let Ok(file_paths) = glob(&format!("{}/**/*.sqf", addons_path.to_string_lossy()))
+    else {
+        return Err(
+            format!("Failed to find any SQF files in {}", addons_path.display()).into(),
+        );
     };
 
     print_wait_prefix(": Checking SQF")?;
@@ -819,6 +822,8 @@ pub fn seed_database(builder: &mut Builder) -> BuildResult {
 }
 
 pub fn start_a3_server(builder: &mut Builder) -> BuildResult {
+    println!();
+
     let script = match builder.args.build_os() {
         BuildOS::Windows => {
             format!(
@@ -887,9 +892,11 @@ pub fn stream_logs(builder: &mut Builder) -> BuildResult {
         let lines = match result {
             Command::LogStream(l) => l,
             c => {
-                return Err(
-                    format!("Invalid response to LogStreamRequest. Received {:?}", c).into(),
+                return Err(format!(
+                    "Invalid response to LogStreamRequest. Received {:?}",
+                    c
                 )
+                .into())
             }
         };
 
