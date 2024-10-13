@@ -235,7 +235,10 @@ impl System {
         }
     }
 
-    pub fn execute(&mut self, endpoint: Option<&dyn NetworkSend>) -> Result<String, BuildError> {
+    pub fn execute(
+        &mut self,
+        endpoint: Option<&dyn NetworkSend>,
+    ) -> Result<String, BuildError> {
         if !self.script.is_empty() {
             if self.target_os == "windows" {
                 self.command("powershell");
@@ -250,15 +253,15 @@ impl System {
             }
         }
 
-        let command_string = self.command_string();
-        if !command_string.is_empty() {
-            // println!(
-            //     "{} - {} - {}",
-            //     "<esm_bt>".blue().bold(),
-            //     "local".yellow().bold(),
-            //     command_string.bright_black()
-            // );
-        }
+        // let command_string = self.command_string();
+        // if !command_string.is_empty() {
+        //     println!(
+        //         "{} - {} - {}",
+        //         "<esm_bt>".blue().bold(),
+        //         "local".yellow().bold(),
+        //         command_string.bright_black()
+        //     );
+        // }
 
         let mut child = SystemCommand::new(&self.command)
             .args(&self.arguments)
@@ -388,7 +391,8 @@ impl System {
         }
 
         if !status.success() {
-            let error_prefix = format!("{} - {} -", "<esm_bt>".blue().bold(), "error".red().bold());
+            let error_prefix =
+                format!("{} - {} -", "<esm_bt>".blue().bold(), "error".red().bold());
 
             let mut error: Vec<String> = vec![
                 // Already has prefix
@@ -476,7 +480,10 @@ impl System {
         }
     }
 
-    pub fn execute_remote(&mut self, endpoint: &dyn NetworkSend) -> Result<String, BuildError> {
+    pub fn execute_remote(
+        &mut self,
+        endpoint: &dyn NetworkSend,
+    ) -> Result<String, BuildError> {
         // Using System to execute a script for windows ON windows is not supported by this code
         // It assumes this is being build on linux and then sent to windows
         if self.target_os == "windows" {
@@ -487,7 +494,8 @@ impl System {
             }
 
             // Removes the "Preparing modules for first use." errors that powershell return
-            let powershell_script = format!("$ProgressPreference = 'SilentlyContinue'; {}", script);
+            let powershell_script =
+                format!("$ProgressPreference = 'SilentlyContinue'; {}", script);
 
             // Convert the command file into UTF-16LE as required by Microsoft and then to base64 for transport
             let script = format!(
@@ -501,15 +509,15 @@ impl System {
             }
         }
 
-        let command_string = self.command_string();
-        if !command_string.is_empty() {
-            println!(
-                "{} - {} - {}",
-                "<esm_bt>".blue().bold(),
-                "remote".yellow().bold(),
-                command_string.bright_black()
-            );
-        }
+        // let command_string = self.command_string();
+        // if !command_string.is_empty() {
+        //     println!(
+        //         "{} - {} - {}",
+        //         "<esm_bt>".blue().bold(),
+        //         "remote".yellow().bold(),
+        //         command_string.bright_black()
+        //     );
+        // }
 
         let result = endpoint.send(Command::System(self.to_owned()))?;
 
