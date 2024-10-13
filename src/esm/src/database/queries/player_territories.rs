@@ -73,11 +73,15 @@ pub async fn player_territories(
                 return Err(QueryError::System(format!("Query failed - {}", errors)));
             }
 
-            let territories = add_names(context, connection, territories).await?;
-            let territories: Vec<String> = territories
-                .into_iter()
-                .filter_map(|t| serde_json::to_string(&t).ok())
-                .collect();
+            let territories: Vec<Territory> =
+                territories.into_iter().filter_map(Result::ok).collect();
+
+            let territories: Vec<String> =
+                update_id_and_names(context, connection, territories)
+                    .await?
+                    .into_iter()
+                    .filter_map(|t| serde_json::to_string(&t).ok())
+                    .collect();
 
             Ok(territories)
         }
@@ -91,12 +95,13 @@ fn map_results(mut row: Row) -> Result<Territory, Error> {
         Err(e) => Err(e.to_string()),
     };
 
+    let id: isize = select_column(&mut row, "id")?;
     let flag_stolen: isize = select_column(&mut row, "flag_stolen")?;
     let build_rights: String = select_column(&mut row, "build_rights")?;
     let moderators: String = select_column(&mut row, "moderators")?;
 
     let territory = Territory {
-        id: select_column(&mut row, "id")?,
+        id: id.to_string(),
         owner_uid: select_column(&mut row, "owner_uid")?,
         owner_name: select_column(&mut row, "owner_name")?,
         territory_name: select_column(&mut row, "territory_name")?,
@@ -114,33 +119,29 @@ fn map_results(mut row: Row) -> Result<Territory, Error> {
     Ok(territory)
 }
 
-async fn add_names(
+async fn update_id_and_names(
     context: &Database,
     connection: &mut Conn,
-    territories: Vec<Result<Territory, Error>>,
+    mut territories: Vec<Territory>,
 ) -> Result<Vec<Territory>, QueryError> {
-    let territories: Vec<Territory> =
-        territories.into_iter().filter_map(Result::ok).collect();
-
     let name_lookup = create_name_lookup(context, connection, &territories).await?;
 
-    let territories = territories
-        .into_iter()
-        .map(|mut territory| {
-            for account in territory
-                .build_rights
-                .iter_mut()
-                .chain(territory.moderators.iter_mut())
-            {
-                account.name = name_lookup
-                    .get(&account.uid)
-                    .cloned()
-                    .unwrap_or_else(|| "Name not found".to_string());
-            }
+    territories.iter_mut().for_each(|territory| {
+        // Update the builder/moderator names
+        for account in territory
+            .build_rights
+            .iter_mut()
+            .chain(territory.moderators.iter_mut())
+        {
+            account.name = name_lookup
+                .get(&account.uid)
+                .cloned()
+                .unwrap_or_else(|| "Name not found".to_string());
+        }
 
-            territory
-        })
-        .collect();
+        // Encode the ID
+        territory.id = context.hasher.encode(&territory.id)
+    });
 
     Ok(territories)
 }

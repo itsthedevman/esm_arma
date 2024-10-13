@@ -26,7 +26,7 @@ impl Hasher {
             .unwrap()
     }
 
-    pub fn encode(&self, id: String) -> String {
+    pub fn encode(&self, id: &str) -> String {
         let Ok(id) = id.parse() else {
             return String::new();
         };
