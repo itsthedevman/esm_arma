@@ -12,19 +12,19 @@ pub async fn enqueue_xm8_notifications(
         Err(e) => return Err(e.to_string().into()),
     };
 
-    let query = replace_list(
-        &context.sql.xm8_enqueue_notifications,
-        ":notifications",
-        recipient_uids.len(),
-    );
-
-    let params: Vec<String> = recipient_uids
-        .iter()
-        .map(|uid| format!("({uid:?}, {notification_type:?}, {content:?})"))
-        .collect();
-
     // Execute the query
-    let result = connection.exec_drop(&query, params).await;
+    let result = connection
+        .exec_batch(
+            &context.sql.xm8_enqueue_notifications,
+            recipient_uids.iter().map(|uid| {
+                params! {
+                    "uid" => &uid,
+                    "type" => &notification_type,
+                    "content" => &content,
+                }
+            }),
+        )
+        .await;
 
     match result {
         Ok(_) => Ok(()),
