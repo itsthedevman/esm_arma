@@ -165,6 +165,24 @@ impl Database {
         )
         .await
     }
+
+    pub async fn enqueue_xm8_notification(
+        &self,
+        notification_type: String,
+        recipient_uids: String,
+        content: String,
+    ) -> Result<(), Error> {
+        let mut connection = self.connection().await?;
+
+        queries::enqueue_xm8_notifications(
+            &self,
+            &mut connection,
+            notification_type,
+            recipient_uids,
+            content,
+        )
+        .await
+    }
 }
 
 /*

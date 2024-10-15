@@ -1,5 +1,7 @@
 use crate::*;
 
+import!(encode_territory_id);
+import!(enqueue_xm8_notification);
 import!(log_level);
 import!(log_output);
 import!(log);
@@ -12,6 +14,8 @@ import!(utc_timestamp);
 
 pub fn register() -> Extension {
     Extension::build()
+        .command("encode_territory_id", encode_territory_id)
+        .command("enqueue_xm8_notification", enqueue_xm8_notification)
         .command("log_level", log_level)
         .command("log_output", log_output)
         .command("log", log)

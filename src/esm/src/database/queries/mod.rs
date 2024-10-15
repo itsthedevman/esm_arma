@@ -16,6 +16,7 @@ import_and_export!(command_set_id);
 import_and_export!(player_territories);
 import_and_export!(decode_territory_id);
 import_and_export!(set_territory_payment_counter);
+import_and_export!(xm8_enqueue_notifications);
 
 // Generates a Queries struct containing these attributes and the contents of their
 // corresponding SQL file. These files MUST exist in @esm/sql/queries or there will be errors
@@ -25,6 +26,7 @@ load_sql! {
     check_if_territory_owner,
     decode_territory_id,
     set_territory_payment_counter,
+    xm8_enqueue_notifications,
 
     // Command queries
     command_all_territories,
@@ -43,6 +45,12 @@ where
     row.get_opt(index)
         .ok_or_else(|| format!("{index} does not exist on row: {row:?}"))
         .and_then(|v| v.map_err(|e: FromValueError| e.to_string()))
+}
+
+pub fn replace_list(query: &str, placeholder: &str, quantity: usize) -> String {
+    // Annoying workaround for `IN` query, or insert multiple
+    let placeholders = vec!["?"; quantity].join(",");
+    query.replace(placeholder, &placeholders)
 }
 
 /*
