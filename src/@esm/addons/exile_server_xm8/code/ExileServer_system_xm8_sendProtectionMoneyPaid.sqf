@@ -31,7 +31,7 @@ Co-author:
 	[
 		[
 			"territory_id",
-			_this getVariable ["ExileDatabaseID", -1]
+			_this call ESMs_system_territory_encodeID
 		],
 		[
 			"territory_name",

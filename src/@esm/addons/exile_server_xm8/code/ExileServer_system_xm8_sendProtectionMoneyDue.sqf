@@ -61,7 +61,7 @@ call ESMs_util_array_map;
 		[
 			[
 				"territory_id",
-				_territoryID
+				_territory call ESMs_system_territory_encodeID
 			],
 			[
 				"territory_name",

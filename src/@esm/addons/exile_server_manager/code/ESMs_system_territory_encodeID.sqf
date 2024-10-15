@@ -1,12 +1,22 @@
 /* ----------------------------------------------------------------------------
 Function:
-	ExileServer_system_xm8_sendFlagStolen
+	ESMs_system_territory_encodeID
 
 Description:
-	Notify players of the territory that the flag has been stolen
+	Encodes the provided territory's database ID for public viewing
 
 Parameters:
 	_this - [Object] The territory flag
+
+Returns:
+	Nothing
+
+Examples:
+	(begin example)
+
+		_territory call ESMs_system_territory_encodeID;
+
+	(end)
 
 Author:
 	Exile Server Manager
@@ -17,20 +27,4 @@ Author:
 	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/.
 ---------------------------------------------------------------------------- */
 
-[
-	"flag-stolen",
-	_this getVariable ["ExileTerritoryBuildRights", []],
-	[
-		[
-			"territory_id",
-			_this call ESMs_system_territory_encodeID
-		],
-		[
-			"territory_name",
-			_this getVariable ["ExileTerritoryName", ""]
-		]
-	]
-]
-call ExileServer_system_xm8_send;
-
-nil
+["encode_territory_id", _this getVariable ["ExileDatabaseID", -1]] call ESMs_system_extension_call
