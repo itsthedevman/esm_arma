@@ -32,7 +32,9 @@ async fn request_thread(mut receiver: UnboundedReceiver<ArmaRequest>) {
 
             let result: Option<Message> = match request {
                 ArmaRequest::Query(message) => execute("query", *message).await,
-                ArmaRequest::Method { name, message } => execute(name.as_str(), *message).await,
+                ArmaRequest::Method { name, message } => {
+                    execute(name.as_str(), *message).await
+                }
                 ArmaRequest::Initialize(context) => {
                     *lock!(CALLBACK) = Some(context);
                     continue;
@@ -41,7 +43,8 @@ async fn request_thread(mut receiver: UnboundedReceiver<ArmaRequest>) {
 
             // If a message is returned, send it back
             if let Some(m) = result {
-                if let Err(e) = crate::ROUTER.route_to_bot(BotRequest::Send(Box::new(m))) {
+                if let Err(e) = crate::ROUTER.route_to_bot(BotRequest::Send(Box::new(m)))
+                {
                     error!("[request_thread] ❌ {e}");
                 };
             }
@@ -58,7 +61,10 @@ async fn execute(name: &str, message: Message) -> Option<Message> {
         "query" => database_query(message).await,
         "post_initialization" => post_initialization(message).await,
         "call_function" => call_arma_function(message).await,
-        n => Err(format!("[execute] Cannot process - Arma does not respond to method {n}").into()),
+        n => Err(format!(
+            "[execute] Cannot process - Arma does not respond to method {n}"
+        )
+        .into()),
     };
 
     match result {
@@ -178,6 +184,7 @@ async fn post_initialization(mut message: Message) -> MessageResult {
     info!("[post_init] ✅ Connection established");
 
     crate::READY.store(true, Ordering::SeqCst);
+
     Ok(None)
 }
 
@@ -197,13 +204,17 @@ async fn database_query(message: Message) -> MessageResult {
     let mut query = message.data;
 
     let Some(name) = query.remove("query_function_name") else {
-        return Err("Missing \"query_function_name\" attribute for database query".into());
+        return Err(
+            "Missing \"query_function_name\" attribute for database query".into(),
+        );
     };
 
     let mut arguments: HashMap<String, String> = HashMap::new();
     for (key, value) in query {
         let Some(value) = value.as_str() else {
-            return Err(format!("Failed to convert argument {key} value to string").into());
+            return Err(
+                format!("Failed to convert argument {key} value to string").into()
+            );
         };
 
         arguments.insert(key.to_string(), value.to_string());
