@@ -6,7 +6,7 @@ use ini::Ini;
 pub use mysql_async::{
     params, prelude::Queryable, Conn, Opts, Params, Pool, Result as SQLResult,
 };
-use queries::Queries;
+use queries::{Notification, Queries};
 pub use serde::{Deserialize, Serialize};
 pub use std::{collections::HashMap, path::Path};
 
@@ -188,7 +188,7 @@ impl Database {
         .await
     }
 
-    pub async fn get_xm8_notifications(&self) -> Result<(), Error> {
+    pub async fn get_xm8_notifications(&self) -> Result<Vec<Notification>, Error> {
         let mut connection = self.connection().await?;
 
         queries::get_xm8_notifications(&self, &mut connection).await

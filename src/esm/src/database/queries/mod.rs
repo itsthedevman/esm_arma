@@ -23,11 +23,9 @@ import_and_export!(set_territory_payment_counter);
 // corresponding SQL file. These files MUST exist in @esm/sql/queries or there will be errors
 load_sql! {
     account_name_lookup,
-    add_xm8_notifications,
     check_if_territory_exists,
     check_if_territory_owner,
     decode_territory_id,
-    get_xm8_notifications,
     set_territory_payment_counter,
 
     // Command queries

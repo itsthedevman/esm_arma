@@ -1,6 +1,14 @@
 use super::*;
 
-use parser::Parser;
+// Limit tampering
+fn query() -> &'static str {
+    r#"
+    INSERT INTO
+        xm8_notification (recipient_uid, territory_id, type, content)
+    VALUES
+        (:uid, :territory_id, :type, :content);
+    "#
+}
 
 pub async fn add_xm8_notifications(
     context: &Database,
@@ -28,7 +36,7 @@ pub async fn add_xm8_notifications(
     // Execute the query
     let result = connection
         .exec_batch(
-            &context.sql.add_xm8_notifications,
+            query(),
             recipient_uids.iter().map(|uid| {
                 params! {
                     "uid" => &uid,
