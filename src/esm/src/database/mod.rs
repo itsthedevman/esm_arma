@@ -143,6 +143,10 @@ impl Database {
         }
     }
 
+    pub fn encode_territory_id(&self, id: &str) -> String {
+        self.hasher.encode(id)
+    }
+
     /// Attempts to decode a hashed territory ID or custom ID
     /// Do not use if you already have access to the database and connection (i.e in query files)
     pub async fn decode_territory_id(&self, territory_id: &str) -> Result<u64, Error> {
@@ -166,15 +170,15 @@ impl Database {
         .await
     }
 
-    pub async fn enqueue_xm8_notification(
+    pub async fn add_xm8_notifications(
         &self,
         notification_type: String,
         recipient_uids: String,
-        content: String,
+        content: HashMap<String, String>,
     ) -> Result<(), Error> {
         let mut connection = self.connection().await?;
 
-        queries::enqueue_xm8_notifications(
+        queries::add_xm8_notifications(
             &self,
             &mut connection,
             notification_type,
@@ -182,6 +186,12 @@ impl Database {
             content,
         )
         .await
+    }
+
+    pub async fn get_xm8_notifications(&self) -> Result<(), Error> {
+        let mut connection = self.connection().await?;
+
+        queries::get_xm8_notifications(&self, &mut connection).await
     }
 }
 

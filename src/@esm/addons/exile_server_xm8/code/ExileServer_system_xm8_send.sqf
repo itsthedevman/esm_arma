@@ -75,7 +75,7 @@ try
 	};
 
 	[
-		"enqueue_xm8_notification",
+		"add_xm8_notification",
 		_notificationType,
 		_recipientUIDS,
 		_content
