@@ -1,12 +1,14 @@
+use uuid::Uuid;
+
 use super::*;
 
 // Limit tampering
 fn query() -> &'static str {
     r#"
     INSERT INTO
-        xm8_notification (recipient_uid, territory_id, type, content)
+        xm8_notification (uuid, recipient_uid, territory_id, type, content)
     VALUES
-        (:uid, :territory_id, :type, :content);
+        (:uuid, :uid, :territory_id, :type, :content);
     "#
 }
 
@@ -39,6 +41,7 @@ pub async fn add_xm8_notifications(
             query(),
             recipient_uids.iter().map(|uid| {
                 params! {
+                    "uuid" => Uuid::new_v4().to_string(),
                     "uid" => &uid,
                     "territory_id" => territory_id,
                     "type" => &notification_type,
