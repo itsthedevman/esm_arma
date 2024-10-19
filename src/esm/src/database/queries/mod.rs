@@ -18,6 +18,7 @@ import_and_export!(decode_territory_id);
 import_and_export!(get_xm8_notifications);
 import_and_export!(player_territories);
 import_and_export!(set_territory_payment_counter);
+import_and_export!(update_xm8_attempt_counter);
 
 // Generates a Queries struct containing these attributes and the contents of their
 // corresponding SQL file. These files MUST exist in @esm/sql/queries or there will be errors

@@ -193,6 +193,15 @@ impl Database {
 
         queries::get_xm8_notifications(&self, &mut connection).await
     }
+
+    pub async fn update_xm8_attempt_counter(
+        &self,
+        ids: Vec<&String>,
+    ) -> Result<(), Error> {
+        let mut connection = self.connection().await?;
+
+        queries::update_xm8_attempt_counter(&self, &mut connection, ids).await
+    }
 }
 
 /*
