@@ -128,7 +128,7 @@ fn listener_thread(listener: NodeListener<()>) {
 
 async fn xm8_notification_thread() {
     tokio::spawn(async move {
-        let time_to_wait = if cfg!(feature = "test") { 0.1 } else { 3.0 };
+        let time_to_wait = if cfg!(feature = "test") { 0.1 } else { 2.0 };
 
         loop {
             std::thread::sleep(Duration::from_secs_f64(time_to_wait));
@@ -153,6 +153,16 @@ async fn xm8_notification_thread() {
                 continue;
             }
 
+            // Update the attempt counter
+            let notification_ids: Vec<&String> =
+                notifications.iter().flat_map(|n| &n.uuids).collect();
+
+            if let Err(e) = DATABASE.update_xm8_attempt_counter(notification_ids).await {
+                error!("[xm8_notification_thread] ❌ {e}");
+                continue;
+            }
+
+            // Send the message
             let message = Message::new().set_type(Type::Call).set_data(Data::from([
                 ("function_name".to_owned(), json!("send_xm8_notification")),
                 ("notifications".to_owned(), json!(notifications)),
