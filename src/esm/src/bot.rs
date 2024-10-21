@@ -73,7 +73,7 @@ async fn routing_thread(mut receiver: UnboundedReceiver<BotRequest>) {
                         .unwrap();
 
                     // Disable for testing only
-                    if !cfg!(feature = "test") {
+                    if !cfg!(feature = "development") {
                         warn!("[on_connect] Calling...");
                     }
 
@@ -128,7 +128,11 @@ fn listener_thread(listener: NodeListener<()>) {
 
 async fn xm8_notification_thread() {
     tokio::spawn(async move {
-        let time_to_wait = if cfg!(feature = "test") { 0.1 } else { 2.0 };
+        let time_to_wait = if cfg!(feature = "development") {
+            0.5
+        } else {
+            2.0
+        };
 
         loop {
             std::thread::sleep(Duration::from_secs_f64(time_to_wait));
@@ -357,10 +361,8 @@ fn on_disconnect() {
 
     // Get the current reconnection count and calculate the wait time
     let current_count = RECONNECTION_COUNT.load(Ordering::SeqCst);
-    let time_to_wait: f32 = if cfg!(feature = "test") {
+    let time_to_wait: f32 = if cfg!(feature = "development") {
         1.0
-    } else if cfg!(feature = "development") {
-        3.0
     } else {
         let mut rng = thread_rng();
 

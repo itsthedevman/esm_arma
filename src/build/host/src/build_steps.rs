@@ -760,7 +760,7 @@ pub fn build_extension(builder: &mut Builder) -> BuildResult {
     // Handle env feature switching
     let features = match builder.args.build_env() {
         BuildEnv::Development => "--features development",
-        BuildEnv::Test => "--features test",
+        BuildEnv::Test => "--features development",
         BuildEnv::Production => "",
     };
 
