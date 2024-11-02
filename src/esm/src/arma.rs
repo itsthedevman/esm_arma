@@ -2,6 +2,7 @@ use crate::database::Database;
 use crate::*;
 
 use arma_rs::{Context, IntoArma};
+use database::QueryError;
 use std::{collections::HashSet, iter::FromIterator, sync::Mutex as SyncMutex};
 use tokio::sync::mpsc::UnboundedReceiver;
 
@@ -228,7 +229,14 @@ async fn database_query(message: Message) -> MessageResult {
                 .set_type(Type::Query)
                 .set_data(Data::from([("results".to_owned(), json!(results))])),
         )),
-        Err(e) => Err(e),
+        Err(e) => match e {
+            QueryError::System(e) => {
+                error!("[{name}] ❌ {e}");
+                Err("error".into())
+            }
+            QueryError::User(e) => Err(Error::message(e)),
+            QueryError::Code(e) => Err(Error::code(e)),
+        },
     }
 }
 

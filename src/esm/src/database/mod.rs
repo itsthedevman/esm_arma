@@ -12,7 +12,6 @@ pub use std::{collections::HashMap, path::Path};
 
 import!(hasher);
 
-pub type DatabaseResult = Result<Vec<String>, Error>;
 pub type QueryResult = Result<Vec<String>, QueryError>;
 
 #[derive(Clone)]
@@ -101,11 +100,11 @@ impl Database {
         &self,
         name: &str,
         arguments: HashMap<String, String>,
-    ) -> DatabaseResult {
-        let mut connection = self.connection().await?;
+    ) -> QueryResult {
+        let mut connection = self.connection().await.map_err(QueryError::System)?;
 
         // Need a better way of doing this...
-        let query_result: QueryResult = match name {
+        match name {
             "reward_territories" => {
                 queries::command_reward_territories(&self, &mut connection, &arguments)
                     .await
@@ -121,25 +120,20 @@ impl Database {
             "restore" => {
                 queries::command_restore(&self, &mut connection, &arguments).await
             }
+            "update_xm8_notification_status" => queries::update_xm8_notification_status(
+                &self,
+                &mut connection,
+                &arguments,
+            )
+            .await
+            .map(|_| vec![])
+            .map_err(|e| QueryError::System(e.to_string())),
             _ => {
-                return Err(format!(
-                    "[query] ❌ Unexpected query \"{}\" with arguments {:?}",
+                return Err(QueryError::System(format!(
+                    "Unexpected query \"{}\" with arguments {:?}",
                     name, arguments
-                )
-                .into())
+                )))
             }
-        };
-
-        match query_result {
-            Ok(r) => Ok(r),
-            Err(e) => match e {
-                QueryError::System(e) => {
-                    error!("[{name}] ❌ {e}");
-                    Err("error".into())
-                }
-                QueryError::User(e) => Err(Error::message(e)),
-                QueryError::Code(e) => Err(Error::code(e)),
-            },
         }
     }
 

@@ -3,7 +3,7 @@ use super::*;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Notification {
     pub uuids: Vec<String>,
-    pub recipient_uids: String,
+    pub recipient_uids: Vec<String>,
 
     #[serde(rename = "type")]
     pub notification_type: String,
@@ -18,7 +18,7 @@ impl Notification {
     ) -> Result<Self, String> {
         Ok(Self {
             uuids: serde_json::from_str(&tuple.0).map_err(|e| e.to_string())?,
-            recipient_uids: tuple.1,
+            recipient_uids: serde_json::from_str(&tuple.1).map_err(|e| e.to_string())?,
             notification_type: tuple.2,
             content: tuple.3,
             created_at: tuple.4,
