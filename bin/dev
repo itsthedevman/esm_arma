@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
-echo "Running tests"
+set -euo pipefail
+
+readonly args=("$@")
+
+echo "Running tests..."
 cargo test --workspace --quiet
 
-if [ $? -ne 0 ]
-then
-  exit $?
-fi
-
-bin/run --target=linux --env=development "$@"
+exec "./bin/run" --target=linux --env=development "${args[@]}"

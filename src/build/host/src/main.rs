@@ -64,11 +64,14 @@ pub const WINDOWS_EXES: &[&str] = &[
     "arma3battleye",
 ];
 
-pub const LINUX_EXES: &[&str] = &["/arma3server/arma3server", "/arma3server/arma3server_x64"];
+pub const LINUX_EXES: &[&str] =
+    &["/arma3server/arma3server", "/arma3server/arma3server_x64"];
 
 /// Builds ESM's Arma 3 server mod
 #[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
+#[command(name = "bin/build")]
+#[command(bin_name = "bin/build")]
+#[command(author, version, about, long_about = None)]
 pub struct Args {
     /// Build the extension as 32 bit instead of 64 bit
     #[arg(short, long)]
