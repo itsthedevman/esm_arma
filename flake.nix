@@ -31,12 +31,23 @@
 
             # Build essentials
             pkg-config
+            openssl_3
             openssl.dev
 
             # Docker tools (for containerization)
             docker-compose
             docker-client
+            patchelf
           ];
+
+          shellHook = ''
+            OPENSSL_LIB="${pkgs.openssl_3.out}/lib"
+
+            echo "patching binaries"
+            patchelf --set-interpreter "${pkgs.stdenv.cc.bintools.dynamicLinker}" tools/sqfvm
+            patchelf --set-interpreter "${pkgs.stdenv.cc.bintools.dynamicLinker}" tools/armake2
+            patchelf --set-rpath "$OPENSSL_LIB" tools/armake2
+          '';
 
           # Environment variables
           RUST_BACKTRACE = "1";
