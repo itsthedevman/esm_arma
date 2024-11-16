@@ -43,10 +43,20 @@
           shellHook = ''
             OPENSSL_LIB="${pkgs.openssl_3.out}/lib"
 
-            echo "patching binaries"
-            patchelf --set-interpreter "${pkgs.stdenv.cc.bintools.dynamicLinker}" tools/sqfvm
-            patchelf --set-interpreter "${pkgs.stdenv.cc.bintools.dynamicLinker}" tools/armake2
-            patchelf --set-rpath "$OPENSSL_LIB" tools/armake2
+            echo "setting up binary wrappers..."
+            mkdir -p tools/wrappers
+
+            echo "patching sqfvm..."
+            cp -f tools/sqfvm tools/wrappers/sqfvm
+            patchelf --set-interpreter "${pkgs.stdenv.cc.bintools.dynamicLinker}" tools/wrappers/sqfvm
+
+            echo "patching armake2..."
+            cp -f tools/armake2 tools/wrappers/armake2
+            patchelf --set-interpreter "${pkgs.stdenv.cc.bintools.dynamicLinker}" tools/wrappers/armake2
+            patchelf --set-rpath "$OPENSSL_LIB" tools/wrappers/armake2
+
+            # Ensure they're executable
+            chmod +x tools/wrappers/sqfvm tools/wrappers/armake2
           '';
 
           # Environment variables
