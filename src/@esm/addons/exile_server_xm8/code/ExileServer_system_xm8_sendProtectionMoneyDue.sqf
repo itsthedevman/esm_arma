@@ -26,26 +26,22 @@ private _maintenancePeriod = getNumber(
 	configFile >> "CfgSettings" >> "GarbageCollector" >> "Database" >> "territoryLifeTime"
 );
 
-private _territoryIDs = format [
+private _territoryIDs = flatten(format [
 	"getAllNotifTerritory:%1",
 	_maintenancePeriod
 ]
-call ExileServer_system_database_query_selectFull;
+call ExileServer_system_database_query_selectFull);
 
 if (empty?(_territoryIDs)) exitWith { nil };
 
-private _flags = allMissionObjects "Exile_Construction_Flag_Static";
-if (empty?(_flags)) exitWith { nil };
-
-// Grab the flags we care about
-_flags =
+// Only grab the flags we care about
+private _flags =
 [
-	_flags,
+	// Much faster than allMissionObjects
+	"Exile_Construction_Flag_Static" allObjects 0,
 	{
-		if ((_this getVariable ["ExileDatabaseID", -1]) in _territoryIDs) then
-		{
-			_this
-		};
+		private _territoryID = _this getVariable ["ExileDatabaseID", -1];
+		if (_territoryID in _territoryIDs) then { _this };
 	},
 	true
 ]
@@ -61,7 +57,7 @@ call ESMs_util_array_map;
 		[
 			[
 				"territory_id",
-				_territory call ESMs_system_territory_encodeID
+				_territory getVariable ["ExileDatabaseID", -1]
 			],
 			[
 				"territory_name",
