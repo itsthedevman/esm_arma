@@ -15,10 +15,22 @@ pub fn add_xm8_notification(
         content
     );
 
-    let content = match Parser::from_arma(&content) {
+    let content: HashMap<String, JSONValue> = match Parser::from_arma(&content) {
         Ok(d) => d,
         Err(e) => return Err(e.into()),
     };
+
+    let content: HashMap<String, String> = content
+        .into_iter()
+        .map(|(key, value)| {
+            let value = match value {
+                JSONValue::String(e) => e,
+                o => o.to_string(),
+            };
+
+            (key, value)
+        })
+        .collect();
 
     let result = TOKIO_RUNTIME.block_on(async {
         DATABASE
