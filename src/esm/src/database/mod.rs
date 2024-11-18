@@ -13,6 +13,20 @@ pub use std::{collections::HashMap, path::Path};
 import!(hasher);
 
 pub type QueryResult = Result<Vec<String>, QueryError>;
+pub enum QueryError {
+    System(String),
+    User(String),
+    Code(String),
+}
+
+impl From<Error> for QueryError {
+    fn from(error: Error) -> Self {
+        match error.error_type {
+            ErrorType::Code => Self::Code(error.error_content),
+            ErrorType::Message => Self::User(error.error_content),
+        }
+    }
+}
 
 #[derive(Clone)]
 pub struct Database {
@@ -96,47 +110,6 @@ impl Database {
         }
     }
 
-    pub async fn query(
-        &self,
-        name: &str,
-        arguments: HashMap<String, String>,
-    ) -> QueryResult {
-        let mut connection = self.connection().await.map_err(QueryError::System)?;
-
-        // Need a better way of doing this...
-        match name {
-            "reward_territories" => {
-                queries::command_reward_territories(&self, &mut connection, &arguments)
-                    .await
-            }
-            "me" => queries::command_me(&self, &mut connection, &arguments).await,
-            "all_territories" => {
-                queries::command_all_territories(&self, &mut connection, &arguments).await
-            }
-            "player_territories" => {
-                queries::player_territories(&self, &mut connection, &arguments).await
-            }
-            "set_id" => queries::command_set_id(&self, &mut connection, &arguments).await,
-            "restore" => {
-                queries::command_restore(&self, &mut connection, &arguments).await
-            }
-            "update_xm8_notification_status" => queries::update_xm8_notification_status(
-                &self,
-                &mut connection,
-                &arguments,
-            )
-            .await
-            .map(|_| vec![])
-            .map_err(|e| QueryError::System(e.to_string())),
-            _ => {
-                return Err(QueryError::System(format!(
-                    "Unexpected query \"{}\" with arguments {:?}",
-                    name, arguments
-                )))
-            }
-        }
-    }
-
     pub fn encode_territory_id(&self, id: &str) -> String {
         self.hasher.encode(id)
     }
@@ -195,6 +168,61 @@ impl Database {
         let mut connection = self.connection().await?;
 
         queries::update_xm8_attempt_counter(&self, &mut connection, ids).await
+    }
+
+    pub async fn command_reward_territories(
+        &self,
+        arguments: HashMap<String, String>,
+    ) -> QueryResult {
+        let mut connection = self.connection().await.map_err(QueryError::System)?;
+        queries::command_reward_territories(&self, &mut connection, &arguments).await
+    }
+
+    pub async fn command_me(&self, arguments: HashMap<String, String>) -> QueryResult {
+        let mut connection = self.connection().await.map_err(QueryError::System)?;
+        queries::command_me(&self, &mut connection, &arguments).await
+    }
+
+    pub async fn command_all_territories(
+        &self,
+        arguments: HashMap<String, String>,
+    ) -> QueryResult {
+        let mut connection = self.connection().await.map_err(QueryError::System)?;
+        queries::command_all_territories(&self, &mut connection, &arguments).await
+    }
+
+    pub async fn player_territories(
+        &self,
+        arguments: HashMap<String, String>,
+    ) -> QueryResult {
+        let mut connection = self.connection().await.map_err(QueryError::System)?;
+        queries::player_territories(&self, &mut connection, &arguments).await
+    }
+
+    pub async fn command_set_id(
+        &self,
+        arguments: HashMap<String, String>,
+    ) -> QueryResult {
+        let mut connection = self.connection().await.map_err(QueryError::System)?;
+        queries::command_set_id(&self, &mut connection, &arguments).await
+    }
+
+    pub async fn command_restore(
+        &self,
+        arguments: HashMap<String, String>,
+    ) -> QueryResult {
+        let mut connection = self.connection().await.map_err(QueryError::System)?;
+        queries::command_restore(&self, &mut connection, &arguments).await
+    }
+
+    pub async fn update_xm8_notification_state(
+        &self,
+        arguments: HashMap<String, JSONValue>,
+    ) -> QueryResult {
+        let mut connection = self.connection().await.map_err(QueryError::System)?;
+        queries::update_xm8_notification_state(&self, &mut connection, arguments)
+            .await
+            .map(|_| vec![])
     }
 }
 
@@ -302,20 +330,5 @@ fn extdb_conf_path(base_ini_path: &str) -> String {
     } else {
         // extDB2 is being used
         format!("{}/extdb-conf.ini", base_ini_path)
-    }
-}
-
-pub enum QueryError {
-    System(String),
-    User(String),
-    Code(String),
-}
-
-impl From<Error> for QueryError {
-    fn from(value: Error) -> Self {
-        match value.error_type {
-            ErrorType::Code => Self::Code(value.error_content),
-            ErrorType::Message => Self::User(value.error_content),
-        }
     }
 }

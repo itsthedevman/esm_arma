@@ -201,45 +201,6 @@ async fn call_arma_function(mut message: Message) -> MessageResult {
     Ok(None)
 }
 
-async fn database_query(message: Message) -> MessageResult {
-    let mut query = message.data;
-
-    let Some(name) = query.remove("query_function_name") else {
-        return Err(
-            "Missing \"query_function_name\" attribute for database query".into(),
-        );
-    };
-
-    let mut arguments: HashMap<String, String> = HashMap::new();
-    for (key, value) in query {
-        let Some(value) = value.as_str() else {
-            return Err(
-                format!("Failed to convert argument {key} value to string").into()
-            );
-        };
-
-        arguments.insert(key.to_string(), value.to_string());
-    }
-
-    let name = name.as_str().unwrap_or("Invalid query name");
-    match DATABASE.query(&name, arguments).await {
-        Ok(results) => Ok(Some(
-            Message::new()
-                .set_id(message.id)
-                .set_type(Type::Query)
-                .set_data(Data::from([("results".to_owned(), json!(results))])),
-        )),
-        Err(e) => match e {
-            QueryError::System(e) => {
-                error!("[{name}] ❌ {e}");
-                Err("error".into())
-            }
-            QueryError::User(e) => Err(Error::message(e)),
-            QueryError::Code(e) => Err(Error::code(e)),
-        },
-    }
-}
-
 async fn decode_territory_id(message: &mut Message) -> ESMResult {
     let Some(territory_id) = message.data.get_mut("territory_id") else {
         return Err("[decode_territory_id] Failed to gain mut access to data object on Message. This is a bug".into());
@@ -262,4 +223,66 @@ async fn decode_territory_id(message: &mut Message) -> ESMResult {
         .insert("territory_database_id".to_owned(), json!(decoded_id));
 
     Ok(())
+}
+
+async fn database_query(message: Message) -> MessageResult {
+    let mut arguments = message.data;
+
+    let Some(name) = arguments.remove("query_function_name") else {
+        return Err(
+            "Missing \"query_function_name\" attribute for database query".into(),
+        );
+    };
+
+    let result = match name.as_str().unwrap_or_default() {
+        "update_xm8_notification_state" => {
+            DATABASE.update_xm8_notification_state(arguments).await
+        }
+        // Any queries that use HashMap<String, String> as arguments
+        name => {
+            let arguments = arguments
+                .into_iter()
+                .map(|(k, v)| {
+                    (
+                        k,
+                        v.as_str()
+                            .map(ToString::to_string)
+                            .unwrap_or_else(|| v.to_string()),
+                    )
+                })
+                .collect();
+
+            match name {
+                "all_territories" => DATABASE.command_all_territories(arguments).await,
+                "me" => DATABASE.command_me(arguments).await,
+                "player_territories" => DATABASE.player_territories(arguments).await,
+                "restore" => DATABASE.command_restore(arguments).await,
+                "reward_territories" => {
+                    DATABASE.command_reward_territories(arguments).await
+                }
+                "set_id" => DATABASE.command_set_id(arguments).await,
+                _ => Err(QueryError::System(format!(
+                    "Unexpected query \"{}\" with arguments {:?}",
+                    name, arguments
+                ))),
+            }
+        }
+    };
+
+    match result {
+        Ok(results) => Ok(Some(
+            Message::new()
+                .set_id(message.id)
+                .set_type(Type::Query)
+                .set_data(Data::from([("results".to_owned(), json!(results))])),
+        )),
+        Err(e) => match e {
+            QueryError::System(e) => {
+                error!("[{name}] ❌ {e}");
+                Err("error".into())
+            }
+            QueryError::User(e) => Err(Error::message(e)),
+            QueryError::Code(e) => Err(Error::code(e)),
+        },
+    }
 }

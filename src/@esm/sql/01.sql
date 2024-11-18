@@ -5,7 +5,7 @@ ADD UNIQUE INDEX `esm_custom_id_UNIQUE` (`esm_custom_id` ASC);
 
 -- Adds `esm_payment_counter` to territory. This field is used to track how many times a territory has been paid for by using ESM
 ALTER TABLE territory
-ADD COLUMN `esm_payment_counter` INT(11) UNSIGNED NOT NULL DEFAULT '0' AFTER `moderators`;
+ADD COLUMN `esm_payment_counter` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `moderators`;
 
 -- Adds `xm8_notification` table. This table stores all outbound XM8 notifications
 CREATE TABLE xm8_notification (
@@ -15,8 +15,8 @@ CREATE TABLE xm8_notification (
     territory_id INT UNSIGNED,
     type VARCHAR(50) NOT NULL,
     content TEXT NOT NULL,
-    -- new, sent, fail (with reason)
-    status VARCHAR(50) NOT NULL DEFAULT 'new',
+    state ENUM("new", "pending", "failed", "sent") NOT NULL DEFAULT "new",
+    state_details TEXT,
     attempt_count INT DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_attempt_at DATETIME,
