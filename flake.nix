@@ -38,6 +38,8 @@
             docker-compose
             docker-client
             patchelf
+
+            mysql84
           ];
 
           shellHook = ''
