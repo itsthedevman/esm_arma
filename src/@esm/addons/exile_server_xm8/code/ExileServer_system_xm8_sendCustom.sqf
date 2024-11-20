@@ -18,9 +18,9 @@ Author:
 	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/.
 ---------------------------------------------------------------------------- */
 
-private _recipients = _this select 0;
+private _recipientUIDs = _this select 0;
 private _embedData = _this select 1;
 
-["custom", _recipients, _embedData] call ExileServer_system_xm8_send;
+["custom", _recipientUIDs, _embedData] call ExileServer_system_xm8_send;
 
 nil
