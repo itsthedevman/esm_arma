@@ -13,6 +13,8 @@ pub use std::{collections::HashMap, path::Path};
 import!(hasher);
 
 pub type QueryResult = Result<Vec<String>, QueryError>;
+
+#[derive(Debug)]
 pub enum QueryError {
     System(String),
     User(String),

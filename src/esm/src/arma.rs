@@ -279,7 +279,7 @@ async fn database_query(message: Message) -> MessageResult {
         Err(e) => match e {
             QueryError::System(e) => {
                 error!("[{name}] ❌ {e}");
-                Err("error".into())
+                Err(Error::code("error"))
             }
             QueryError::User(e) => Err(Error::message(e)),
             QueryError::Code(e) => Err(Error::code(e)),
