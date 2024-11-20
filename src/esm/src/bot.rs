@@ -408,6 +408,9 @@ fn on_error(request: Request) -> ESMResult {
 
     error!("[on_error] {error}");
 
+    let message = Message::new().set_id(message.id).set_type(Type::Ack);
+    send_message(message)?;
+
     Ok(())
 }
 
