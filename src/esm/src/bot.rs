@@ -72,10 +72,7 @@ async fn routing_thread(mut receiver: UnboundedReceiver<BotRequest>) {
                         .next()
                         .unwrap();
 
-                    // Disable for testing only
-                    if !cfg!(feature = "development") {
-                        warn!("[on_connect] Calling...");
-                    }
+                    warn!("[on_connect] Calling...");
 
                     match lock!(HANDLER)
                         .network()
