@@ -109,9 +109,9 @@ pub struct Args {
     #[arg(short, long)]
     update: bool,
 
-    /// Builds the code but does not start the server
+    /// Builds the code and starts the server
     #[arg(short, long)]
-    build: bool,
+    start_server: bool,
 }
 
 impl Args {
@@ -152,15 +152,15 @@ impl Args {
     }
 
     pub fn full_rebuild(&self) -> bool {
-        self.full || self.build
+        self.full
     }
 
     pub fn update_arma(&self) -> bool {
         self.update
     }
 
-    pub fn build_only(&self) -> bool {
-        self.build
+    pub fn start_server(&self) -> bool {
+        self.start_server
     }
 }
 

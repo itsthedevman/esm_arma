@@ -5,6 +5,6 @@ set -euo pipefail
 readonly args=("$@")
 
 echo "Running tests..."
-cargo test --workspace --quiet
+cargo test --workspace
 
-exec "./bin/build" --target=linux --env=development "${args[@]}"
+exec "./bin/build" --target=linux --env=development --start-server "${args[@]}"
