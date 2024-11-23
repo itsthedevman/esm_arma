@@ -24,19 +24,14 @@ pub fn send_message(
         errors
     );
 
-    TOKIO_RUNTIME.block_on(async {
-        tokio::spawn(async move {
-            let message =
-                match Message::from_arma(id, message_type, data, metadata, errors) {
-                    Ok(m) => m,
-                    Err(e) => return error!("[send_message] ❌ {}", e),
-                };
+    let message = match Message::from_arma(id, message_type, data, metadata, errors) {
+        Ok(m) => m,
+        Err(e) => return error!("[send_message] ❌ {}", e),
+    };
 
-            if let Err(e) = BotRequest::send(message) {
-                error!("[send_message] ❌ {}", e);
-            };
+    if let Err(e) = BotRequest::send(message) {
+        error!("[send_message] ❌ {}", e);
+    };
 
-            debug!("[send_message] ⏲ Took {:.2?}", timer.elapsed());
-        });
-    });
+    debug!("[send_message] ⏲ Took {:.2?}", timer.elapsed());
 }
