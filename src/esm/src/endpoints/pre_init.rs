@@ -25,14 +25,19 @@ pub fn pre_init(
             vg_enabled: {:?}
             vg_max_sizes: {:?}
         "#,
-        server_name, price_per_object, territory_lifetime, territory_data, vg_enabled, vg_max_sizes
+        server_name,
+        price_per_object,
+        territory_lifetime,
+        territory_data,
+        vg_enabled,
+        vg_max_sizes
     );
 
-    std::thread::spawn(move || {
-        // Router must be initialized outside the async context
-        lazy_static::initialize(&ROUTER);
+    // Router must be initialized outside the async context
+    lazy_static::initialize(&ROUTER);
 
-        TOKIO_RUNTIME.block_on(async {
+    TOKIO_RUNTIME.block_on(async {
+        tokio::spawn(async move {
             info!("[pre_init] Exile Server Manager (extension) is initializing");
             info!("[pre_init]   Validating config file...");
 
@@ -82,13 +87,18 @@ pub fn pre_init(
             };
 
             if let Err(e) = BotRequest::initialize(init) {
-                error!("[pre_init] ❌ Boot failed - Failed to initialize connection to the bot");
+                error!(
+                    "[pre_init] ❌ Boot failed - Failed to initialize connection to the bot"
+                );
                 warn!("[pre_init] ⚠ {e}");
                 error!("[pre_init] ❌ Boot failed");
                 return;
             };
 
-            info!("[pre_init] ✅ Initialization completed in {:.2?}", timer.elapsed());
+            info!(
+                "[pre_init] ✅ Initialization completed in {:.2?}",
+                timer.elapsed()
+            );
         });
     });
 }
