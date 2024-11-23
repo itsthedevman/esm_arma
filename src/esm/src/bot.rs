@@ -14,6 +14,7 @@ use std::sync::atomic::AtomicI64;
 use std::sync::Mutex as SyncMutex;
 use std::time::Duration;
 use tokio::sync::mpsc::UnboundedReceiver;
+use tokio::time::sleep;
 
 lazy_static! {
     pub static ref TOKEN_MANAGER: Arc<SyncMutex<TokenManager>> =
@@ -51,6 +52,8 @@ pub async fn initialize(receiver: UnboundedReceiver<BotRequest>) {
 
 async fn routing_thread(mut receiver: UnboundedReceiver<BotRequest>) {
     tokio::spawn(async move {
+        trace!("[routing_thread] Checking for requests");
+
         loop {
             let Some(request) = receiver.recv().await else {
                 continue;
@@ -62,7 +65,7 @@ async fn routing_thread(mut receiver: UnboundedReceiver<BotRequest>) {
                 BotRequest::Connect => {
                     if let Err(errors) = lock!(INIT).validate() {
                         error!("[on_connect] ❌ Attempted to connect but init data was not valid. Errors: {:?}", errors);
-                        return;
+                        continue;
                     }
 
                     let server_address = crate::CONFIG
@@ -72,7 +75,7 @@ async fn routing_thread(mut receiver: UnboundedReceiver<BotRequest>) {
                         .next()
                         .unwrap();
 
-                    warn!("[on_connect] Calling...");
+                    info!("[on_connect] Dialing the bot's number...");
 
                     match lock!(HANDLER)
                         .network()
@@ -135,10 +138,6 @@ async fn xm8_notification_thread() {
             std::thread::sleep(Duration::from_secs_f64(time_to_wait));
 
             if !crate::READY.load(Ordering::SeqCst) {
-                trace!(
-                    "[xm8_notification_thread] ❌ Waiting for extension to be ready..."
-                );
-
                 continue;
             }
 
@@ -162,6 +161,8 @@ async fn xm8_notification_thread() {
                 error!("[xm8_notification_thread] ❌ {e}");
                 continue;
             }
+
+            trace!("[xm8_notification_thread] Sending notifications {notifications:?}");
 
             // Send the message
             let message = Message::new().set_type(Type::Call).set_data(Data::from([
@@ -381,11 +382,15 @@ fn on_disconnect() {
         RECONNECTION_COUNT.fetch_add(1, Ordering::SeqCst);
     }
 
-    std::thread::sleep(time_to_wait);
+    TOKIO_RUNTIME.block_on(async {
+        tokio::spawn(async move {
+            sleep(time_to_wait).await;
 
-    if let Err(e) = BotRequest::connect() {
-        error!("[on_disconnect] ❌ {e}");
-    }
+            if let Err(e) = BotRequest::connect() {
+                error!("[on_disconnect] ❌ {e}");
+            }
+        });
+    });
 }
 
 // Thump
