@@ -13,6 +13,7 @@ use std::net::ToSocketAddrs;
 use std::sync::atomic::AtomicI64;
 use std::sync::Mutex as SyncMutex;
 use std::time::Duration;
+use tokio::sync::mpsc::error::TryRecvError;
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::time::sleep;
 
@@ -55,8 +56,17 @@ async fn routing_thread(mut receiver: UnboundedReceiver<BotRequest>) {
         trace!("[routing_thread] Checking for requests");
 
         loop {
-            let Some(request) = receiver.recv().await else {
-                continue;
+            let request = match receiver.try_recv() {
+                Ok(t) => t,
+                Err(e) => match e {
+                    TryRecvError::Empty => {
+                        sleep(Duration::from_micros(50)).await;
+                        continue;
+                    }
+                    TryRecvError::Disconnected => {
+                        unreachable!("Routing channel disconnected")
+                    }
+                },
             };
 
             trace!("[routing_thread] Processing request: {request}");
