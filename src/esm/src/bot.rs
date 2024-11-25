@@ -13,7 +13,6 @@ use std::net::ToSocketAddrs;
 use std::sync::atomic::AtomicI64;
 use std::sync::Mutex as SyncMutex;
 use std::time::Duration;
-use tokio::sync::mpsc::error::TryRecvError;
 use tokio::sync::mpsc::UnboundedReceiver;
 use tokio::time::sleep;
 
@@ -56,17 +55,8 @@ async fn routing_thread(mut receiver: UnboundedReceiver<BotRequest>) {
         trace!("[routing_thread] Checking for requests");
 
         loop {
-            let request = match receiver.try_recv() {
-                Ok(t) => t,
-                Err(e) => match e {
-                    TryRecvError::Empty => {
-                        sleep(Duration::from_micros(50)).await;
-                        continue;
-                    }
-                    TryRecvError::Disconnected => {
-                        unreachable!("Routing channel disconnected")
-                    }
-                },
+            let Some(request) = receiver.recv().await else {
+                continue;
             };
 
             trace!("[routing_thread] Processing request: {request}");
@@ -74,7 +64,7 @@ async fn routing_thread(mut receiver: UnboundedReceiver<BotRequest>) {
             match request {
                 BotRequest::Connect => {
                     if let Err(errors) = lock!(INIT).validate() {
-                        error!("[on_connect] ❌ Attempted to connect but init data was not valid. Errors: {:?}", errors);
+                        error!("[connect] ❌ Attempted to connect but init data was not valid. Errors: {:?}", errors);
                         continue;
                     }
 
@@ -85,7 +75,7 @@ async fn routing_thread(mut receiver: UnboundedReceiver<BotRequest>) {
                         .next()
                         .unwrap();
 
-                    info!("[on_connect] Dialing the bot's number...");
+                    info!("[connect] Dialing the bot's number...");
 
                     match lock!(HANDLER)
                         .network()
@@ -95,7 +85,7 @@ async fn routing_thread(mut receiver: UnboundedReceiver<BotRequest>) {
                             *lock!(ENDPOINT) = Some(e);
                         }
                         Err(e) => {
-                            error!("[on_connect] ❌ Failed to connect to bot - {e}")
+                            error!("[connect] ❌ Failed to connect to bot - {e}")
                         }
                     }
                 }
@@ -128,7 +118,7 @@ fn listener_thread(listener: NodeListener<()>) {
             let incoming_data = incoming_data.to_owned();
 
             if let Err(e) = on_request(incoming_data) {
-                error!("[on_request] {e}");
+                error!("[on_request] ❌ {e}");
             }
         }
     });
@@ -139,13 +129,13 @@ fn listener_thread(listener: NodeListener<()>) {
 async fn xm8_notification_thread() {
     tokio::spawn(async move {
         let time_to_wait = if cfg!(feature = "development") {
-            0.5
+            1.0
         } else {
-            2.0
+            10.0
         };
 
         loop {
-            std::thread::sleep(Duration::from_secs_f64(time_to_wait));
+            sleep(Duration::from_secs_f64(time_to_wait)).await;
 
             if !crate::READY.load(Ordering::SeqCst) {
                 continue;
@@ -388,7 +378,6 @@ fn on_disconnect() {
 
     // Sleep a max of 5 minutes in between connection attempts
     if current_count <= 20 {
-        // Increase the reconnect counter by 1
         RECONNECTION_COUNT.fetch_add(1, Ordering::SeqCst);
     }
 
