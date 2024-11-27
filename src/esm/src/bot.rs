@@ -131,7 +131,7 @@ async fn xm8_notification_thread() {
         let time_to_wait = if cfg!(feature = "development") {
             1.0
         } else {
-            10.0
+            5.0
         };
 
         loop {
