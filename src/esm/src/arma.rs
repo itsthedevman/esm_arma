@@ -125,25 +125,6 @@ async fn post_initialization(mut message: Message) -> MessageResult {
 
     let data = &mut message.data;
 
-    // Get the base path to figure out where to look for the ini
-    let Some(base_ini_path) = data.get("extdb_path") else {
-        return Err("Missing extdb_path attribute on message".to_string().into());
-    };
-
-    let base_ini_path = base_ini_path.as_str().unwrap_or("");
-    let base_ini_path = if base_ini_path.is_empty() {
-        crate::CONFIG.server_mod_name.clone()
-    } else {
-        base_ini_path.to_owned()
-    };
-
-    // Connect to the database
-    if let Err(e) = DATABASE.connect(&base_ini_path).await {
-        error!("{e}");
-
-        return Err("fail_database_connect".into());
-    }
-
     // Yes, this isn't used until later. The goal is to not exit for errors after this point
     let territory_admin_uids: Vec<String> = match data.get("territory_admin_uids") {
         Some(uids) => match uids.as_array() {

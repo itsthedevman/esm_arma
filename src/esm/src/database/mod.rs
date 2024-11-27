@@ -69,33 +69,25 @@ impl Database {
         Self::default()
     }
 
-    pub async fn connect(&self, base_ini_path: &str) -> ESMResult {
-        self.sql.validate()?;
+    pub async fn connect(&self) -> Result<(), String> {
+        // Validate SQL scripts
+        self.sql.validate().map_err(|e| e.to_string())?;
 
-        // Build the connection URI
-        let database_url = match connection_string(base_ini_path, self.extdb_version) {
-            Ok(url) => url,
-            Err(e) => return Err(format!("[connect] {}", e).into()),
-        };
+        // Get connection string from config or INI file
+        let database_url =
+            connection_string(&crate::CONFIG.server_mod_name, self.extdb_version)
+                .map_err(|e| e.to_string())?;
 
-        // Convert it to options
-        let database_opts = match Opts::from_url(&database_url) {
-            Ok(opts) => opts,
-            Err(e) => return Err(format!("[connect] {}", e).into()),
-        };
+        // Parse connection options
+        let database_opts = Opts::from_url(&database_url).map_err(|e| e.to_string())?;
 
+        // Initialize connection pool
         *await_lock!(self.connection_pool) = Some(Pool::new(database_opts));
 
-        // Attempt to connect to the database
-        if let Err(e) = self.connection().await {
-            error!("{e}");
-
-            return Err(format!(
-                "[connect] Failed to connect to MySQL at {}",
-                database_url
-            )
-            .into());
-        };
+        // Verify connection
+        self.connection()
+            .await
+            .map_err(|_| format!("Failed to connect to MySQL at {}", database_url))?;
 
         Ok(())
     }

@@ -91,6 +91,16 @@ pub fn pre_init(
         return;
     };
 
+    TOKIO_RUNTIME.block_on(async {
+        info!("[pre_init]   Connecting to the database...");
+        if let Err(e) = DATABASE.connect().await {
+            error!("[pre_init] ❌ Boot failed - Failed to connect to the database");
+            warn!("[pre_init] ⚠ {e}");
+            error!("[pre_init] ❌ Boot failed");
+            return;
+        }
+    });
+
     info!(
         "[pre_init] ✅ Initialization completed in {:.2?}",
         timer.elapsed()
