@@ -11,6 +11,7 @@ import_and_export!(check_if_territory_exists);
 import_and_export!(check_if_territory_owner);
 import_and_export!(command_all_territories);
 import_and_export!(command_me);
+import_and_export!(command_player_territories);
 import_and_export!(command_reset_all);
 import_and_export!(command_reset_player);
 import_and_export!(command_restore);
@@ -18,7 +19,6 @@ import_and_export!(command_reward);
 import_and_export!(command_set_id);
 import_and_export!(decode_territory_id);
 import_and_export!(get_xm8_notifications);
-import_and_export!(player_territories);
 import_and_export!(set_territory_payment_counter);
 import_and_export!(update_xm8_attempt_counter);
 import_and_export!(update_xm8_notification_state);
@@ -29,19 +29,17 @@ load_sql! {
     account_name_lookup,
     check_if_territory_exists,
     check_if_territory_owner,
-    decode_territory_id,
-    set_territory_payment_counter,
-
-    // Command queries
     command_all_territories,
     command_me,
+    command_player_territories, // Used by multiple commands
     command_reset_all,
     command_reset_player,
     command_restore_construction,
     command_restore_container,
     command_restore_territory,
     command_set_id,
-    player_territories // Used by multiple commands
+    decode_territory_id,
+    set_territory_payment_counter
 }
 
 pub fn select_column<T>(row: &Row, index: &str) -> Result<T, String>

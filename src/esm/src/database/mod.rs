@@ -143,6 +143,14 @@ impl Database {
         queries::command_me(&self, &mut connection, &arguments).await
     }
 
+    pub async fn command_player_territories(
+        &self,
+        arguments: HashMap<String, String>,
+    ) -> QueryResult {
+        let mut connection = self.connection().await.map_err(QueryError::System)?;
+        queries::command_player_territories(&self, &mut connection, &arguments).await
+    }
+
     pub async fn command_reset_all(
         &self,
         arguments: HashMap<String, String>,
@@ -194,14 +202,6 @@ impl Database {
         let mut connection = self.connection().await?;
 
         queries::get_xm8_notifications(&self, &mut connection).await
-    }
-
-    pub async fn player_territories(
-        &self,
-        arguments: HashMap<String, String>,
-    ) -> QueryResult {
-        let mut connection = self.connection().await.map_err(QueryError::System)?;
-        queries::player_territories(&self, &mut connection, &arguments).await
     }
 
     pub async fn set_territory_payment_counter(

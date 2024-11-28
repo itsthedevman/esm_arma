@@ -34,7 +34,7 @@ struct Territory {
     esm_custom_id: Option<String>,
 }
 
-pub async fn player_territories(
+pub async fn command_player_territories(
     context: &Database,
     connection: &mut Conn,
     arguments: &HashMap<String, String>,
@@ -50,7 +50,7 @@ pub async fn player_territories(
 
     let result = connection
         .exec_map(
-            &context.sql.player_territories,
+            &context.sql.command_player_territories,
             params! { "player_uid" => player_uid, "wildcard_uid" => format!("%{}%", player_uid) },
             map_results,
         )
