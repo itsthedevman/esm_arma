@@ -143,6 +143,22 @@ impl Database {
         queries::command_me(&self, &mut connection, &arguments).await
     }
 
+    pub async fn command_reset_all(
+        &self,
+        arguments: HashMap<String, String>,
+    ) -> QueryResult {
+        let mut connection = self.connection().await.map_err(QueryError::System)?;
+        queries::command_reset_all(&self, &mut connection, &arguments).await
+    }
+
+    pub async fn command_reset_player(
+        &self,
+        arguments: HashMap<String, String>,
+    ) -> QueryResult {
+        let mut connection = self.connection().await.map_err(QueryError::System)?;
+        queries::command_reset_player(&self, &mut connection, &arguments).await
+    }
+
     pub async fn command_reward_territories(
         &self,
         arguments: HashMap<String, String>,
