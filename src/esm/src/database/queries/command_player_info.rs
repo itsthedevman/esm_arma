@@ -14,6 +14,10 @@ struct Account {
     score: isize,
     kills: isize,
     deaths: isize,
+    money: Option<isize>,
+    damage: Option<f64>,
+    hunger: Option<f64>,
+    thirst: Option<f64>,
     territories: Vec<Territory>,
 }
 
@@ -27,10 +31,7 @@ pub async fn command_player_info(
     ))?;
 
     let result: Option<Row> = connection
-        .exec_first(
-            &context.sql.command_player_info,
-            params! { player_uid, "wildcard_uid" => format!("%{}%", player_uid) },
-        )
+        .exec_first(&context.sql.command_player_info, params! { player_uid })
         .await
         .map_err(|e| QueryError::System(format!("Query failed - {}", e)))?;
 
@@ -46,13 +47,10 @@ pub async fn command_player_info(
 }
 
 fn convert_result(mut row: Row) -> Result<String, String> {
-    debug!("RESULT: {row:#?}");
     let territories: String = select_column(&mut row, "territories")?;
 
-    debug!("TERRITORIES: {territories:#?}");
-
-    // let territories: Vec<Territory> =
-    // serde_json::from_str(&territories).map_err(|err| err.to_string())?;
+    let territories: Vec<Territory> =
+        serde_json::from_str(&territories).map_err(|err| err.to_string())?;
 
     let account = Account {
         uid: select_column(&mut row, "uid")?,
@@ -61,7 +59,11 @@ fn convert_result(mut row: Row) -> Result<String, String> {
         score: select_column(&mut row, "score")?,
         kills: select_column(&mut row, "kills")?,
         deaths: select_column(&mut row, "deaths")?,
-        territories: vec![],
+        money: select_column(&mut row, "money")?,
+        damage: select_column(&mut row, "damage")?,
+        hunger: select_column(&mut row, "hunger")?,
+        thirst: select_column(&mut row, "thirst")?,
+        territories,
     };
 
     Ok(serde_json::to_string(&account).map_err(|e| e.to_string())?)

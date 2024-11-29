@@ -5,21 +5,28 @@ SELECT
     a.name,
     a.kills,
     a.deaths,
+    p.money,
+    p.damage,
+    p.hunger,
+    p.thirst,
     COALESCE(
-        JSON_ARRAYAGG(JSON_OBJECT('id', t.id, 'name', t.name)),
+        (
+            SELECT
+                JSON_ARRAYAGG(JSON_OBJECT('id', id, 'name', name))
+            FROM
+                territory
+            WHERE
+                deleted_at IS NULL
+                AND (
+                    owner_uid = a.uid
+                    OR build_rights LIKE CONCAT('%', a.uid, '%')
+                    OR moderators LIKE CONCAT('%', a.uid, '%')
+                )
+        ),
         JSON_ARRAY()
     ) as territories
 FROM
     account a
-    LEFT JOIN territory t ON (
-        t.deleted_at IS NULL
-        AND (
-            t.owner_uid = :player_uid
-            OR t.build_rights LIKE :wildcard_uid
-            OR t.moderators LIKE :wildcard_uid
-        )
-    )
+    LEFT JOIN player p ON a.uid = p.account_uid
 WHERE
-    a.uid = :player_uid
-GROUP BY
-    a.uid;
+    a.uid = :player_uid;
