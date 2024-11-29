@@ -143,6 +143,14 @@ impl Database {
         queries::command_me(&self, &mut connection, &arguments).await
     }
 
+    pub async fn command_player_info(
+        &self,
+        arguments: HashMap<String, String>,
+    ) -> QueryResult {
+        let mut connection = self.connection().await.map_err(QueryError::System)?;
+        queries::command_player_info(&self, &mut connection, &arguments).await
+    }
+
     pub async fn command_player_territories(
         &self,
         arguments: HashMap<String, String>,
@@ -190,6 +198,14 @@ impl Database {
         let mut connection = self.connection().await.map_err(QueryError::System)?;
         queries::command_set_id(&self, &mut connection, &arguments).await
     }
+
+    // pub async fn command_territory_info(
+    //     &self,
+    //     arguments: HashMap<String, String>,
+    // ) -> QueryResult {
+    //     let mut connection = self.connection().await.map_err(QueryError::System)?;
+    //     queries::command_territory_info(&self, &mut connection, &arguments).await
+    // }
 
     /// Attempts to decode a hashed territory ID or custom ID
     /// Do not use if you already have access to the database and connection (i.e in query files)
