@@ -83,15 +83,18 @@ try
 	private _playerObject = _targetUID call ExileClient_util_player_objectFromPlayerUID;
 
 	private _isOnline = !(isNull _playerObject);
-	private _previousAmount = 0;
-
 	private _response = [];
 	private _logDescription = [];
 
+	//////////////////////
+	// Modification
+	//////////////////////
 	switch (toLower(_action)) do
 	{
+		// Modify the player's money
 		case "money":
 		{
+			private _previousAmount = 0;
 			private _databaseID = -1;
 
 			if (_isOnline) then
@@ -133,9 +136,10 @@ try
 			_logDescription = localize!("Player_Log_Description_Money", _amount, _newAmount);
 		};
 
+		// Modify the player's respect/score
 		case "respect":
 		{
-			_previousAmount = format[
+			private _previousAmount = format[
 				"getAccountScore:%1",
 				_targetUID
 			] call ExileServer_system_database_query_selectSingleField;
@@ -167,9 +171,10 @@ try
 			_logDescription = localize!("Player_Log_Description_Respect", _amount, _newAmount);
 		};
 
+		// Modify the player's locker
 		case "locker":
 		{
-			_previousAmount = format[
+			private _previousAmount = format[
 				"getLocker:%1",
 				_targetUID
 			] call ExileServer_system_database_query_selectSingleField;
@@ -196,6 +201,7 @@ try
 			_logDescription = localize!("Player_Log_Description_Locker", _amount, _newAmount);
 		};
 
+		// Heal the player
 		case "heal":
 		{
 			if (_isOnline) then
@@ -285,6 +291,7 @@ try
 			_logDescription = localize!("Player_Log_Description_Heal");
 		};
 
+		// Kill the player
 		case "kill":
 		{
 			if (_isOnline) then
@@ -303,6 +310,7 @@ try
 					throw [["player", format["`%1` is already dead", _targetUID]]];
 				};
 
+				// Death logging
 				if ((getNumber (configFile >> "CfgSettings" >> "Logging" >> "deathLogging")) isEqualTo 1) then
 				{
 					ESM_DatabaseExtension callExtension format[
