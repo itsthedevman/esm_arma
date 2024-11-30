@@ -261,7 +261,9 @@ async fn database_query(message: Message) -> MessageResult {
                     DATABASE.command_reward_territories(arguments).await
                 }
                 "set_id" => DATABASE.command_set_id(arguments).await,
-                // "territory_info" => DATABASE.command_territory_info(arguments).await,
+                "territory_info" => {
+                    DATABASE.command_territory_info(arguments).await
+                }
                 _ => Err(QueryError::System(format!(
                     "Unexpected query \"{}\" with arguments {:?}",
                     name, arguments
