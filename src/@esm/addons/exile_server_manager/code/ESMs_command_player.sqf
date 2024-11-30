@@ -43,7 +43,7 @@ if (isNil "_id" || { isNil "_data" || { isNil "_metadata" } }) exitWith { nil };
 //////////////////////
 // Initialization
 //////////////////////
-private _loggingEnabled = ESM_Logging_ModifyPlayer;
+private _loggingEnabled = ESM_Logging_CommandPlayer;
 
 private _playerMetadata = get!(_metadata, "player");
 private _targetMetadata = get!(_metadata, "target");
@@ -55,7 +55,7 @@ private _playerMention = get!(_playerMetadata, "discord_mention");
 private _targetMention = get!(_targetMetadata, "discord_mention");
 
 private _action = get!(_data, "action");
-private _amount = get!(_data, "amount");
+private _amount = parseNumber(get!(_data, "amount"));
 
 try
 {
@@ -150,7 +150,7 @@ try
 
 			if (_isOnline) then
 			{
-				_playerObject setVariable ["ExileScore", ];
+				_playerObject setVariable ["ExileScore", _newAmount];
 
 				[
 					_newAmount,
