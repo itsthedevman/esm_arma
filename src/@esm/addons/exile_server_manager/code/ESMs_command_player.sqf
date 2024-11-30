@@ -305,7 +305,7 @@ try
 
 				if ((getNumber (configFile >> "CfgSettings" >> "Logging" >> "deathLogging")) isEqualTo 1) then
 				{
-					ESM_DatabaseVersion callExtension format[
+					ESM_DatabaseExtension callExtension format[
 						"1:DEATH:%1",
 						format[
 							"%1 was killed by %2 via Exile Server Manager",
