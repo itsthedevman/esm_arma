@@ -517,9 +517,9 @@ ESMs_command_player:
 # /server reward
 ESMs_command_reward:
   Reward_PlayerPoptabs:
-    english: "Player Poptabs"
+    english: "Poptabs added to your player"
   Reward_LockerPoptabs:
-    english: "Locker Poptabs"
+    english: "Poptabs added to your locker"
   Reward_Respect:
     english: "Respect"
   Reward_InvalidClassName_Title:

@@ -20,10 +20,10 @@ Author:
 private _id = get!(_this, "id");
 
 /*
-  poptabs: String,
-  locker: String,
-  respect: String,
-  items: Array<String>
+  poptabs: Scalar,
+  locker: Scalar,
+  respect: Scalar,
+  items: HashMap<String, Scalar>
 */
 private _data = get!(_this, "data");
 
@@ -132,8 +132,8 @@ try
 	if !(_rewardItems isEqualTo []) then
 	{
 		{
-			private _classname = _x select 0;
-			private _quantity = _x select 1;
+			private _classname = _x;
+			private _quantity = _y;
 
 			private _configName = _classname call ExileClient_util_gear_getConfigNameByClassName;
 			if !(isClass(configFile >> _configName >> _classname)) then
@@ -226,10 +226,10 @@ try
 	_receipt = [
 		_receipt,
 		// Creates "50x Player Poptabs", "15x Respect", "1x Trollinator", etc.
-		{ format["%1x %2", _this select 0, _this select 1] }
+		{ format["- %1x %2", _this select 1, _this select 0] }
 	] call ESMs_util_array_map;
 
-	_receipt = _receipt joinString "\n";
+	_receipt = _receipt joinString "<br/>";
 
 	[
 		// Response
@@ -240,7 +240,7 @@ try
 				["title", localize!("Reward_Response_Title")],
 				[
 					"description",
-					localize!("Remove_Response_Description", _playerMention, _receipt)
+					localize!("Reward_Response_Description", _playerMention, _receipt)
 				]
 			]
 		],
