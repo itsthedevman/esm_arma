@@ -147,6 +147,8 @@ try
 				continue;
 			};
 
+			private _quantityAdded = 0;
+
 			for "_i" from 1 to _quantity do
 			{
 				private _added = false;
@@ -210,11 +212,16 @@ try
 				// We successfully added it, get the displayName so we can tell the player
 				if (_added) then
 				{
-					_receipt pushBack [
-						getText(configFile >> _configName >> _classname >> "displayName"),
-						_quantity
-					];
+					_quantityAdded = _quantityAdded + 1;
 				};
+			};
+
+			if (_quantityAdded > 0) then
+			{
+				_receipt pushBack [
+					getText(configFile >> _configName >> _classname >> "displayName"),
+					_quantityAdded
+				];
 			};
 		}
 		forEach _rewardItems;
