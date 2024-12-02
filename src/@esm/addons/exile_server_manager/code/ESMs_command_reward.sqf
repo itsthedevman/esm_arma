@@ -3,7 +3,7 @@ Function:
 	ESMs_command_reward
 
 Description:
-	Rewards the player
+	Rewards the player with money, respect, and/or items
 
 Parameters:
 	_this - [HashMap]
@@ -57,6 +57,7 @@ try
 		];
 	};
 
+	// Player must be alive in order to receive rewards
 	private _playerObject = _playerUID call ExileClient_util_player_objectFromPlayerUID;
 	if (isNull _playerObject || { !(alive _playerObject) }) then
 	{
@@ -135,6 +136,7 @@ try
 			private _classname = _x;
 			private _quantity = _y;
 
+			// Ensure the item can be spawned
 			private _configName = _classname call ExileClient_util_gear_getConfigNameByClassName;
 			if !(isClass(configFile >> _configName >> _classname)) then
 			{
@@ -148,7 +150,6 @@ try
 			};
 
 			private _quantityAdded = 0;
-
 			for "_i" from 1 to _quantity do
 			{
 				private _added = false;
@@ -209,7 +210,6 @@ try
 					_added = true;
 				};
 
-				// We successfully added it, get the displayName so we can tell the player
 				if (_added) then
 				{
 					_quantityAdded = _quantityAdded + 1;
@@ -218,6 +218,7 @@ try
 
 			if (_quantityAdded > 0) then
 			{
+				// We successfully added it, get the displayName so we can tell the player
 				_receipt pushBack [
 					getText(configFile >> _configName >> _classname >> "displayName"),
 					_quantityAdded
