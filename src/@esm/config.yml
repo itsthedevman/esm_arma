@@ -131,4 +131,5 @@
 ##     - C:\servers\arma\logs\rcon.log
 ###
 # additional_logs:
+# - "C:\logs\server.rpt"
 # - "logs/server.log"
