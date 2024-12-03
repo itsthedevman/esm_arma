@@ -158,28 +158,34 @@ async fn search_file(
         return Err(format!("File does not exist: {}", path.display()));
     }
 
-    // Open the file and create a buffered reader
     let file = File::open(&path)
         .await
         .map_err(|e| format!("Failed to open file: {}", e))?;
 
-    let reader = BufReader::new(file);
-    let mut lines = reader.lines();
-
-    // Process the file line by line
+    let mut reader = BufReader::new(file);
+    let mut line = Vec::new();
     let mut matches = Vec::new();
     let mut line_number = 1;
 
-    while let Some(line) = lines
-        .next_line()
-        .await
-        .map_err(|e| format!("Error reading line {}: {}", line_number, e))?
-    {
-        if pattern.is_match(&line) {
+    loop {
+        line.clear();
+
+        let bytes_read = reader
+            .read_until(b'\n', &mut line)
+            .await
+            .map_err(|e| format!("Error reading line {}: {}", line_number, e))?;
+
+        if bytes_read == 0 {
+            break;
+        }
+
+        let line_text = String::from_utf8_lossy(&line).into_owned();
+
+        if pattern.is_match(&line_text) {
             matches.push(MatchResult {
                 file_name: path.display().to_string(),
                 line_number,
-                content: line,
+                content: line_text.trim().to_string(),
             });
         }
 
