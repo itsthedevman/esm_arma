@@ -397,6 +397,7 @@ pub fn prepare_directories(builder: &mut Builder) -> BuildResult {
                     Remove-Item '{server_path}\\{profile_name}\\*.rpt' -ErrorAction SilentlyContinue;
                     Remove-Item '{server_path}\\{profile_name}\\*.bidmp' -ErrorAction SilentlyContinue;
                     Remove-Item '{server_path}\\{profile_name}\\*.mdmp' -ErrorAction SilentlyContinue;
+                    Remove-Item '{server_path}\\@ExileServer\\logs' -Recurse -ErrorAction SilentlyContinue;
 
                     if ([bool]::Parse('{rebuild_mod}')) {{
                         Remove-Item '{build_path}\\@esm' -Recurse -ErrorAction SilentlyContinue;
@@ -427,6 +428,7 @@ pub fn prepare_directories(builder: &mut Builder) -> BuildResult {
                 rm -f "{server_path}/{profile_name}/*.bidmp";
                 rm -f "{server_path}/{profile_name}/*.mdmp";
                 rm -rf "{server_path}/@esm";
+                rm -rf "{server_path}/@exileserver/logs";
 
                 {rebuild_mod} && rm -rf "{build_path}/@esm";
                 if {rebuild_extension}; then
