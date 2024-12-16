@@ -16,7 +16,7 @@ import_and_export!(command_player_territories);
 import_and_export!(command_reset_all);
 import_and_export!(command_reset_player);
 import_and_export!(command_restore);
-import_and_export!(command_reward);
+import_and_export!(command_reward_territories);
 import_and_export!(command_set_id);
 import_and_export!(command_territory_info);
 import_and_export!(decode_territory_id);
@@ -40,6 +40,7 @@ load_sql! {
     command_restore_construction,
     command_restore_container,
     command_restore_territory,
+    command_reward_territories,
     command_set_id,
     command_territory_info,
     decode_territory_id,

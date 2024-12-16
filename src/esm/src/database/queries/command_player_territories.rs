@@ -52,7 +52,7 @@ pub async fn command_player_territories(
         .exec_map(
             &context.sql.command_player_territories,
             params! { "player_uid" => player_uid, "wildcard_uid" => format!("%{}%", player_uid) },
-            map_results,
+            map_territory_results,
         )
         .await;
 
@@ -92,7 +92,7 @@ pub async fn command_player_territories(
     }
 }
 
-pub fn map_results(mut row: Row) -> Result<Territory, Error> {
+pub fn map_territory_results(mut row: Row) -> Result<Territory, Error> {
     let account_converter =
         |data: &str| match serde_json::from_str::<Vec<String>>(data) {
             Ok(res) => Ok(res.iter().map(|uid| Account::new(&uid)).collect()),

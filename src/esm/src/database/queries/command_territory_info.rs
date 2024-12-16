@@ -5,10 +5,9 @@ pub async fn command_territory_info(
     connection: &mut Conn,
     arguments: &HashMap<String, String>,
 ) -> QueryResult {
-    let territory_id =
-        arguments.get("territory_id").ok_or(QueryError::User(
-            "Missing key `territory_id` in provided query arguments".into(),
-        ))?;
+    let territory_id = arguments.get("territory_id").ok_or(QueryError::User(
+        "Missing key `territory_id` in provided query arguments".into(),
+    ))?;
 
     let territory_id =
         queries::decode_territory_id(context, connection, territory_id).await?;
@@ -17,7 +16,7 @@ pub async fn command_territory_info(
         .exec_map(
             &context.sql.command_territory_info,
             params! { territory_id },
-            map_results,
+            map_territory_results,
         )
         .await;
 
