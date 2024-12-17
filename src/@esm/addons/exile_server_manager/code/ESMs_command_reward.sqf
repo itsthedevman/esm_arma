@@ -3,7 +3,7 @@ Function:
 	ESMs_command_reward
 
 Description:
-	Rewards the player with money, respect, and/or items
+	Rewards the player with money, respect, items, and/or vehicles
 
 Parameters:
 	_this - [HashMap]
@@ -13,9 +13,18 @@ Author:
 	www.esmbot.com
 	© 2018-current_year!() Bryan "WolfkillArcadia"
 
-	This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
-	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/.
+	This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+
+Code used from:
+	Exile Mod
+	www.exilemod.com
+	© 2015-current_year!() Exile Mod Team
+
+	This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
 ---------------------------------------------------------------------------- */
+
 
 private _id = get!(_this, "id");
 
@@ -24,6 +33,7 @@ private _id = get!(_this, "id");
   locker: Scalar,
   respect: Scalar,
   items: HashMap<String, Scalar>
+  vehicles: HashMap<String, HashMap<String, Any>>
 */
 private _data = get!(_this, "data");
 
@@ -75,6 +85,7 @@ try
 	private _rewardLocker = get!(_data, "locker", 0);
 	private _rewardRespect = get!(_data, "respect", 0);
 	private _rewardItems = get!(_data, "items", []);
+	private _rewardVehicles = get!(_data, "vehicles", []);
 
 	// Player money
 	if (_rewardMoney > 0) then
@@ -226,6 +237,84 @@ try
 			};
 		}
 		forEach _rewardItems;
+	};
+
+	if (!empty?(_rewardVehicles)) then
+	{
+		{
+			private _vehicleClass = _x;
+			private _spawnLocation = get!(_y, "spawn_location");
+			private _pinCode = get!(_y, "pin_code");
+
+			if (_spawnLocation isEqualTo "nearby") then
+			{
+				if (_vehicleClass isKindOf "Ship") then
+				{
+					_position = [
+						(getPosATL _playerObject),
+						100,
+						20
+					] call ExileClient_util_world_findWaterPosition;
+
+					// Create le vehicle
+					_vehicleObject = [
+						_vehicleClass,
+						_position,
+						(random 360),
+						false,
+						_pinCode
+					] call ExileServer_object_vehicle_createPersistentVehicle;
+				}
+				else
+				{
+					_position = (getPos _playerObject) findEmptyPosition [10, 250, _vehicleClass];
+
+					if (_position isEqualTo []) then
+					{
+						throw [["player", "Failed to find a safe position"]];
+						// throw TRADING_RESPONSE_BIS_FNC_SAFE_POS_FAIL;
+					};
+
+					_vehicleObject = [
+						_vehicleClass,
+						_position,
+						(random 360),
+						true,
+						_pinCode
+					] call ExileServer_object_vehicle_createPersistentVehicle;
+				};
+
+				// Set ownership
+				_vehicleObject setVariable ["ExileOwnerUID", _playerUID];
+				_vehicleObject setVariable ["ExileIsLocked", 1];
+				_vehicleObject lock 1;
+
+				// Save vehicle in database + update position/stats
+				_vehicleObject call ExileServer_object_vehicle_database_insert;
+				_vehicleObject call ExileServer_object_vehicle_database_update;
+			}
+			else
+			{
+				private _nickname = get!(_y, "nickname");
+
+				private _added = [
+					_territory,
+					_vehicleClass,
+					_pinCode,
+					_playerUID,
+					_nickname
+				] call ESMs_object_vehicle_database_insertIntoVirtualGarage;
+
+				if (_added) then
+				{
+					_receipt pushBack [
+						getText(configFile >> "CfgVehicles" >> _classname >> "displayName"),
+						1
+					];
+				};
+			};
+		}
+		forEach _rewardVehicles;
 	};
 
 	//////////////////////
