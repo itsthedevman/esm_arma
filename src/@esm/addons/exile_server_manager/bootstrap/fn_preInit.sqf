@@ -113,4 +113,19 @@ forEach
     define_fn!("ESMs_util_number_toString")
 ];
 
+////////////////////////////////////////////////////
+// Create delegator methods for our network messages
+// Allows forwarding Exile network messages to ESM functions
+{
+     missionNamespace setVariable [
+        _x select 0, // Exile function
+        compileFinal (format["_this call %1", _x select 1]) // ESM function
+    ];
+}
+forEach
+[
+    // network_fn!("ESMs_system_reward_network_loadAll"),
+    // network_fn!("ESMs_system_reward_network_redeem")
+];
+
 [] call ESMs_system_process_preInit;

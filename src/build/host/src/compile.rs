@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use chrono::prelude::*;
 use compiler::{Compiler, CompilerError, Data};
+use heck::{ToLowerCamelCase, ToSnakeCase};
 use json_comments::StripComments;
 use lazy_static::lazy_static;
 use regex::Captures;
@@ -40,6 +41,7 @@ const REGEX_LOCALIZE: &str = r#"localize!\("(\w+)"((?:,\s*[\w\s"]+)*)\)"#;
 const REGEX_LOG_WITH_ARGS: &str =
     r#"(trace|info|warn|debug|error)!\((".+")*,\s*(.*)+\)"#;
 const REGEX_LOG: &str = r#"(trace|info|warn|debug|error)!\((.+)?\)"#;
+const REGEX_NETWORK_FN: &str = r#"network_fn!\("(\w+)?"\)"#;
 const REGEX_NIL_NEGATED: &str = r#"!nil\?\((\w+)?\)"#;
 const REGEX_NIL: &str = r#"nil\?\((\w+)?\)"#;
 const REGEX_NULL: &str = r"null\?\((\w+)?\)";
@@ -59,6 +61,7 @@ pub fn bind_replacements(compiler: &mut Compiler) {
         .replace(REGEX_CURRENT_YEAR, current_year)
         .replace(REGEX_FILE_NAME, file_name)
         .replace(REGEX_DEF_FN, define_fn)
+        .replace(REGEX_NETWORK_FN, network_fn)
         .replace(REGEX_OS_PATH, os_path)
         .replace(REGEX_TYPE_CHECK_NEGATED, type_ne)
         .replace(REGEX_TYPE_CHECK, type_eq)
@@ -132,6 +135,53 @@ fn define_fn(context: &Data, matches: &Captures) -> CompilerResult {
     Ok(Some(format!(
         "[\"{function_name}\", \"{sep}exile_server_manager{sep}code{sep}{function_name}.sqf\"]",
         sep = "\\"
+    )))
+}
+
+// network_fn!("ESMs_system_network_message")
+//      -> ["ExileServer_system_network_esm_networkMessage", "ESMs_system_network_message"]
+fn network_fn(context: &Data, matches: &Captures) -> CompilerResult {
+    let esm_function_name = matches
+        .get(1)
+        .ok_or(format!(
+            "{} -> network_fn! - Wrong number of arguments, given 0, expected 1",
+            context.file_path
+        ))?
+        .as_str();
+
+    // Get prefix and suffix, combine and transform
+    let parts: Vec<&str> = esm_function_name.split('_').collect();
+    let network_index =
+        parts.iter().position(|&p| p == "network").ok_or(format!(
+            "{} -> network_fn! - 'network' not found in function name",
+            context.file_path
+        ))?;
+
+    let prefix_index = network_index.checked_sub(1).ok_or(format!(
+        "{} -> network_fn! - No prefix found before 'network'",
+        context.file_path
+    ))?;
+
+    let prefix = parts.get(prefix_index).ok_or(format!(
+        "{} -> network_fn! - No prefix found before 'network'",
+        context.file_path
+    ))?;
+
+    let suffix = parts.get(network_index + 1).ok_or(format!(
+        "{} -> network_fn! - No suffix found after 'network'",
+        context.file_path
+    ))?;
+
+    let transformed = format!("{}_{}", prefix, suffix)
+        .to_snake_case()
+        .to_lower_camel_case();
+
+    let exile_function_name =
+        format!("ExileServer_system_network_esm_{}", transformed);
+
+    Ok(Some(format!(
+        r#"["{}", "{}"]"#,
+        exile_function_name, esm_function_name
     )))
 }
 
@@ -586,6 +636,32 @@ mod tests {
         assert_eq!(
             output,
             r#"["MY_Awesome_Method", "\exile_server_manager\code\MY_Awesome_Method.sqf"]"#
+        );
+    }
+
+    #[test]
+    fn it_replaces_network_fn() {
+        let output = compile!(
+            r#"network_fn!("ESMs_system_network_message")"#,
+            REGEX_NETWORK_FN,
+            network_fn
+        );
+
+        assert_eq!(
+            output,
+            r#"["ExileServer_system_network_esm_systemMessage", "ESMs_system_network_message"]"#
+        );
+
+        // Mmmm
+        let output = compile!(
+            r#"network_fn!("ESMs_system_iceCreamMachine_network_dispenseSoftServe")"#,
+            REGEX_NETWORK_FN,
+            network_fn
+        );
+
+        assert_eq!(
+            output,
+            r#"["ExileServer_system_network_esm_iceCreamMachineDispenseSoftServe", "ESMs_system_iceCreamMachine_network_dispenseSoftServe"]"#
         );
     }
 

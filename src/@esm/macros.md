@@ -165,6 +165,25 @@ info!("Wow! %1, so cool.", _playerName)
 ["macros", format["Wow! %1, so cool.", _playerName], "info"] call ESMs_util_log
 ```
 
+### `network_fn!(function_name)`
+Takes an ESM function name containing "network" and transforms it into an array containing both an Exile-formatted network function name and the original ESM function name.
+
+The Exile function name is built by combining the sections around "network". For example:
+`ESMs_system_reward_network_loadAll` becomes:
+1. reward + loadAll -> rewardLoadAll
+2. Final: ExileServer_system_network_esm_rewardLoadAll
+
+Example:
+```sqf
+network_fn!("ESMs_system_reward_network_loadAll")
+// Returns:
+["ExileServer_system_network_esm_rewardLoadAll", "ESMs_system_reward_network_loadAll"]
+
+network_fn!("ESMs_system_player_network_message")
+// Returns:
+["ExileServer_system_network_esm_playerMessage", "ESMs_system_player_network_message"]
+```
+
 ### `nil?(variable)`
 Shorthand to check to see if the provided variable is nil
 
