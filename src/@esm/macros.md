@@ -1,302 +1,177 @@
-# SQF compiler macros
-The build tool for ESM supports macros that are expanded during compilation. These macro definitions are located in `src/build/host/src/compiler.rs`.
+# SQF Compiler Macros
 
-## Limitations
-The supporting compiler system works on Regex and only support single line usage. I would love to fix this but other priorities come first.
+ESM's build tool includes macros that are expanded during compilation. These are defined in `src/build/host/src/compiler.rs`.
 
-## Arguments
-Some macros support providing "arguments" between the brackets. These normally are passed down to the resulting SQF code. Arma code, including other macros, are supported.
+> **Note**: Due to Regex-based implementation, macros currently only support single-line usage.
+> Macro arguments support both SQF code and other macros.
 
-## Macros
+## Core Macros
 
-### `const!(constant_name)`
-Replaced with the corresponding value defined in constants.jsonc
-
-Example:
+### Constant Access
+#### `const!(constant_name)`
+Retrieves the corresponding value defined in constants.jsonc
 ```sqf
 const!("EXAMPLE_STRING")
-
-// Becomes:
-"Hello world!" // As defined in constants.jsonc
+// ->
+"Hello world!"
 ```
 
-### `current_year!()`
-Replaced with the current year at compile time. Used for copyright notices
-
-Example:
+#### `current_year!()`
+Gets current year at compile time. Primarily used for copyright notices.
 ```sqf
 current_year!()
-
-// Becomes:
-2024 // The current year at writing
+// ->
+2024
 ```
 
-### `define_fn!(function_name)`
-Replaced with the function definition array required by Exile's `fn_preInit.sqf`. This macro handles file path separator differences between Windows and Linux
-
-Example:
+### File/Path Handling
+#### `file_name!()`
+Returns the name of the current file without extension. Useful for logging and file operations.
 ```sqf
-define_fn!("ESMs_util_test_myAwesomeFunction")
-
-// On Windows
-["ESMs_util_test_myAwesomeFunction", "\exile_server_manager\code\ESMs_util_test_myAwesomeFunction.sqf"]
-
-// On Linux
-["ESMs_util_test_myAwesomeFunction", "/exile_server_manager/code/ESMs_util_test_myAwesomeFunction.sqf"]
+file_name!()
+// ->
+"my_file"
 ```
 
-### `dig!(hash, keys...)`
-A shorthand for calling ESMs_util_hashmap_dig. This function will recursively dig into the provided SQF HashMap to find the key. See ESMs_util_hashmap_dig for more information.
+#### `os_path!(path_fragments...)`
+Creates OS-appropriate file paths for CfgFunctions. Handles path separator differences between Windows and Linux.
+```sqf
+os_path!("my_mod", "code")
+// ->
+"/my_mod/code" // Linux
 
-Example:
+os_path!("my_mod", "code")
+// ->
+"\my_mod\code" // Windows
+```
+
+### Function Definition
+#### `define_fn!(function_name)`
+Creates Exile function definition array required by `fn_preInit.sqf`. Automatically handles OS-specific path separators.
+```sqf
+define_fn!("ESMs_util_test_myFunction")
+// ->
+["ESMs_util_test_myFunction", "/exile_server_manager/code/ESMs_util_test_myFunction.sqf"]
+```
+
+#### `network_fn!(function_name)`
+Creates an Exile-formatted network function name pair. Requires 'network' in the name and valid parts before/after it.
+```sqf
+network_fn!("ESMs_system_reward_network_loadAll")
+// ->
+["ExileServer_system_network_esm_rewardLoadAll", "ESMs_system_reward_network_loadAll"]
+```
+
+### HashMap Operations
+#### `dig!(hash, keys...)`
+Recursively searches HashMap for nested keys. Shorthand for ESMs_util_hashmap_dig.
 ```sqf
 dig!(_myHash, "foo", "bar")
-
-// Becomes:
+// ->
 [_myHash, "foo", "bar"] call ESMs_util_hashmap_dig
 ```
 
-### `empty?(object)`
-Shorthand to check to see if the provided object is empty by doing a count comparison
-
-Example:
+#### `get!(hashmap, value, ?default)`
+Gets HashMap value with optional default. Uses `nil` if no default provided.
 ```sqf
-empty?(_myObject)
+get!(_map, "foo")
+// ->
+_map getOrDefault ["foo", nil]
 
-// Becomes:
-count(_myObject) isEqualTo 0
+get!(_map, "foo", 0)
+// ->
+_map getOrDefault ["foo", 0]
 ```
 
-### `!empty?(object)`
-Shorthand for the negated version of empty above; not empty.
-
-Example:
+### Type Checking
+#### `type?(object, TYPE)` / `!type?(object, TYPE)`
+Checks object type. Supports: ARRAY, BOOL, HASH, STRING, NIL
 ```sqf
-!empty?(_myObject)
+type?(_obj, STRING)
+// ->
+_obj isEqualType ""
 
-// Becomes:
-count(_myObject) isNotEqualTo 0
+!type?(_obj, ARRAY)
+// ->
+!(_obj isEqualType [])
 ```
 
-### `file_name!()`
-Replaced with the name of the current file without the extension
-
-Example:
+#### `empty?(object)` / `!empty?(object)`
+Checks if object has zero elements using count comparison.
 ```sqf
-file_name!()
+empty?(_obj)
+// ->
+count(_obj) isEqualTo 0
 
-// Becomes:
-"macros" // For this file
+!empty?(_obj)
+// ->
+count(_obj) isNotEqualTo 0
 ```
 
-### `get!(hashmap, value, ?default)`
-Shorthand for getting a value from a HashMap. The default is optional and will use `nil` if not provided
-
-Example:
+#### `nil?(variable)` / `!nil?(variable)`
+Checks if variable is `nil`. Important for Arma's variable handling.
 ```sqf
-get!(_myHashMap, "foo")
+nil?(_var)
+// ->
+isNil "_var"
 
-// Becomes:
-_myHashMap getOrDefault ["foo", nil]
-
-////
-get!(_myHashMap, "foo", 0)
-
-// Becomes:
-_myHashMap getOrDefault ["foo", 0]
+!nil?(_var)
+// ->
+!(isNil "_var")
 ```
 
-Example:
+#### `null?(object)`
+Checks if object is null. Distinct from `nil` in Arma - `null` objects (`objNull`, `locationNull`, etc.) are not considered `nil`.
 ```sqf
-key?(_myHashMap, "foo")
-
-// Becomes:
-[_myHashMap, "foo"] call ESMs_util_hashmap_key
+null?(_obj)
+// ->
+isNull _obj
 ```
 
-### `localize!(key_without_prefix, replacements...)`
-Shorthand for the `localize` command. Supports string interpolation
-
-Example:
+### Return Value Helpers
+#### `returns_nil!(object)`
+Safe nil return handler. Works around Arma's limitation with referencing variables that contain `nil`
 ```sqf
-// Requires a stringtable entry of "STR_ESM_SomeLocaleKey"
-localize!("SomeLocaleKey")
-
-// Becomes:
-localize "$STR_ESM_SomeLocaleKey"
-
-///
-// Requires a stringtable entry of "STR_ESM_KeyWithInterpolation"
-localize!("KeyWithInterpolation", _someValueToInclude)
-
-// Becomes:
-format[localize "$STR_ESM_KeyWithInterpolation", _someValueToInclude]
+returns_nil!(_obj)
+// ->
+if (isNil "_obj") then { nil } else { _obj }
 ```
 
-### Logging macros: `<log_level>!(message, replacements...)`
-A macro that supports logging based on the current logging level. Supports string interpolation and non-string objects
-
-Example:
-```sqf
-trace!("This logs on trace")
-debug!("This logs on debug")
-info!("This logs on info")
-warn!("This logs on warn")
-error!("This logs on error")
-
-// Becomes:
-// macros because it will use the current file name
-["macros", format["%1", "This logs on trace"], "trace"] call ESMs_util_log
-["macros", format["%1", "This logs on debug"], "debug"] call ESMs_util_log
-["macros", format["%1", "This logs on info"], "info"] call ESMs_util_log
-["macros", format["%1", "This logs on warn"], "warn"] call ESMs_util_log
-["macros", format["%1", "This logs on error"], "error"] call ESMs_util_log
-
-////
-debug!(_myObject)
-
-// Becomes:
-["macros", format["%1", _myObject], "debug"] call ESMs_util_log
-
-////
-info!("Wow! %1, so cool.", _playerName)
-
-// Becomes:
-["macros", format["Wow! %1, so cool.", _playerName], "info"] call ESMs_util_log
-```
-
-### `network_fn!(function_name)`
-Takes an ESM function name containing "network" and transforms it into an array containing both an Exile-formatted network function name and the original ESM function name.
-
-The Exile function name is built by combining the sections around "network". For example:
-`ESMs_system_reward_network_loadAll` becomes:
-1. reward + loadAll -> rewardLoadAll
-2. Final: ExileServer_system_network_esm_rewardLoadAll
-
-Example:
-```sqf
-network_fn!("ESMs_system_reward_network_loadAll")
-// Returns:
-["ExileServer_system_network_esm_rewardLoadAll", "ESMs_system_reward_network_loadAll"]
-
-network_fn!("ESMs_system_player_network_message")
-// Returns:
-["ExileServer_system_network_esm_playerMessage", "ESMs_system_player_network_message"]
-```
-
-### `nil?(variable)`
-Shorthand to check to see if the provided variable is nil
-
-Example:
-```sqf
-nil?(_myVariable)
-
-// Becomes:
-isNil "_myVariable"
-```
-
-### `!nil?(variable)`
-Shorthand for the negated version of nil above; not nil.
-
-Example:
-```sqf
-!nil?(_myVariable)
-
-// Becomes:
-!(isNil "_myVariable")
-```
-
-### `null?(object)`
-Shorthand to check to see if the provided object is null
-This is different than nil? above because Arma considers the null variants (objNull, locationNull, scriptNull, etc.) as not nil. Why you ask? Short answer: _because Arma_
-
-Example:
-```sqf
-null?(_playerObject)
-
-// Becomes:
-isNull _playerObject
-```
-
-### `os_path!(path_fragments...)`
-Replaced with a file path used to define the "file" attribute for CfgFunctions. This macro handles file path separator differences between Windows and Linux
-
-Example:
-```sqf
-os_path!("my_mod", "code_directory")
-
-// On Windows
-"my_mod\code_directory"
-
-// On Linux
-"my_mod/code_directory"
-```
-
-### `returns_nil!(object)`
-Shorthand to check to see if the provided object is nil and if it is, return `nil` explicitly.
-In my testing, Arma will error if a variable containing `nil` if referenced, even for a return.
-This is likely a bug and BIS _may_ fix it at some point making this not needed.
-
-Example:
-```sqf
-returns_nil!(_myObject)
-
-// Becomes:
-if (isNil "_myObject") then { nil } else { _myObject }
-```
-
-### `rv_type!(TYPE)`
-Shorthand for returning an object with the expected type. This is mostly used for the `params` command.
-Valid types: ARRAY, BOOL, HASH, STRING, NIL
-
-Example:
+#### `rv_type!(TYPE)`
+Returns default value for specified type. Used primarily with the `params` command.
 ```sqf
 rv_type!(ARRAY)
-rv_type!(BOOL)
-rv_type!(HASH)
-rv_type!(STRING)
-rv_type!(NIL)
-
-// Becomes:
+// ->
 []
-false
-createHashMap
+
+rv_type!(STRING)
+// ->
 ""
-nil
 ```
 
-### `type?(object, TYPE)`
-A shorthand for checking if an object is a particular type.
-Valid types: ARRAY, BOOL, HASH, STRING, NIL
-
-Example:
+### Logging
+#### `<level>!(message, replacements...)`
+Logging with string interpolation support. Levels: trace, debug, info, warn, error.
+Non-string objects are automatically formatted.
 ```sqf
-type?(_myObject, STRING)
+info!("Hello %1", _name)
+// ->
+["file", format["Hello %1", _name], "info"] call ESMs_util_log
 
-// Becomes:
-_myObject isEqualType ""
-
-////
-type?(_myObject, ARRAY)
-
-// Becomes:
-_myObject isEqualType []
+debug!(_object)
+// ->
+["file", format["%1", _object], "debug"] call ESMs_util_log
 ```
 
-### `!type?(object, TYPE)`
-A shorthand for a negated version of `type?` above.
-Valid types: ARRAY, BOOL, HASH, STRING, NIL
-
-Example:
+### Localization
+#### `localize!(key_without_prefix, replacements...)`
+String localization with optional interpolation. Automatically adds "STR_ESM_" prefix.
 ```sqf
-!type?(_myObject, STRING)
+localize!("Key")
+// ->
+localize "$STR_ESM_Key"
 
-// Becomes:
-!(_myObject isEqualType "")
-
-////
-type?(_myObject, ARRAY)
-
-// Becomes:
-!(_myObject isEqualType [])
+localize!("Key", _val)
+// ->
+format[localize "$STR_ESM_Key", _val]
 ```
