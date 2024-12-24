@@ -51,7 +51,7 @@ Author:
 ---------------------------------------------------------------------------- */
 
 private _message = _this select 0;
-[_message select 0, "ack", _message select 1] call ESMs_system_message_respond_to;
+[_message select 0, const!(ACK), _message select 1] call ESMs_system_message_respond_to;
 
 if !(_this select 1) exitWith {};
 

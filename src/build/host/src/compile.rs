@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use chrono::prelude::*;
 use compiler::{Compiler, CompilerError, Data};
 use heck::{ToLowerCamelCase, ToSnakeCase};
-use json_comments::StripComments;
 use lazy_static::lazy_static;
 use regex::Captures;
 use serde_json::Value;
@@ -13,15 +12,13 @@ lazy_static! {
         let file_path = crate::builder::GIT_PATH
             .join("src")
             .join("@esm")
-            .join("constants.jsonc");
+            .join("constants.yml");
 
         let contents = std::fs::read_to_string(file_path)
-            .expect("Missing file esm_arma/src/@esm/constants.jsonc");
+            .expect("Missing file esm_arma/src/@esm/constants.yml");
 
-        // Remove the comments :(
-        let contents = StripComments::new(contents.as_bytes());
-
-        serde_json::from_reader(contents).expect("Failed to parse content in constants.jsonc")
+        serde_yaml::from_str(&contents)
+            .expect("Failed to parse content in constants.jsonc")
     };
 }
 
@@ -933,7 +930,7 @@ mod tests {
 
         let output =
             compile!(r#"const!(EXAMPLE_NUMBER);"#, REGEX_CONST, replace_const);
-        assert_eq!(output, r#"69;"#);
+        assert_eq!(output, r#"69;"#); // Nice
 
         let output =
             compile!(r#"const!(EXAMPLE_BOOL);"#, REGEX_CONST, replace_const);

@@ -29,4 +29,4 @@ private _errorMessage = _this select 1;
 
 if (empty?(_errorMessage)) exitWith {};
 
-[_id, "call", [], [], [["message", _errorMessage]]] call ESMs_system_message_respond_to
+[_id, const!(CALL), [], [], [["message", _errorMessage]]] call ESMs_system_message_respond_to
