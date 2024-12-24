@@ -60,6 +60,13 @@ async fn routing_thread(mut receiver: UnboundedReceiver<BotRequest>) {
                 continue;
             };
 
+            if !BOOTED.load(Ordering::SeqCst)
+                && !matches!(request, BotRequest::Initialize(_))
+            {
+                debug!("[routing_thread] ❌ Boot failed - Exiting");
+                return;
+            };
+
             trace!("[routing_thread] Processing request: {request}");
 
             match request {
@@ -282,6 +289,11 @@ fn ready(handler: &NodeHandler<()>, endpoint: Option<Endpoint>) -> bool {
         trace!("[ready] Handler is not running");
         return false;
     }
+
+    if !BOOTED.load(Ordering::SeqCst) {
+        trace!("[ready] Boot failed");
+        return false;
+    };
 
     if !CONNECTED.load(Ordering::SeqCst) {
         trace!("[ready] Not connected");

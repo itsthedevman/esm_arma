@@ -1,8 +1,8 @@
 use super::*;
 
 pub fn send_to_channel(id: String, content: String) {
-    if !READY.load(Ordering::SeqCst) {
-        error!("[send_to_channel] ⚠ This endpoint cannot be accessed before \"pre_init\" has completed");
+    if !BOOTED.load(Ordering::SeqCst) {
+        error!("[send_to_channel] ❌ This endpoint cannot be accessed before we're connected to the bot");
         return;
     }
 

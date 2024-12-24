@@ -6,6 +6,11 @@ pub fn add_xm8_notification(
     recipient_uids: String,
     content: String,
 ) -> Result<(), String> {
+    if !BOOTED.load(Ordering::SeqCst) {
+        error!("[add_xm8_notification] ❌ Extension endpoint called before successful initialization. Ensure the Arma server properly loaded @esm and check the extension logs for initialization errors");
+        return Ok(());
+    }
+
     let timer = std::time::Instant::now();
 
     trace!(

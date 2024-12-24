@@ -31,7 +31,14 @@ async fn request_thread(mut receiver: UnboundedReceiver<ArmaRequest>) {
                 continue;
             };
 
-            trace!("[routing_thread] Processing request: {request}");
+            if !BOOTED.load(Ordering::SeqCst)
+                && !matches!(request, ArmaRequest::Initialize(_))
+            {
+                debug!("[request_thread] ❌ Boot failed - Exiting");
+                return;
+            };
+
+            trace!("[request_thread] Processing request: {request}");
 
             let result: Option<Message> = match request {
                 ArmaRequest::Query(message) => execute("query", *message).await,
@@ -284,6 +291,7 @@ async fn database_query(message: Message) -> MessageResult {
                 "reset_all" => DATABASE.command_reset_all(arguments).await,
                 "reset_player" => DATABASE.command_reset_player(arguments).await,
                 "restore" => DATABASE.command_restore(arguments).await,
+                "reward_admin" => DATABASE.command_reward_admin(arguments).await,
                 "set_id" => DATABASE.command_set_id(arguments).await,
                 "territory_info" => DATABASE.command_territory_info(arguments).await,
                 _ => Err(QueryError::System(format!(

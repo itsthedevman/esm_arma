@@ -52,6 +52,9 @@ lazy_static! {
     /// Is the extension ready to receive messages?
     pub static ref READY: AtomicBool = AtomicBool::new(false);
 
+    /// Has the extension booted correctly?
+    pub static ref BOOTED: AtomicBool = AtomicBool::new(false);
+
     /// The runtime for the asynchronous code
     pub static ref TOKIO_RUNTIME: Arc<Runtime> = Arc::new(tokio::runtime::Builder::new_multi_thread().enable_all().build().unwrap());
 }

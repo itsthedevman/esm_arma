@@ -9,7 +9,7 @@ pub fn send_message(
 ) {
     if !READY.load(Ordering::SeqCst) {
         error!(
-            "[send_message] ⚠ This endpoint cannot be accessed before \"pre_init\" has completed"
+            "[send_message] ❌ This endpoint cannot be accessed before we're connected to the bot"
         );
         return;
     }
