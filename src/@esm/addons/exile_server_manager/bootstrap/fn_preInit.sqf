@@ -97,6 +97,7 @@ forEach
     define_fn!("ESMs_util_array_map"),
     define_fn!("ESMs_util_command_handleFailure"),
     define_fn!("ESMs_util_command_handleSuccess"),
+    define_fn!("ESMs_util_config_isValidClassName"),
     define_fn!("ESMs_util_embed_addField"),
     define_fn!("ESMs_util_embed_create"),
     define_fn!("ESMs_util_embed_setColor"),
@@ -118,7 +119,7 @@ forEach
 {
      missionNamespace setVariable [
         _x select 0, // Exile function
-        compileFinal (format["_this call %1", _x select 1]) // ESM function
+        missionNamespace getVariable [_x select 1, {}] // ESM function
     ];
 }
 forEach
