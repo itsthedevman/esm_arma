@@ -81,6 +81,7 @@ forEach
     define_fn!("ESMs_system_extension_call"),
     define_fn!("ESMs_system_extension_callback"),
     define_fn!("ESMs_system_extension_processResult"),
+    define_fn!("ESMs_system_function_call"),
     define_fn!("ESMs_system_message_respond_to"),
     define_fn!("ESMs_system_message_respond_withError"),
     define_fn!("ESMs_system_network_discord_log"),
