@@ -31,6 +31,7 @@ Author:
 
 
 if (isNil "_this") exitWith { false };
+if (type?(_this, HASH)) exitWith { true };
 
 type?(_this, ARRAY) && {
 	[
