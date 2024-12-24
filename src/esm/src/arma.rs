@@ -284,9 +284,6 @@ async fn database_query(message: Message) -> MessageResult {
                 "reset_all" => DATABASE.command_reset_all(arguments).await,
                 "reset_player" => DATABASE.command_reset_player(arguments).await,
                 "restore" => DATABASE.command_restore(arguments).await,
-                "reward_territories" => {
-                    DATABASE.command_reward_territories(arguments).await
-                }
                 "set_id" => DATABASE.command_set_id(arguments).await,
                 "territory_info" => DATABASE.command_territory_info(arguments).await,
                 _ => Err(QueryError::System(format!(

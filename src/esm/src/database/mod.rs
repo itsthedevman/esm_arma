@@ -173,14 +173,6 @@ impl Database {
         queries::command_restore(&self, &mut connection, &arguments).await
     }
 
-    pub async fn command_reward_territories(
-        &self,
-        arguments: Arguments,
-    ) -> QueryResult {
-        let mut connection = self.connection().await.map_err(QueryError::System)?;
-        queries::command_reward_territories(&self, &mut connection, &arguments).await
-    }
-
     pub async fn command_set_id(&self, arguments: Arguments) -> QueryResult {
         let mut connection = self.connection().await.map_err(QueryError::System)?;
         queries::command_set_id(&self, &mut connection, &arguments).await
