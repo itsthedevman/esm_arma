@@ -117,6 +117,17 @@ macro_rules! import {
     };
 }
 
+#[macro_export]
+macro_rules! query {
+    ($name:ident) => {
+        pub async fn $name(&self, arguments: Arguments) -> QueryResult {
+            let mut connection =
+                self.connection().await.map_err(QueryError::System)?;
+            queries::$name(&self, &mut connection, &arguments).await
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use tokio::sync::Mutex;

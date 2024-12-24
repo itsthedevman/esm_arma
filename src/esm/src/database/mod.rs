@@ -111,8 +111,19 @@ impl Database {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    /// Queries!
+    // Queries!
     ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    query!(command_all_territories);
+    query!(command_me);
+    query!(command_player_info);
+    query!(command_player_territories);
+    query!(command_reset_all);
+    query!(command_reset_player);
+    query!(command_restore);
+    query!(command_set_id);
+    query!(command_territory_info);
+    query!(reward_create);
 
     pub async fn add_xm8_notifications(
         &self,
@@ -130,57 +141,6 @@ impl Database {
             content,
         )
         .await
-    }
-
-    pub async fn command_all_territories(
-        &self,
-        arguments: Arguments,
-    ) -> QueryResult {
-        let mut connection = self.connection().await.map_err(QueryError::System)?;
-        queries::command_all_territories(&self, &mut connection, &arguments).await
-    }
-
-    pub async fn command_me(&self, arguments: Arguments) -> QueryResult {
-        let mut connection = self.connection().await.map_err(QueryError::System)?;
-        queries::command_me(&self, &mut connection, &arguments).await
-    }
-
-    pub async fn command_player_info(&self, arguments: Arguments) -> QueryResult {
-        let mut connection = self.connection().await.map_err(QueryError::System)?;
-        queries::command_player_info(&self, &mut connection, &arguments).await
-    }
-
-    pub async fn command_player_territories(
-        &self,
-        arguments: Arguments,
-    ) -> QueryResult {
-        let mut connection = self.connection().await.map_err(QueryError::System)?;
-        queries::command_player_territories(&self, &mut connection, &arguments).await
-    }
-
-    pub async fn command_reset_all(&self, arguments: Arguments) -> QueryResult {
-        let mut connection = self.connection().await.map_err(QueryError::System)?;
-        queries::command_reset_all(&self, &mut connection, &arguments).await
-    }
-
-    pub async fn command_reset_player(&self, arguments: Arguments) -> QueryResult {
-        let mut connection = self.connection().await.map_err(QueryError::System)?;
-        queries::command_reset_player(&self, &mut connection, &arguments).await
-    }
-
-    pub async fn command_restore(&self, arguments: Arguments) -> QueryResult {
-        let mut connection = self.connection().await.map_err(QueryError::System)?;
-        queries::command_restore(&self, &mut connection, &arguments).await
-    }
-
-    pub async fn command_set_id(&self, arguments: Arguments) -> QueryResult {
-        let mut connection = self.connection().await.map_err(QueryError::System)?;
-        queries::command_set_id(&self, &mut connection, &arguments).await
-    }
-
-    pub async fn command_territory_info(&self, arguments: Arguments) -> QueryResult {
-        let mut connection = self.connection().await.map_err(QueryError::System)?;
-        queries::command_territory_info(&self, &mut connection, &arguments).await
     }
 
     /// Attempts to decode a hashed territory ID or custom ID
