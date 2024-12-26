@@ -4,7 +4,7 @@ CREATE TABLE reward (
     id INT PRIMARY KEY AUTO_INCREMENT,
     account_uid VARCHAR(32) NOT NULL,
     code CHAR(4) NOT NULL,
-    reward_type ENUM('poptabs', 'respect', 'vehicle', 'item') NOT NULL,
+    reward_type ENUM('poptabs', 'respect', 'classname') NOT NULL,
     classname VARCHAR(64) NULL,
     amount INT NOT NULL,
     source VARCHAR(32) NOT NULL,
