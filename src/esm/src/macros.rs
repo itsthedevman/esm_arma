@@ -53,11 +53,7 @@ macro_rules! include_sql {
         match fs::read_to_string(path) {
             Ok(c) => c,
             Err(e) => {
-                error!(
-                    "Failed to load file at @esm/sql/queries/{}.sql. Reason: {e}",
-                    $name
-                );
-
+                error!("Failed to read @esm/sql/queries/{}.sql. {e}", $name);
                 String::new()
             }
         }
@@ -92,7 +88,7 @@ macro_rules! load_sql {
 
             fn format_error(name: &str) -> ESMResult {
                 Err(format!(
-                    "Failed to load {name}.sql. Please ensure @esm/sql/queries/{name}.sql exists and contains valid SQL"
+                    "Failed to load @esm/sql/queries/{name}.sql. Please ensure it exists and contains valid SQL"
                 )
                 .into())
             }

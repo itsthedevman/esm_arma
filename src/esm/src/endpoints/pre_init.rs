@@ -1,7 +1,7 @@
 use super::*;
 
 const BOOT_FAILED_PREFIX: &str = "[pre_init] ❌ Boot failed -";
-const BOOT_FAILED_MESSAGE: &str = "[pre_init] ❌ Boot failed - You must fix the above warning(s) before Exile Server Manager can boot";
+const BOOT_FAILED_MESSAGE: &str = "[pre_init] ❌ Boot failed - You must fix the above error(s) before Exile Server Manager can boot";
 
 pub fn pre_init(
     callback: Context,
@@ -44,7 +44,7 @@ pub fn pre_init(
 
     if let Err(e) = CONFIG.validate() {
         error!("{BOOT_FAILED_PREFIX} Invalid config file");
-        warn!("[validate] ⚠ {}", e);
+        error!("[pre_init] ❌ {}", e);
         error!("{BOOT_FAILED_MESSAGE}");
         return;
     }
@@ -72,43 +72,44 @@ pub fn pre_init(
         error!("{BOOT_FAILED_PREFIX} Invalid initialization data provided");
 
         for error in errors {
-            warn!("[validate] ⚠ {error}");
+            error!("[pre_init] ❌ {error}");
         }
 
         error!("{BOOT_FAILED_MESSAGE}");
         return;
     }
 
-    info!("[pre_init]   Initializing...");
+    info!("[pre_init]   Connecting to the database...");
+    let connection_result =
+        TOKIO_RUNTIME.block_on(async { DATABASE.connect().await });
 
+    if let Err(e) = connection_result {
+        error!("{BOOT_FAILED_PREFIX} Failed to connect to the database");
+        error!("[pre_init] ❌ {e}");
+        error!("{BOOT_FAILED_MESSAGE}");
+        return;
+    }
+
+    info!("[pre_init]   Negotiating with Arma...");
     if let Err(e) = ArmaRequest::initialize(callback) {
-        error!("{BOOT_FAILED_PREFIX} Failed to initialize connection to Arma");
-        warn!("[pre_init] ⚠ {e}");
+        error!("{BOOT_FAILED_PREFIX} Failed to initialize Arma components");
+        error!("[pre_init] ❌ {e}");
         error!("{BOOT_FAILED_MESSAGE}");
         return;
     };
 
+    info!("[pre_init]   Looking up the bot's number...");
     if let Err(e) = BotRequest::initialize(init) {
-        error!("{BOOT_FAILED_PREFIX} Failed to initialize connection to the bot");
-        warn!("[pre_init] ⚠ {e}");
+        error!("{BOOT_FAILED_PREFIX} Failed to initialize bot components");
+        error!("[pre_init] ❌ {e}");
         error!("{BOOT_FAILED_MESSAGE}");
         return;
     };
 
-    TOKIO_RUNTIME.block_on(async {
-        info!("[pre_init]   Connecting to the database...");
-        if let Err(e) = DATABASE.connect().await {
-            error!("{BOOT_FAILED_PREFIX} Failed to connect to the database");
-            warn!("[pre_init] ⚠ {e}");
-            error!("{BOOT_FAILED_MESSAGE}");
-            return;
-        }
+    BOOTED.store(true, Ordering::SeqCst);
 
-        BOOTED.store(true, Ordering::SeqCst);
-
-        info!(
-            "[pre_init] ✅ Initialization completed in {:.2?}",
-            timer.elapsed()
-        );
-    });
+    info!(
+        "[pre_init] ✅ Initialization completed in {:.2?}",
+        timer.elapsed()
+    );
 }

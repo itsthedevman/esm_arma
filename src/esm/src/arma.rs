@@ -31,13 +31,6 @@ async fn request_thread(mut receiver: UnboundedReceiver<ArmaRequest>) {
                 continue;
             };
 
-            if !BOOTED.load(Ordering::SeqCst)
-                && !matches!(request, ArmaRequest::Initialize(_))
-            {
-                debug!("[request_thread] ❌ Boot failed - Exiting");
-                return;
-            };
-
             trace!("[request_thread] Processing request: {request}");
 
             let result: Option<Message> = match request {
