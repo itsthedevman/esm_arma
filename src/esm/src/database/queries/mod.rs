@@ -6,6 +6,7 @@ pub use crate::database::*;
 pub use crate::*;
 
 // I have this separated so Rust compiler errors will be localized to a line vs the entire macro
+import_and_export!(add_reward);
 import_and_export!(add_xm8_notifications);
 import_and_export!(check_if_territory_exists);
 import_and_export!(check_if_territory_owner);
@@ -39,6 +40,7 @@ load_sql! {
     command_restore_construction,
     command_restore_container,
     command_restore_territory,
+    command_reward_admin,
     command_set_id,
     command_territory_info,
     decode_territory_id,

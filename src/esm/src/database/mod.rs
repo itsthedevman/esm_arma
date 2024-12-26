@@ -114,6 +114,7 @@ impl Database {
     // Queries!
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
+    query!(add_reward);
     query!(command_all_territories);
     query!(command_me);
     query!(command_player_info);
@@ -123,7 +124,6 @@ impl Database {
     query!(command_restore);
     query!(command_set_id);
     query!(command_territory_info);
-    query!(reward_create);
 
     pub async fn add_xm8_notifications(
         &self,
