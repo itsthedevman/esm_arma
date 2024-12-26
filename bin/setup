@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+readonly root_dir="$(pwd)"
+readonly password="${MYSQL_PASSWORD:-password12345}"
+readonly database="${MYSQL_PASSWORD:-exile_esm}"
+
+function call_mysql() {
+    mysql -uroot -p"$password" --host 127.0.0.1 "$database" "$@"
+}
+
+echo "Dropping all tables from $database..."
+
+# Get all tables and drop them
+tables=$(call_mysql -N -e "SHOW TABLES")
+if [ -n "$tables" ]; then
+    call_mysql -e "SET FOREIGN_KEY_CHECKS=0; \
+        $(echo "$tables" | awk '{print "DROP TABLE IF EXISTS `" $1 "`;"}') \
+        SET FOREIGN_KEY_CHECKS=1;"
+fi
+
+echo "Importing exile.sql..."
+call_mysql <"$root_dir/exile.sql"
+
+echo "Running migrations..."
+"$root_dir/bin/db_migrate"
+
+echo "Setup complete!"
