@@ -1,6 +1,8 @@
 use chrono::prelude::*;
 use fake::{
-    faker::{boolean::en::Boolean, chrono::en::DateTimeBetween, company::en::CompanyName},
+    faker::{
+        boolean::en::Boolean, chrono::en::DateTimeBetween, company::en::CompanyName,
+    },
     faker::{internet::en::Username, name::en::Name},
     Fake,
 };
@@ -99,11 +101,11 @@ impl Database {
 
         format!(
             r#"
-DELETE FROM account;
-DELETE FROM player;
-DELETE FROM construction;
-DELETE FROM container;
-DELETE FROM territory;
+SET FOREIGN_KEY_CHECKS = 0;
+SELECT CONCAT('DROP TABLE IF EXISTS `', table_name, '`;')
+FROM information_schema.tables
+WHERE table_schema = DATABASE();
+SET FOREIGN_KEY_CHECKS = 1;
 
 INSERT INTO account
 VALUES {accounts};
@@ -138,8 +140,11 @@ fn random_timestamp() -> String {
     let start_time = current_time; // Don't use a time in the past or Exile will error loading the territory
     let end_time = current_time.with_month(12).unwrap().with_day(31).unwrap();
 
-    let random_time: DateTime<Utc> =
-        DateTimeBetween(start_time.with_timezone(&Utc), end_time.with_timezone(&Utc)).fake();
+    let random_time: DateTime<Utc> = DateTimeBetween(
+        start_time.with_timezone(&Utc),
+        end_time.with_timezone(&Utc),
+    )
+    .fake();
 
     random_time
         .with_timezone(&Local)
