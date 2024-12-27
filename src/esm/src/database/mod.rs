@@ -20,10 +20,13 @@ trait FromArguments: DeserializeOwned {
         args: HashMap<String, serde_json::Value>,
     ) -> Result<Self, QueryError> {
         serde_json::to_value(&args)
-            .map_err(|e| QueryError::User(e.to_string()))
+            .map_err(|e| {
+                QueryError::User(format!("Failed to convert to Value: {e}"))
+            })
             .and_then(|v| {
-                serde_json::from_value(v)
-                    .map_err(|e| QueryError::User(e.to_string()))
+                serde_json::from_value(v).map_err(|e| {
+                    QueryError::User(format!("Failed to deserialize: {e}"))
+                })
             })
     }
 }
