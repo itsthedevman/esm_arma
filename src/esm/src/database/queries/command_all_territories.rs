@@ -1,19 +1,23 @@
 use super::*;
 
+#[derive(Debug, Serialize)]
+struct TerritoryResult {
+    id: String,
+    esm_custom_id: Option<String>,
+    territory_name: String,
+    owner_uid: String,
+    owner_name: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Arguments {}
+impl FromArguments for Arguments {}
+
 pub async fn command_all_territories(
     context: &Database,
     connection: &mut Conn,
-    _arguments: &HashMap<String, String>,
+    _arguments: Arguments,
 ) -> QueryResult {
-    #[derive(Debug, Serialize)]
-    struct TerritoryResult {
-        id: String,
-        esm_custom_id: Option<String>,
-        territory_name: String,
-        owner_uid: String,
-        owner_name: String,
-    }
-
     let result = connection
         .exec_map(
             &context.sql.command_all_territories,

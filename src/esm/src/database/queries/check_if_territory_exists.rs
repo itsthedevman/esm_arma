@@ -1,5 +1,9 @@
 use super::*;
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {}
+impl FromArguments for Arguments {}
+
 pub async fn check_if_territory_exists(
     context: &Database,
     connection: &mut Conn,

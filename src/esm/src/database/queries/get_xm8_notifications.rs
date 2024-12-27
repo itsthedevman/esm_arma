@@ -18,7 +18,8 @@ impl Notification {
     ) -> Result<Self, String> {
         Ok(Self {
             uuids: serde_json::from_str(&tuple.0).map_err(|e| e.to_string())?,
-            recipient_uids: serde_json::from_str(&tuple.1).map_err(|e| e.to_string())?,
+            recipient_uids: serde_json::from_str(&tuple.1)
+                .map_err(|e| e.to_string())?,
             notification_type: tuple.2,
             content: tuple.3,
             created_at: tuple.4,
@@ -52,6 +53,10 @@ fn query() -> &'static str {
         100;
     "#
 }
+
+#[derive(Debug, Deserialize)]
+pub struct Arguments {}
+impl FromArguments for Arguments {}
 
 pub async fn get_xm8_notifications(
     _context: &Database,

@@ -20,34 +20,50 @@ struct PlayerResult {
     territories: Vec<TerritoryResult>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {
+    #[serde(rename = "uid")]
+    pub player_uid: String,
+}
+
+impl FromArguments for Arguments {}
+
 pub async fn command_me(
     context: &Database,
     connection: &mut Conn,
-    arguments: &HashMap<String, String>,
+    arguments: Arguments,
 ) -> QueryResult {
-    let player_uid = match arguments.get("uid") {
-        Some(uid) => uid,
-        None => {
-            return Err(QueryError::User(
-                "Missing key `uid` in provided query arguments".into(),
-            ));
-        }
-    };
-
     let result = connection
         .exec_map(
             &context.sql.command_me,
-            params! { "player_uid" => player_uid, "wildcard_uid" => format!("%{}%", player_uid) },
-            |(locker, score, name, money, damage, hunger, thirst, kills, deaths, territories)| {
+            params! {
+                "player_uid" => &arguments.player_uid,
+                "wildcard_uid" => format!("%{}%", arguments.player_uid)
+            },
+            |(
+                locker,
+                score,
+                name,
+                money,
+                damage,
+                hunger,
+                thirst,
+                kills,
+                deaths,
+                territories,
+            )| {
                 let territories_json: Option<String> = territories;
                 let mut territories = vec![];
 
                 if let Some(territories_json) = territories_json {
                     if let Ok(territories_parsed) =
-                        serde_json::from_str::<Vec<TerritoryResult>>(&territories_json)
+                        serde_json::from_str::<Vec<TerritoryResult>>(
+                            &territories_json,
+                        )
                     {
                         territories_parsed.into_iter().for_each(|mut territory| {
-                            territory.id = context.encode_territory_id(&territory.id);
+                            territory.id =
+                                context.encode_territory_id(&territory.id);
                             territories.push(territory);
                         });
                     }

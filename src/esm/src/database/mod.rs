@@ -7,13 +7,26 @@ pub use mysql_async::{
     params, prelude::Queryable, Conn, Opts, Params, Pool, Result as SQLResult,
 };
 use queries::{Notification, Queries};
+use serde::de::DeserializeOwned;
 pub use serde::{Deserialize, Serialize};
 pub use std::{collections::HashMap, path::Path};
 
 import!(hasher);
 
 pub type QueryResult = Result<Vec<String>, QueryError>;
-type Arguments = HashMap<String, String>;
+
+trait FromArguments: DeserializeOwned {
+    fn from_arguments(
+        args: HashMap<String, serde_json::Value>,
+    ) -> Result<Self, QueryError> {
+        serde_json::to_value(&args)
+            .map_err(|e| QueryError::User(e.to_string()))
+            .and_then(|v| {
+                serde_json::from_value(v)
+                    .map_err(|e| QueryError::User(e.to_string()))
+            })
+    }
+}
 
 #[derive(Debug)]
 pub enum QueryError {
@@ -129,7 +142,7 @@ impl Database {
         &self,
         notification_type: String,
         recipient_uids: String,
-        content: Arguments,
+        content: HashMap<String, String>,
     ) -> Result<(), Error> {
         let mut connection = self.connection().await?;
 

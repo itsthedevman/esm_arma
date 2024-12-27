@@ -116,10 +116,16 @@ macro_rules! import {
 #[macro_export]
 macro_rules! query {
     ($name:ident) => {
-        pub async fn $name(&self, arguments: Arguments) -> QueryResult {
+        pub async fn $name(
+            &self,
+            arguments: HashMap<String, JSONValue>,
+        ) -> QueryResult {
+            let arguments = queries::$name::Arguments::from_arguments(arguments)?;
+
             let mut connection =
                 self.connection().await.map_err(QueryError::System)?;
-            queries::$name(&self, &mut connection, &arguments).await
+
+            queries::$name(&self, &mut connection, arguments).await
         }
     };
 }

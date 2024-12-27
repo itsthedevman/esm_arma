@@ -1,16 +1,20 @@
 use super::*;
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {
+    pub territory_id: String,
+}
+
+impl FromArguments for Arguments {}
+
 pub async fn command_territory_info(
     context: &Database,
     connection: &mut Conn,
-    arguments: &HashMap<String, String>,
+    arguments: Arguments,
 ) -> QueryResult {
-    let territory_id = arguments.get("territory_id").ok_or(QueryError::User(
-        "Missing key `territory_id` in provided query arguments".into(),
-    ))?;
-
     let territory_id =
-        queries::decode_territory_id(context, connection, territory_id).await?;
+        queries::decode_territory_id(context, connection, &arguments.territory_id)
+            .await?;
 
     let result = connection
         .exec_map(

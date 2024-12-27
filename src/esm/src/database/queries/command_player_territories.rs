@@ -34,24 +34,26 @@ pub struct Territory {
     esm_custom_id: Option<String>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {
+    #[serde(rename = "uid")]
+    pub player_uid: String,
+}
+
+impl FromArguments for Arguments {}
+
 pub async fn command_player_territories(
     context: &Database,
     connection: &mut Conn,
-    arguments: &HashMap<String, String>,
+    arguments: Arguments,
 ) -> QueryResult {
-    let player_uid = match arguments.get("uid") {
-        Some(uid) => uid,
-        None => {
-            return Err(QueryError::User(
-                "Missing key `uid` in provided query arguments".into(),
-            ));
-        }
-    };
-
     let result = connection
         .exec_map(
             &context.sql.command_player_territories,
-            params! { "player_uid" => player_uid, "wildcard_uid" => format!("%{}%", player_uid) },
+            params! {
+                "player_uid" => &arguments.player_uid,
+                "wildcard_uid" => format!("%{}%", arguments.player_uid)
+            },
             map_territory_results,
         )
         .await;

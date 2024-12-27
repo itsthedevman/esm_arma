@@ -20,6 +20,10 @@ fn query() -> &'static str {
     "#
 }
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {}
+impl FromArguments for Arguments {}
+
 pub async fn update_xm8_notification_state(
     _context: &Database,
     connection: &mut Conn,

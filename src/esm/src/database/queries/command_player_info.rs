@@ -21,17 +21,24 @@ struct Account {
     territories: Vec<Territory>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {
+    #[serde(rename = "uid")]
+    pub player_uid: String,
+}
+
+impl FromArguments for Arguments {}
+
 pub async fn command_player_info(
     context: &Database,
     connection: &mut Conn,
-    arguments: &HashMap<String, String>,
+    arguments: Arguments,
 ) -> QueryResult {
-    let player_uid = arguments.get("uid").ok_or(QueryError::User(
-        "Missing key `uid` in provided query arguments".into(),
-    ))?;
-
     let result: Option<Row> = connection
-        .exec_first(&context.sql.command_player_info, params! { player_uid })
+        .exec_first(
+            &context.sql.command_player_info,
+            params! { "player_uid" => arguments.player_uid },
+        )
         .await
         .map_err(|e| QueryError::System(format!("Query failed - {}", e)))?;
 

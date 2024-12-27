@@ -1,19 +1,21 @@
 use super::*;
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {
+    pub territory_id: String,
+}
+
+impl FromArguments for Arguments {}
+
 pub async fn command_restore(
     context: &Database,
     connection: &mut Conn,
-    arguments: &HashMap<String, String>,
+    arguments: Arguments,
 ) -> QueryResult {
-    let Some(territory_id) = arguments.get("territory_id") else {
-        return Err(QueryError::User(
-            "Missing key `territory_id` in provided query arguments".into(),
-        ));
-    };
-
     // This handles both hashed IDs or custom IDs
     let territory_id =
-        queries::decode_territory_id(context, connection, territory_id).await?;
+        queries::decode_territory_id(context, connection, &arguments.territory_id)
+            .await?;
 
     // Three separate SQL queries
     // The driver doesn't support preparing and executing a multi-command statement

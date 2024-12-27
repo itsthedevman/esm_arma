@@ -1,18 +1,22 @@
 use super::*;
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {
+    #[serde(rename = "uid")]
+    pub player_uid: String,
+}
+
+impl FromArguments for Arguments {}
+
 pub async fn command_reset_player(
     context: &Database,
     connection: &mut Conn,
-    arguments: &HashMap<String, String>,
+    arguments: Arguments,
 ) -> QueryResult {
-    let target_uid = arguments.get("uid").ok_or(QueryError::User(
-        "Missing key `uid` in provided query arguments".into(),
-    ))?;
-
     let result = connection
         .exec_drop(
             &context.sql.command_reset_player,
-            params! { "uid" => target_uid },
+            params! { "uid" => arguments.player_uid },
         )
         .await;
 

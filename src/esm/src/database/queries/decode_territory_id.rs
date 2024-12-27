@@ -1,5 +1,9 @@
 use super::*;
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {}
+impl FromArguments for Arguments {}
+
 pub async fn decode_territory_id(
     context: &Database,
     connection: &mut Conn,
@@ -8,7 +12,9 @@ pub async fn decode_territory_id(
     // Attempt to decode the ID since this is all done in Rust
     if let Some(database_id) = context.hasher.decode(&territory_id) {
         // Just because the hasher is able to decode it doesn't mean it is a valid database ID
-        if queries::check_if_territory_exists(context, connection, database_id).await? {
+        if queries::check_if_territory_exists(context, connection, database_id)
+            .await?
+        {
             return Ok(database_id);
         }
     }

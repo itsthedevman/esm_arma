@@ -1,5 +1,9 @@
 use super::*;
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {}
+impl FromArguments for Arguments {}
+
 pub async fn set_territory_payment_counter(
     context: &Database,
     connection: &mut Conn,

@@ -255,44 +255,23 @@ async fn database_query(message: Message) -> MessageResult {
     );
 
     let result = match name.as_str().unwrap_or_default() {
+        "add_reward" => DATABASE.add_reward(arguments).await,
         "update_xm8_notification_state" => {
             DATABASE.update_xm8_notification_state(arguments).await
         }
-        // Any queries that use HashMap<String, String> as arguments
-        name => {
-            let arguments = arguments
-                .into_iter()
-                .map(|(k, v)| {
-                    (
-                        k,
-                        v.as_str()
-                            .map(ToString::to_string)
-                            .unwrap_or_else(|| v.to_string()),
-                    )
-                })
-                .collect();
-
-            match name {
-                "add_reward" => DATABASE.add_reward(arguments).await,
-                "all_territories" => {
-                    DATABASE.command_all_territories(arguments).await
-                }
-                "me" => DATABASE.command_me(arguments).await,
-                "player_info" => DATABASE.command_player_info(arguments).await,
-                "player_territories" => {
-                    DATABASE.command_player_territories(arguments).await
-                }
-                "reset_all" => DATABASE.command_reset_all(arguments).await,
-                "reset_player" => DATABASE.command_reset_player(arguments).await,
-                "restore" => DATABASE.command_restore(arguments).await,
-                "set_id" => DATABASE.command_set_id(arguments).await,
-                "territory_info" => DATABASE.command_territory_info(arguments).await,
-                _ => Err(QueryError::System(format!(
-                    "Unexpected query \"{}\" with arguments {:?}",
-                    name, arguments
-                ))),
-            }
-        }
+        "all_territories" => DATABASE.command_all_territories(arguments).await,
+        "me" => DATABASE.command_me(arguments).await,
+        "player_info" => DATABASE.command_player_info(arguments).await,
+        "player_territories" => DATABASE.command_player_territories(arguments).await,
+        "reset_all" => DATABASE.command_reset_all(arguments).await,
+        "reset_player" => DATABASE.command_reset_player(arguments).await,
+        "restore" => DATABASE.command_restore(arguments).await,
+        "set_id" => DATABASE.command_set_id(arguments).await,
+        "territory_info" => DATABASE.command_territory_info(arguments).await,
+        _ => Err(QueryError::System(format!(
+            "Unexpected query \"{}\" with arguments {:?}",
+            name, arguments
+        ))),
     };
 
     match result {

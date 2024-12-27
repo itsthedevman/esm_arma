@@ -1,9 +1,13 @@
 use super::*;
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {}
+impl FromArguments for Arguments {}
+
 pub async fn command_reset_all(
     context: &Database,
     connection: &mut Conn,
-    _arguments: &HashMap<String, String>,
+    _arguments: Arguments,
 ) -> QueryResult {
     let result = connection.query_drop(&context.sql.command_reset_all).await;
 

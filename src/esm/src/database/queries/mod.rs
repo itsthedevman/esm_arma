@@ -29,6 +29,7 @@ import_and_export!(update_xm8_notification_state);
 // corresponding SQL file. These files MUST exist in @esm/sql/queries or there will be errors
 load_sql! {
     account_name_lookup,
+    add_reward,
     check_if_territory_exists,
     check_if_territory_owner,
     command_all_territories,
@@ -40,7 +41,6 @@ load_sql! {
     command_restore_construction,
     command_restore_container,
     command_restore_territory,
-    command_reward_admin,
     command_set_id,
     command_territory_info,
     decode_territory_id,

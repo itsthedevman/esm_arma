@@ -1,40 +1,32 @@
 use super::*;
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {
+    pub steam_uid: String,
+    pub territory_id: String,
+    pub new_territory_id: String,
+}
+
+impl FromArguments for Arguments {}
+
 pub async fn command_set_id(
     context: &Database,
     connection: &mut Conn,
-    arguments: &HashMap<String, String>,
+    arguments: Arguments,
 ) -> QueryResult {
-    let Some(steam_uid) = arguments.get("steam_uid") else {
-        return Err(QueryError::User(
-            "Missing key `steam_uid` in provided query arguments".into(),
-        ));
-    };
-
-    let Some(territory_id) = arguments.get("territory_id") else {
-        return Err(QueryError::User(
-            "Missing key `territory_id` in provided query arguments".into(),
-        ));
-    };
-
-    let Some(new_territory_id) = arguments.get("new_territory_id") else {
-        return Err(QueryError::User(
-            "Missing key `new_territory_id` in provided query arguments".into(),
-        ));
-    };
-
     // This handles both hashed IDs or custom
     let territory_id =
-        queries::decode_territory_id(context, connection, territory_id).await?;
+        queries::decode_territory_id(context, connection, &arguments.territory_id)
+            .await?;
 
     // Territory admins can bypass this check.
     // Otherwise, check to see if the steam_uid is the owner's
-    if !arma::is_territory_admin(&steam_uid) {
+    if !arma::is_territory_admin(&arguments.steam_uid) {
         let is_owner = queries::check_if_territory_owner(
             context,
             connection,
             territory_id,
-            steam_uid,
+            &arguments.steam_uid,
         )
         .await?;
 
@@ -50,7 +42,7 @@ pub async fn command_set_id(
             &context.sql.command_set_id,
             params! {
                 "territory_id" => territory_id,
-                "custom_id" => new_territory_id
+                "custom_id" => &arguments.new_territory_id
             },
         )
         .await;

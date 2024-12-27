@@ -12,6 +12,10 @@ fn query() -> &'static str {
     "#
 }
 
+#[derive(Debug, Deserialize)]
+pub struct Arguments {}
+impl FromArguments for Arguments {}
+
 pub async fn add_xm8_notifications(
     context: &Database,
     connection: &mut Conn,
