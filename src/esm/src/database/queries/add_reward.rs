@@ -9,9 +9,9 @@ pub struct Arguments {
 
     pub uid: String,
     pub classname: Option<String>,
-    pub amount: String,
+    pub amount: u64,
     pub source: String,
-    pub expires_at: Option<String>,
+    pub expires_at: Option<DateTime<Utc>>,
 }
 
 impl FromArguments for Arguments {}
@@ -31,7 +31,7 @@ pub async fn add_reward(
                 "classname" => arguments.classname,
                 "amount" => arguments.amount,
                 "source" => arguments.source,
-                "expires_at" => arguments.expires_at,
+                "expires_at" => arguments.expires_at.map(|v| v.naive_utc()),
             },
         )
         .await;
