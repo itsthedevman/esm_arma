@@ -11,8 +11,10 @@ CREATE TABLE reward (
     expires_at DATETIME,
     redeemed_at DATETIME NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY unq_account_public_id (account_uid, public_id),
-    INDEX idx_account_unredeemed (account_uid, redeemed_at),
+    INDEX idx_account_unredeemed (account_uid, redeemed_at, expires_at),
+    INDEX idx_account_expiry (account_uid, expires_at),
     INDEX idx_expires_at (expires_at),
     INDEX idx_source (source),
     FOREIGN KEY (account_uid) REFERENCES account (uid)
