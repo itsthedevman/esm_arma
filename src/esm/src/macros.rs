@@ -128,6 +128,17 @@ macro_rules! query {
             queries::$name(&self, &mut connection, arguments).await
         }
     };
+
+    ($name:ident, $return:ty) => {
+        pub async fn $name(&self, arguments: HashMap<String, JSONValue>) -> $return {
+            let arguments = queries::$name::Arguments::from_arguments(arguments)?;
+
+            let mut connection =
+                self.connection().await.map_err(QueryError::System)?;
+
+            queries::$name(&self, &mut connection, arguments).await
+        }
+    };
 }
 
 #[cfg(test)]
