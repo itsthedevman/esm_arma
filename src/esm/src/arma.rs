@@ -255,7 +255,7 @@ async fn database_query(message: Message) -> MessageResult {
     );
 
     let result = match name.as_str().unwrap_or_default() {
-        "add_reward" => DATABASE.add_reward(arguments).await,
+        "add_rewards" => DATABASE.add_rewards(arguments).await,
         "update_xm8_notification_state" => {
             DATABASE.update_xm8_notification_state(arguments).await
         }

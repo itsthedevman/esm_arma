@@ -2,7 +2,7 @@ SELECT
     CASE
         WHEN EXISTS (
             SELECT
-                id
+                uid
             FROM
                 account
             WHERE

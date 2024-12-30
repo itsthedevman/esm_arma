@@ -5,28 +5,35 @@ use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
 pub struct Arguments {
+    pub uid: String,
+    pub items: Vec<RewardItem>,
+}
+
+impl FromArguments for Arguments {}
+
+#[derive(Debug, Deserialize)]
+pub struct RewardItem {
     #[serde(rename = "type")]
     pub reward_type: String,
 
-    pub uid: String,
     pub classname: Option<String>,
     pub amount: u64,
     pub source: String,
     pub expires_at: Option<DateTime<Utc>>,
 }
 
-impl FromArguments for Arguments {}
-
-pub async fn add_reward(
+pub async fn add_rewards(
     context: &Database,
     connection: &mut Conn,
     arguments: Arguments,
 ) -> QueryResult {
+    let player_uid = &arguments.uid;
+
     if !queries::check_if_account_exists(
         context,
         connection,
         AccountArguments {
-            player_uid: arguments.uid.to_owned(),
+            player_uid: player_uid.to_owned(),
         },
     )
     .await?
@@ -35,17 +42,19 @@ pub async fn add_reward(
     }
 
     let result = connection
-        .exec_drop(
+        .exec_batch(
             &context.sql.add_reward,
-            params! {
-                "public_id" => &Uuid::new_v4().to_string()[28..],
-                "account_uid" => arguments.uid,
-                "reward_type" => arguments.reward_type,
-                "classname" => arguments.classname,
-                "amount" => arguments.amount,
-                "source" => arguments.source,
-                "expires_at" => arguments.expires_at.map(|v| v.naive_utc()),
-            },
+            arguments.items.into_iter().map(|item| {
+                params! {
+                    "public_id" => &Uuid::new_v4().to_string()[28..],
+                    "account_uid" => &player_uid,
+                    "reward_type" => item.reward_type,
+                    "classname" => item.classname,
+                    "amount" => item.amount,
+                    "source" => item.source,
+                    "expires_at" => item.expires_at.map(|v| v.naive_utc()),
+                }
+            }),
         )
         .await;
 

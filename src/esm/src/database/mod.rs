@@ -130,7 +130,7 @@ impl Database {
     // Queries!
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    query!(add_reward);
+    query!(add_rewards);
     query!(check_if_account_exists, Result<bool, QueryError>);
     query!(command_all_territories);
     query!(command_me);

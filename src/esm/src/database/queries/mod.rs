@@ -6,7 +6,7 @@ pub use crate::database::*;
 pub use crate::*;
 
 // I have this separated so Rust compiler errors will be localized to a line vs the entire macro
-import_and_export!(add_reward);
+import_and_export!(add_rewards);
 import_and_export!(add_xm8_notifications);
 import_and_export!(check_if_account_exists);
 import_and_export!(check_if_territory_exists);
