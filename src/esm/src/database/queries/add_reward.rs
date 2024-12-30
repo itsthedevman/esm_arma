@@ -1,6 +1,7 @@
-use uuid::Uuid;
-
 use super::*;
+use queries::check_if_account_exists::Arguments as AccountArguments;
+
+use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
 pub struct Arguments {
@@ -21,6 +22,18 @@ pub async fn add_reward(
     connection: &mut Conn,
     arguments: Arguments,
 ) -> QueryResult {
+    if !queries::check_if_account_exists(
+        context,
+        connection,
+        AccountArguments {
+            player_uid: arguments.uid.to_owned(),
+        },
+    )
+    .await?
+    {
+        return Err(QueryError::Code("target_account_does_not_exist".into()));
+    }
+
     let result = connection
         .exec_drop(
             &context.sql.add_reward,
