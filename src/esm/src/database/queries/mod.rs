@@ -8,6 +8,7 @@ pub use crate::*;
 // I have this separated so Rust compiler errors will be localized to a line vs the entire macro
 import_and_export!(add_reward);
 import_and_export!(add_xm8_notifications);
+import_and_export!(check_if_account_exists);
 import_and_export!(check_if_territory_exists);
 import_and_export!(check_if_territory_owner);
 import_and_export!(command_all_territories);
@@ -30,6 +31,7 @@ import_and_export!(update_xm8_notification_state);
 load_sql! {
     account_name_lookup,
     add_reward,
+    check_if_account_exists,
     check_if_territory_exists,
     check_if_territory_owner,
     command_all_territories,

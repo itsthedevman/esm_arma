@@ -131,6 +131,7 @@ impl Database {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     query!(add_reward);
+    query!(check_if_account_exists, Result<bool, QueryError>);
     query!(command_all_territories);
     query!(command_me);
     query!(command_player_info);
