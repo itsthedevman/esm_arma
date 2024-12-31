@@ -4,7 +4,8 @@ INSERT INTO
         account_uid,
         reward_type,
         classname,
-        amount,
+        total_quantity,
+        remaining_quantity,
         source,
         expires_at
     )
@@ -14,7 +15,8 @@ VALUES
         :account_uid,
         :reward_type,
         :classname,
-        :amount,
+        :quantity,
+        :quantity,
         :source,
         :expires_at
     );

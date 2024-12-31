@@ -17,7 +17,7 @@ pub struct RewardItem {
     pub reward_type: String,
 
     pub classname: Option<String>,
-    pub amount: u64,
+    pub quantity: u64,
     pub source: String,
     pub expires_at: Option<DateTime<Utc>>,
 }
@@ -50,7 +50,7 @@ pub async fn add_rewards(
                     "account_uid" => &player_uid,
                     "reward_type" => item.reward_type,
                     "classname" => item.classname,
-                    "amount" => item.amount,
+                    "quantity" => item.quantity,
                     "source" => item.source,
                     "expires_at" => item.expires_at.map(|v| v.naive_utc()),
                 }
