@@ -6,6 +6,7 @@ use uuid::Uuid;
 #[derive(Debug, Deserialize)]
 pub struct Arguments {
     pub uid: String,
+    pub source: String,
     pub items: Vec<RewardItem>,
 }
 
@@ -18,7 +19,6 @@ pub struct RewardItem {
 
     pub classname: Option<String>,
     pub quantity: u64,
-    pub source: String,
     pub expires_at: Option<DateTime<Utc>>,
 }
 
@@ -28,6 +28,7 @@ pub async fn add_rewards(
     arguments: Arguments,
 ) -> QueryResult {
     let player_uid = &arguments.uid;
+    let source = &arguments.source;
 
     if !queries::check_if_account_exists(
         context,
@@ -38,7 +39,13 @@ pub async fn add_rewards(
     )
     .await?
     {
-        return Err(QueryError::Code("target_account_does_not_exist".into()));
+        let message = if source == "admin_reward" {
+            "target_account_does_not_exist"
+        } else {
+            "player_account_does_not_exist"
+        };
+
+        return Err(QueryError::Code(message.into()));
     }
 
     let result = connection
@@ -47,11 +54,12 @@ pub async fn add_rewards(
             arguments.items.into_iter().map(|item| {
                 params! {
                     "public_id" => &Uuid::new_v4().to_string()[28..],
-                    "account_uid" => &player_uid,
+                    "account_uid" => player_uid,
                     "reward_type" => item.reward_type,
                     "classname" => item.classname,
-                    "quantity" => item.quantity,
-                    "source" => item.source,
+                    "total_quantity" => item.quantity,
+                    "remaining_quantity" => item.quantity,
+                    "source" => source,
                     "expires_at" => item.expires_at.map(|v| v.naive_utc()),
                 }
             }),
