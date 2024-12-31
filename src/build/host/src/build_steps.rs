@@ -227,7 +227,7 @@ pub fn kill_arma(builder: &mut Builder) -> BuildResult {
         BuildOS::Linux => {
             System::new()
                 .script(&format!(
-                    "for pid in $(ps -ef | awk '/{}/ {{print $2}}'); do kill -9 $pid; done",
+                    r#"pkill -9 -x "{}" || true"#,
                     LINUX_EXES.join("|")
                 ))
                 .target_os(builder.build_os())
