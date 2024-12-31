@@ -504,7 +504,7 @@ pub fn stop_receiver() -> BuildResult {
             ARMA_CONTAINER,
             "/bin/bash",
             "-c",
-            "for pid in $(ps -ef | awk '/arma3server\\/receiver/ {print $2}'); do kill -9 $pid; done",
+            "pkill -9 -x receiver || true",
         ])
         .execute(None)?;
 

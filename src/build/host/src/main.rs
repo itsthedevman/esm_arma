@@ -65,8 +65,7 @@ pub const WINDOWS_EXES: &[&str] = &[
     "arma3battleye",
 ];
 
-pub const LINUX_EXES: &[&str] =
-    &["/arma3server/arma3server", "/arma3server/arma3server_x64"];
+pub const LINUX_EXES: &[&str] = &["arma3server", "arma3server_x64"];
 
 /// Builds ESM's Arma 3 server mod
 #[derive(Parser, Debug)]
