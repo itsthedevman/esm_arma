@@ -137,8 +137,9 @@ fn map_to_string<T: ToString>(vec: Vec<T>) -> String {
 fn random_timestamp() -> String {
     let current_time = Local::now();
 
-    let start_time = current_time; // Don't use a time in the past or Exile will error loading the territory
-    let end_time = current_time.with_month(12).unwrap().with_day(31).unwrap();
+    // Don't use a time in the past or Exile will error loading the territory
+    let start_time = current_time;
+    let end_time = current_time + chrono::Duration::days(365);
 
     let random_time: DateTime<Utc> = DateTimeBetween(
         start_time.with_timezone(&Utc),
