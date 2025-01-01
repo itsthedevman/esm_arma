@@ -336,6 +336,34 @@ for file in ${{files[@]}}; do [[ ! -f "{server_path}/@esm/$file" ]] && echo "reb
 
     if compiler_changed {
         builder.rebuild_mod = true;
+        builder.rebuild_mission = true;
+    }
+
+    // Rebuild the mission if anything has changed
+    let mission_pbo = builder
+        .local_git_path
+        .join("tools")
+        .join("server")
+        .join("mpmissions")
+        .join("exile.tanoa.pbo");
+
+    let mission_changed = !fs::exists(&mission_pbo)?
+        || has_directory_changed(
+            &builder.file_watcher,
+            &builder
+                .local_git_path
+                .join("tools")
+                .join("server")
+                .join("mpmissions")
+                .join(MISSION_NAME),
+        )
+        || has_directory_changed(
+            &builder.file_watcher,
+            &builder.local_git_path.join("src").join("exile.mapname"),
+        );
+
+    if mission_changed {
+        builder.rebuild_mission = true;
     }
 
     Ok(())
@@ -358,6 +386,14 @@ pub fn prepare_directories(builder: &mut Builder) -> BuildResult {
         let addons_path = esm_path.join("addons");
         if !addons_path.exists() {
             fs::create_dir_all(&addons_path)?;
+        }
+
+        let mission_path = builder.local_build_path.join(MISSION_NAME);
+
+        // Delete exile.tanoa and recreate it
+        if mission_path.exists() {
+            fs::remove_dir_all(&mission_path)?;
+            fs::create_dir_all(&mission_path)?;
         }
     }
 
@@ -661,13 +697,12 @@ fn compile_mod(builder: &mut Builder) -> BuildResult {
     check_sqf(builder, &destination_path)
 }
 
-fn check_sqf(builder: &Builder, addons_path: &Path) -> BuildResult {
-    let Ok(file_paths) =
-        glob(&format!("{}/**/*.sqf", addons_path.to_string_lossy()))
+fn check_sqf(builder: &Builder, base_path: &Path) -> BuildResult {
+    let Ok(file_paths) = glob(&format!("{}/**/*.sqf", base_path.to_string_lossy()))
     else {
         return Err(format!(
             "Failed to find any SQF files in {}",
-            addons_path.display()
+            base_path.display()
         )
         .into());
     };
@@ -846,6 +881,71 @@ pub fn create_release_build(builder: &mut Builder) -> BuildResult {
                 .execute(None)?;
         }
     };
+
+    Ok(())
+}
+
+pub fn build_mission(builder: &mut Builder) -> BuildResult {
+    // Copy the mission code over to build
+    let server_path = builder
+        .local_git_path
+        .join("tools")
+        .join("server")
+        .join("mpmissions");
+
+    let mission_path = builder.local_build_path.join(MISSION_NAME);
+    Directory::copy(&server_path.join(MISSION_NAME), &builder.local_build_path)?;
+
+    // Compile my code
+    compile_mission(builder)?;
+
+    // Check my code
+    check_sqf(builder, &mission_path)?;
+
+    // Build the PBO
+    let script = format!(
+        r#"
+source_file="{mission_path}";
+destination_file="{server_path}/exile.tanoa.pbo";
+
+{armake2} pack -v "$source_file" "$destination_file";
+
+[[ -f "$destination_file" ]] || echo "Failed to build - $destination_file does not exist";
+"#,
+        mission_path = mission_path.display(),
+        server_path = server_path.display(),
+        armake2 = builder.local_git_path.join("bin").join("armake2").display()
+    );
+
+    System::new()
+        .script(script)
+        .add_error_detection("ErrorId")
+        .add_error_detection("Failed to build")
+        .add_error_detection("missing file")
+        .execute(None)?;
+
+    Ok(())
+}
+
+fn compile_mission(builder: &mut Builder) -> BuildResult {
+    // Set up all the paths needed
+    let source_path = builder.local_git_path.join("src").join("exile.mapname");
+    let destination_path = builder.local_build_path.join(MISSION_NAME);
+
+    println!(); // Formatting
+    print_wait_prefix(": Replacing macros")?;
+
+    let mut compiler = Compiler::new();
+
+    compiler
+        .source(&source_path.to_string_lossy())
+        .destination(&destination_path.to_string_lossy())
+        .target(&builder.args.build_os().to_string());
+
+    crate::compile::bind_replacements(&mut compiler);
+    compiler.compile()?;
+
+    print_wait_success();
 
     Ok(())
 }

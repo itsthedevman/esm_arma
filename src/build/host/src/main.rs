@@ -67,6 +67,8 @@ pub const WINDOWS_EXES: &[&str] = &[
 
 pub const LINUX_EXES: &[&str] = &["arma3server", "arma3server_x64"];
 
+pub const MISSION_NAME: &str = "exile.tanoa";
+
 /// Builds ESM's Arma 3 server mod
 #[derive(Parser, Debug)]
 #[command(name = "bin/build")]
@@ -94,7 +96,7 @@ pub struct Args {
     full: bool,
 
     /// Space or comma separated list that controls which pieces are built
-    #[arg(short, long, value_parser = ["mod", "extension"])]
+    #[arg(short, long, value_parser = ["mod", "extension", "mission"])]
     only: Option<String>,
 
     /// Updates Arma server (linux target only)

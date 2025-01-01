@@ -83,6 +83,7 @@ pub struct Builder {
     pub rebuild_mod: bool,
     pub rebuild_extension: bool,
     pub rebuild_receiver: bool,
+    pub rebuild_mission: bool,
 }
 
 impl Builder {
@@ -119,7 +120,7 @@ impl Builder {
         let file_watcher = FileWatcher::new(&local_git_path, &local_build_path)
             .watch(&local_git_path.join("src").join("@esm"))
             .watch(&local_git_path.join("src").join("esm"))
-            .watch(&local_git_path.join("src").join("message"))
+            .watch(&local_git_path.join("src").join("exile.mapname"))
             .watch(&local_git_path.join("src").join("build").join("receiver"))
             .watch(&local_git_path.join("src").join("build").join("common"))
             .watch(&local_git_path.join("src").join("build").join("compiler"))
@@ -129,6 +130,7 @@ impl Builder {
         let rebuild_mod = args.full_rebuild();
         let rebuild_extension = args.full_rebuild();
         let rebuild_receiver = args.full_rebuild();
+        let rebuild_mission = args.full_rebuild();
 
         let builder = Builder {
             args,
@@ -144,6 +146,7 @@ impl Builder {
             rebuild_mod,
             rebuild_extension,
             rebuild_receiver,
+            rebuild_mission,
         };
 
         Ok(builder)
@@ -173,6 +176,10 @@ impl Builder {
 
         self.print_build_info();
         self.print_status("Preparing to build", build_steps::prepare_to_build)?;
+
+        if self.rebuild_mission() {
+            self.print_status("Building mission", build_steps::build_mission)?;
+        }
 
         if self.rebuild_mod() {
             self.print_status("Building mod", build_steps::build_mod)?;
@@ -284,7 +291,7 @@ impl Builder {
     }
 
     pub fn rebuild_extension(&self) -> bool {
-        if self.args.only_build() == "mod" {
+        if self.args.only_build() == "mod" || self.args.only_build() == "mission" {
             return false;
         }
 
@@ -302,7 +309,9 @@ impl Builder {
 
     // The entire mod
     pub fn rebuild_mod(&self) -> bool {
-        if self.args.only_build() == "extension" {
+        if self.args.only_build() == "extension"
+            || self.args.only_build() == "mission"
+        {
             return false;
         }
 
@@ -316,7 +325,9 @@ impl Builder {
 
     // Single addon
     pub fn rebuild_addon(&self, addon: &str) -> bool {
-        if self.args.only_build() == "extension" {
+        if self.args.only_build() == "extension"
+            || self.args.only_build() == "mission"
+        {
             return false;
         }
 
@@ -342,6 +353,29 @@ impl Builder {
                     .join("src")
                     .join("build")
                     .join("receiver"),
+            )
+    }
+
+    // The mission
+    pub fn rebuild_mission(&self) -> bool {
+        if self.args.only_build() == "extension" || self.args.only_build() == "mod" {
+            return false;
+        }
+
+        self.rebuild_mission
+            || self.args.only_build() == "mission"
+            || has_directory_changed(
+                &self.file_watcher,
+                &self.local_git_path.join("src").join("exile.mapname"),
+            )
+            || has_directory_changed(
+                &self.file_watcher,
+                &self
+                    .local_git_path
+                    .join("tools")
+                    .join("server")
+                    .join("mpmissions")
+                    .join(MISSION_NAME),
             )
     }
 
@@ -391,6 +425,7 @@ impl Builder {
             ("esm_x64.dll", rebuild_extension && is_windows && is_x64),
             ("esm.so", rebuild_extension && !is_windows && !is_x64),
             ("esm_x64.so", rebuild_extension && !is_windows && is_x64),
+            (MISSION_NAME, self.rebuild_mission()),
         ]
         .iter()
         .filter_map(|i| if i.1 { Some(i.0) } else { None })
