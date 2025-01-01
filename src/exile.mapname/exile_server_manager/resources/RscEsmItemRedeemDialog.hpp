@@ -97,7 +97,7 @@ class RscEsmItemRedeemDialog
 		class InventoryDropDown: RscCombo
 		{
 			idc = 4004;
-			onLBSelChanged = "_this call ExileClient_gui_traderDialog_event_onPlayerInventoryDropDownSelectionChanged";
+			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onPlayerInventoryDropDownSelectionChanged";
 
 			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
 			y = 1.5 * GUI_GRID_H + GUI_GRID_Y;
@@ -107,7 +107,7 @@ class RscEsmItemRedeemDialog
 		class InventoryListBox: RscExileItemListBox
 		{
 			idc = 4005;
-			onLBSelChanged = "_this call ExileClient_gui_traderDialog_event_onPlayerInventoryListBoxSelectionChanged";
+			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onPlayerInventoryListBoxSelectionChanged";
 
 			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
 			y = 3 * GUI_GRID_H + GUI_GRID_Y;
@@ -132,7 +132,7 @@ class RscEsmItemRedeemDialog
 		class StoreDropDown: RscCombo
 		{
 			idc = 4008;
-			onLBSelChanged = "_this call ExileClient_gui_traderDialog_event_onStoreDropDownSelectionChanged";
+			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onStoreDropDownSelectionChanged";
 
 			x = 14.5 * GUI_GRID_W + GUI_GRID_X;
 			y = 1.5 * GUI_GRID_H + GUI_GRID_Y;
@@ -142,8 +142,8 @@ class RscEsmItemRedeemDialog
 		class StoreListBox: RscExileItemListBox
 		{
 			idc = 4009;
-			onLBSelChanged = "_this call ExileClient_gui_traderDialog_event_onStoreListBoxSelectionChanged";
-			onLBDblClick = "_this call ExileClient_gui_traderDialog_event_onStoreListBoxItemDoubleClick";
+			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onStoreListBoxSelectionChanged";
+			onLBDblClick = "_this call ESMc_gui_itemRedeemDialog_event_onStoreListBoxItemDoubleClick";
 
 			x = 14.5 * GUI_GRID_W + GUI_GRID_X;
 			y = 3 * GUI_GRID_H + GUI_GRID_Y;
@@ -155,7 +155,7 @@ class RscEsmItemRedeemDialog
 		class RedeemButton: RscButtonMenu
 		{
 			idc = 4010;
-			onMouseButtonClick = "_this call ExileClient_gui_traderDialog_event_onPurchaseButtonClick";
+			onMouseButtonClick = "_this call ESMc_gui_itemRedeemDialog_event_onPurchaseButtonClick";
 
 			text = "Redeem";
 			x = 23 * GUI_GRID_W + GUI_GRID_X;
@@ -209,7 +209,7 @@ class RscEsmItemRedeemDialog
 		class FilterDropdown: RscCombo
 		{
 			idc = 4008;
-			onLBSelChanged = "_this call ExileClient_gui_traderDialog_event_onStoreDropDownSelectionChanged";
+			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onStoreDropDownSelectionChanged";
 
 			x = 27 * GUI_GRID_W + GUI_GRID_X;
 			y = 1.5 * GUI_GRID_H + GUI_GRID_Y;
