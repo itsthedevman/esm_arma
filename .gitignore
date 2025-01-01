@@ -42,6 +42,7 @@ tools/server/@exile/addons/*.exile.bisign
 tools/server/@exile/addons/*.txt
 tools/server/@exile/mod.paa
 tools/server/@exileserver/logs
+tools/server/mpmissions/*.pbo
 
 .direnv/
 .env
