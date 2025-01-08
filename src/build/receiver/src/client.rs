@@ -2,10 +2,13 @@ use std::net::ToSocketAddrs;
 use std::sync::Arc;
 
 use crate::log_reader::LogReader;
-use crate::{command::IncomingCommand, transfer::*, write_lock, Command, Database, NetworkCommand};
+use crate::{
+    command::IncomingCommand, transfer::*, write_lock, Command, Database,
+    NetworkCommand,
+};
 use crate::{read_lock, BuildError};
 use colored::Colorize;
-use common::NetworkSend;
+use common::{Destination, NetworkSend};
 use message_io::network::{Endpoint, NetEvent, Transport};
 use message_io::node::{self, NodeHandler};
 use parking_lot::RwLock;
@@ -63,28 +66,50 @@ impl Client {
         self.handler = Some(handler);
         self.endpoint = Some(server);
 
+        let current_destination = if cfg!(windows) {
+            Destination::Windows
+        } else {
+            Destination::Linux
+        };
+
         let mut client = self.clone();
         listener.for_each(move |event| match event.network() {
             NetEvent::Connected(_endpoint, established) => {
                 if established {
                     println!("{} - Connected to {}", "success".green(), server_addr);
-                    client.send(Command::Hello).unwrap();
+                    client.send(Command::Hello, Destination::Linux).unwrap();
                 } else {
-                    println!("{} - Failed to connect to {}", "error".red(), server_addr);
+                    println!(
+                        "{} - Failed to connect to {}",
+                        "error".red(),
+                        server_addr
+                    );
                     client.on_disconnect();
                 }
             }
             NetEvent::Accepted(_, _) => unreachable!(),
             NetEvent::Message(_endpoint, input_data) => {
-                let mut network_command: NetworkCommand = match serde_json::from_slice(input_data) {
-                    Ok(c) => c,
-                    Err(e) => {
-                        client.send(Command::Error(e.to_string())).unwrap();
-                        return;
-                    }
-                };
+                let mut network_command: NetworkCommand =
+                    match serde_json::from_slice(input_data) {
+                        Ok(c) => c,
+                        Err(e) => {
+                            client
+                                .send(
+                                    Command::Error(e.to_string()),
+                                    Destination::Linux,
+                                )
+                                .unwrap();
+                            return;
+                        }
+                    };
 
-                match IncomingCommand::execute(&client, &mut network_command.command) {
+                // Ignore if commands are not for our os
+                if network_command.destination != current_destination {
+                    return;
+                }
+
+                match IncomingCommand::execute(&client, &mut network_command.command)
+                {
                     Ok(command) => {
                         println!("{:?} - {:?}", command, network_command.command);
                         network_command.command = command;
@@ -131,8 +156,12 @@ impl Client {
 }
 
 impl NetworkSend for Client {
-    fn send(&self, command: Command) -> Result<Command, BuildError> {
-        self.send_network(NetworkCommand::new(command));
+    fn send(
+        &self,
+        command: Command,
+        destination: Destination,
+    ) -> Result<Command, BuildError> {
+        self.send_network(NetworkCommand::new(command, destination));
         Ok(Command::Success)
     }
 }

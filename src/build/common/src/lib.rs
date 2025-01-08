@@ -76,20 +76,32 @@ pub struct Highlight {
 }
 
 pub trait NetworkSend {
-    fn send(&self, command: Command) -> Result<Command, BuildError>;
+    fn send(
+        &self,
+        command: Command,
+        destination: Destination,
+    ) -> Result<Command, BuildError>;
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
+pub enum Destination {
+    Linux,
+    Windows,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NetworkCommand {
     pub id: Uuid,
     pub command: Command,
+    pub destination: Destination,
 }
 
 impl NetworkCommand {
-    pub fn new(command: Command) -> Self {
+    pub fn new(command: Command, destination: Destination) -> Self {
         NetworkCommand {
             id: Uuid::new_v4(),
             command,
+            destination,
         }
     }
 }
@@ -520,7 +532,12 @@ impl System {
         //     );
         // }
 
-        let result = endpoint.send(Command::System(self.to_owned()))?;
+        let destination = match self.target_os.as_str() {
+            "windows" => Destination::Windows,
+            _ => Destination::Linux,
+        };
+
+        let result = endpoint.send(Command::System(self.to_owned()), destination)?;
 
         let Command::SystemResponse(result) = result else {
             return Err(
@@ -539,10 +556,18 @@ impl System {
         content: &str,
         endpoint: &dyn NetworkSend,
     ) {
-        if let Err(e) = endpoint.send(Command::Print {
-            label: print_as.to_string(),
-            content: content.to_string(),
-        }) {
+        let destination = match self.target_os.as_str() {
+            "windows" => Destination::Windows,
+            _ => Destination::Linux,
+        };
+
+        if let Err(e) = endpoint.send(
+            Command::Print {
+                label: print_as.to_string(),
+                content: content.to_string(),
+            },
+            destination,
+        ) {
             println!(
                 "{} - {} - {e}",
                 "<esm_bt>".blue().bold(),

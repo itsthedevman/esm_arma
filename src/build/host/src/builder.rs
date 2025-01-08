@@ -261,7 +261,10 @@ impl Builder {
         }
 
         // We're connected, request update
-        match self.build_server.send(Command::PostInitRequest) {
+        match self
+            .build_server
+            .send(Command::PostInitRequest, self.network_destination())
+        {
             Ok(ref res) => {
                 if let Command::PostInit(post_init) = res {
                     let path = post_init.build_path.to_owned();
@@ -464,6 +467,14 @@ impl Builder {
             build_directory = self.remote_build_path_str(),
             server_directory = self.remote.server_path
         );
+    }
+
+    pub fn network_destination(&self) -> Destination {
+        if self.build_os() == "windows" {
+            Destination::Windows
+        } else {
+            Destination::Linux
+        }
     }
 }
 

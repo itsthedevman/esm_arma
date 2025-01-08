@@ -545,6 +545,8 @@ pub fn create_esm_key_file(builder: &mut Builder) -> BuildResult {
     let mut connection = builder.redis.get_connection().unwrap();
     let mut last_key_received = String::new();
 
+    let destination = builder.network_destination();
+
     // Moved to a thread so this can happen over and over again for testing purposes
     let build_server = builder.build_server.clone();
     thread::spawn(move || loop {
@@ -563,7 +565,8 @@ pub fn create_esm_key_file(builder: &mut Builder) -> BuildResult {
             continue;
         };
 
-        if let Err(e) = build_server.send(Command::Key(key.to_owned())) {
+        if let Err(e) = build_server.send(Command::Key(key.to_owned()), destination)
+        {
             println!(
                 "{} - {} - {}",
                 "<esm_bt>".blue().bold(),
@@ -952,7 +955,10 @@ fn compile_mission(builder: &mut Builder) -> BuildResult {
 
 pub fn seed_database(builder: &mut Builder) -> BuildResult {
     let sql = Database::generate_sql(&builder.config);
-    match builder.build_server.send(Command::Database(sql)) {
+    match builder
+        .build_server
+        .send(Command::Database(sql), builder.network_destination())
+    {
         Ok(_) => Ok(()),
         Err(e) => Err(e),
     }
@@ -1001,20 +1007,20 @@ mkdir -p {ARMA_PATH}/server_profile;
     Ok(())
 }
 
-// pub fn start_a3_client(build: &mut Builder) -> BuildResult {
-//     // client arg: client start args
-//     // Send command to receiver
-//     // Issue! In order to start the client on linux, both the linux machine and windows machine will need to be connected
-//     //          This will need to be solved.
-//     Ok(())
-// }
+pub fn start_a3_client(build: &mut Builder) -> BuildResult {
+    Ok(())
+}
 
 pub fn stream_logs(builder: &mut Builder) -> BuildResult {
     println!();
-    builder.build_server.send(Command::LogStreamInit)?;
+    builder
+        .build_server
+        .send(Command::LogStreamInit, builder.network_destination())?;
 
     loop {
-        let result = builder.build_server.send(Command::LogStreamRequest)?;
+        let result = builder
+            .build_server
+            .send(Command::LogStreamRequest, builder.network_destination())?;
         let lines = match result {
             Command::LogStream(l) => l,
             c => {

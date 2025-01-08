@@ -64,10 +64,10 @@ impl File {
             sha1,
         };
 
-        if let Command::FileTransferResult(_b @ false) = builder
-            .build_server
-            .send(Command::FileTransferStart(transfer))?
-        {
+        if let Command::FileTransferResult(_b @ false) = builder.build_server.send(
+            Command::FileTransferStart(transfer),
+            builder.network_destination(),
+        )? {
             return Ok(());
         }
 
@@ -80,10 +80,14 @@ impl File {
                 bytes: bytes.to_vec(),
             });
 
-            builder.build_server.send(chunk)?;
+            builder
+                .build_server
+                .send(chunk, builder.network_destination())?;
         }
 
-        builder.build_server.send(Command::FileTransferEnd(id))?;
+        builder
+            .build_server
+            .send(Command::FileTransferEnd(id), builder.network_destination())?;
 
         Ok(())
     }

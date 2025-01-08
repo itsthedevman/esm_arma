@@ -49,7 +49,8 @@ impl Server {
             NetEvent::Connected(_, _) => unreachable!(),
             NetEvent::Accepted(_endpoint, _id) => {}
             NetEvent::Message(endpoint, input_data) => {
-                let message: NetworkCommand = serde_json::from_slice(input_data).unwrap();
+                let message: NetworkCommand =
+                    serde_json::from_slice(input_data).unwrap();
                 match message.command {
                     Command::Hello => {
                         *server.endpoint.write() = Some(endpoint);
@@ -69,11 +70,13 @@ impl Server {
                         }
                     }
 
-                    Command::Error(e) => write_lock(&server.requests, |mut writer| {
-                        writer.insert(message.id, Err(e.to_owned().into()));
-                        Ok(true)
-                    })
-                    .unwrap(),
+                    Command::Error(e) => {
+                        write_lock(&server.requests, |mut writer| {
+                            writer.insert(message.id, Err(e.to_owned().into()));
+                            Ok(true)
+                        })
+                        .unwrap()
+                    }
 
                     c => write_lock(&server.requests, |mut writer| {
                         writer.insert(message.id, Ok(c.to_owned()));
@@ -112,7 +115,8 @@ impl Server {
     }
 
     fn wait_for_response(&self, id: &Uuid) -> Result<Command, BuildError> {
-        let result: RwLock<Result<Command, BuildError>> = RwLock::new(Ok(Command::Hello));
+        let result: RwLock<Result<Command, BuildError>> =
+            RwLock::new(Ok(Command::Hello));
         read_lock(&self.requests, |reader| {
             if crate::CTRL_C_RECEIVED.load(Ordering::SeqCst) {
                 return Err("Stopped by user".to_string().into());
@@ -146,8 +150,12 @@ impl Server {
 }
 
 impl NetworkSend for Server {
-    fn send(&self, command: Command) -> Result<Command, BuildError> {
-        let command = NetworkCommand::new(command);
+    fn send(
+        &self,
+        command: Command,
+        destination: Destination,
+    ) -> Result<Command, BuildError> {
+        let command = NetworkCommand::new(command, destination);
 
         let data = serde_json::to_vec(&command).unwrap();
 

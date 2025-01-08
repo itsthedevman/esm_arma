@@ -48,6 +48,13 @@ pub struct Args {
     /// The server launch parameters for arma3server[_x64][.exe]
     #[clap(short, long)]
     a3_server_args: String,
+    // /// The path to the root directory that contains arma3[_x64][.exe]
+    // #[clap(short, long)]
+    // a3_client_path: String,
+
+    // /// The server launch parameters for arma3[_x64][.exe]
+    // #[clap(short, long)]
+    // a3_client_args: String,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
