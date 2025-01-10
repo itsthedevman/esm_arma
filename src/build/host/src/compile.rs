@@ -42,6 +42,7 @@ const REGEX_NETWORK_FN: &str = r#"network_fn!\("(\w+)?"\)"#;
 const REGEX_NIL_NEGATED: &str = r#"!nil\?\((\w+)?\)"#;
 const REGEX_NIL: &str = r#"nil\?\((\w+)?\)"#;
 const REGEX_NULL: &str = r"null\?\((\w+)?\)";
+const REGEX_NULL_NEGATED: &str = r"!null\?\((\w+)?\)";
 const REGEX_OS_PATH: &str = r"os_path!\((.+,?)?\)";
 const REGEX_RETURNS_NIL: &str = r#"returns_nil!\((\w+)\)"#;
 const REGEX_RV_TYPE: &str = r"rv_type!\((ARRAY|BOOL|HASH|STRING|NIL)?\)";
@@ -74,6 +75,7 @@ pub fn bind_replacements(compiler: &mut Compiler) {
         .replace(REGEX_EMPTY_NEGATED, not_empty)
         .replace(REGEX_NIL_NEGATED, not_nil)
         .replace(REGEX_NIL, nil)
+        .replace(REGEX_NULL_NEGATED, not_null)
         .replace(REGEX_NULL, null)
         .replace(REGEX_CONST, replace_const)
         .replace(REGEX_LOCALIZE, localize);
@@ -511,6 +513,13 @@ fn null(context: &Data, matches: &Captures) -> CompilerResult {
     Ok(Some(format!("isNull {content}")))
 }
 
+// !null?(objNull)
+fn not_null(context: &Data, matches: &Captures) -> CompilerResult {
+    let content = null(context, matches)?.ok_or("No content found")?;
+
+    Ok(Some(format!("!({content})")))
+}
+
 fn replace_const(context: &Data, matches: &Captures) -> CompilerResult {
     let content = match matches.get(1) {
         Some(m) => m.as_str(),
@@ -920,6 +929,18 @@ mod tests {
 
         let output = compile!(r#"null?(_playerObject);"#, REGEX_NULL, null);
         assert_eq!(output, r#"isNull _playerObject;"#);
+    }
+
+    #[test]
+    fn it_replaces_not_null() {
+        let output = compile!(r#"!null?(objNull);"#, REGEX_NULL_NEGATED, not_null);
+
+        assert_eq!(output, r#"!(isNull objNull);"#);
+
+        let output =
+            compile!(r#"!null?(_playerObject);"#, REGEX_NULL_NEGATED, not_null);
+
+        assert_eq!(output, r#"!(isNull _playerObject);"#);
     }
 
     #[test]

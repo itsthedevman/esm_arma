@@ -128,6 +128,14 @@ null?(_obj)
 isNull _obj
 ```
 
+#### `!null?(object)`
+Checks if object is not null. Distinct from `nil` in Arma - `null` objects (`objNull`, `locationNull`, etc.) are not considered `nil`.
+```sqf
+!null?(_obj)
+// ->
+!(isNull _obj)
+```
+
 ### Return Value Helpers
 #### `returns_nil!(object)`
 Safe nil return handler. Works around Arma's limitation with referencing variables that contain `nil`
