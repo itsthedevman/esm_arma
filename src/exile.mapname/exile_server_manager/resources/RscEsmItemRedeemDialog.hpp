@@ -29,7 +29,7 @@ class RscEsmItemRedeemDialog
 	{
 		class DialogCaptionLeft: RscText
 		{
-			idc = 4000;
+			idc = IDC_ITEM_DIALOG_CAPTION_LEFT;
 
 			x = -4 * GUI_GRID_W + GUI_GRID_X;
 			y = -0.1 * GUI_GRID_H + GUI_GRID_Y;
@@ -39,7 +39,7 @@ class RscEsmItemRedeemDialog
 		};
 		class DialogBackgroundLeft: RscText
 		{
-			idc = 2000;
+			idc = IDC_ITEM_DIALOG_BACKGROUND_LEFT;
 
 			x = -4 * GUI_GRID_W + GUI_GRID_X;
 			y = 1 * GUI_GRID_H + GUI_GRID_Y;
@@ -49,7 +49,7 @@ class RscEsmItemRedeemDialog
 		};
 		class DialogBackgroundMiddle: RscText
 		{
-			idc = 2001;
+			idc = IDC_ITEM_DIALOG_BACKGROUND_MIDDLE;
 
 			x = 14 * GUI_GRID_W + GUI_GRID_X;
 			y = 1 * GUI_GRID_H + GUI_GRID_Y;
@@ -59,9 +59,9 @@ class RscEsmItemRedeemDialog
 		};
 		class DialogCaptionMiddle: RscText
 		{
-			idc = 4001;
+			idc = IDC_ITEM_DIALOG_CAPTION_MIDDLE;
 
-			text = "STORE";
+			text = "REDEEM";
 			x = 14 * GUI_GRID_W + GUI_GRID_X;
 			y = -0.1 * GUI_GRID_H + GUI_GRID_Y;
 			w = 26 * GUI_GRID_W;
@@ -70,7 +70,7 @@ class RscEsmItemRedeemDialog
 		};
 		class TextPlayerMoney: RscStructuredText
 		{
-			idc = 4002;
+			idc = IDC_ITEM_DIALOG_PLAYER_MONEY;
 
 			text = "0";
 			x = 5.5 * GUI_GRID_W + GUI_GRID_X;
@@ -80,7 +80,7 @@ class RscEsmItemRedeemDialog
 		};
 		class CloseCross: RscActiveText
 		{
-			idc = 1032;
+			idc = IDC_ITEM_DIALOG_CLOSE_CROSS;
 			action = "closeDialog 0;";
 			style = 2096;
 			color[] = {1,1,1,0.7};
@@ -96,7 +96,7 @@ class RscEsmItemRedeemDialog
 		};
 		class InventoryDropDown: RscCombo
 		{
-			idc = 4004;
+			idc = IDC_ITEM_DIALOG_INVENTORY_DROPDOWN;
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onPlayerInventoryDropDownSelectionChanged";
 
 			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
@@ -106,7 +106,7 @@ class RscEsmItemRedeemDialog
 		};
 		class InventoryListBox: RscExileItemListBox
 		{
-			idc = 4005;
+			idc = IDC_ITEM_DIALOG_INVENTORY_LIST;
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onPlayerInventoryListBoxSelectionChanged";
 
 			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
@@ -118,7 +118,7 @@ class RscEsmItemRedeemDialog
 		};
 		class CancelButton: RscButtonMenu
 		{
-			idc = 4006;
+			idc = IDC_ITEM_DIALOG_CANCEL_BUTTON;
 			action = "closeDialog 0;";
 
 			text = "Cancel";
@@ -131,7 +131,7 @@ class RscEsmItemRedeemDialog
 		};
 		class StoreDropDown: RscCombo
 		{
-			idc = 4008;
+			idc = IDC_ITEM_DIALOG_STORE_DROPDOWN;
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onStoreDropDownSelectionChanged";
 
 			x = 14.5 * GUI_GRID_W + GUI_GRID_X;
@@ -141,7 +141,7 @@ class RscEsmItemRedeemDialog
 		};
 		class StoreListBox: RscExileItemListBox
 		{
-			idc = 4009;
+			idc = IDC_ITEM_DIALOG_STORE_LIST;
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onStoreListBoxSelectionChanged";
 			onLBDblClick = "_this call ESMc_gui_itemRedeemDialog_event_onStoreListBoxItemDoubleClick";
 
@@ -154,8 +154,8 @@ class RscEsmItemRedeemDialog
 		};
 		class RedeemButton: RscButtonMenu
 		{
-			idc = 4010;
-			onMouseButtonClick = "_this call ESMc_gui_itemRedeemDialog_event_onPurchaseButtonClick";
+			idc = IDC_ITEM_DIALOG_REDEEM_BUTTON;
+			onMouseButtonClick = "_this call ESMc_gui_itemRedeemDialog_event_onRedeemButtonClick";
 
 			text = "Redeem";
 			x = 23 * GUI_GRID_W + GUI_GRID_X;
@@ -167,7 +167,7 @@ class RscEsmItemRedeemDialog
 		};
 		class PlayerLoadBackground: RscText
 		{
-			idc = 4043;
+			idc = IDC_ITEM_DIALOG_BACKGROUND_PLAYER_LOAD;
 
 			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
 			y = 23.5 * GUI_GRID_H + GUI_GRID_Y;
@@ -177,7 +177,7 @@ class RscEsmItemRedeemDialog
 		};
 		class PlayerLoadProgress: RscProgress
 		{
-			idc = 4012;
+			idc = IDC_ITEM_DIALOG_PROGRESS_PLAYER_LOAD;
 
 			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
 			y = 23.5 * GUI_GRID_H + GUI_GRID_Y;
@@ -188,7 +188,7 @@ class RscEsmItemRedeemDialog
 		};
 		class PlayerLoadLabel: RscText
 		{
-			idc = 4013;
+			idc = IDC_ITEM_DIALOG_LOAD_LABEL;
 
 			text = "LOAD";
 			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
@@ -198,7 +198,7 @@ class RscEsmItemRedeemDialog
 		};
 		class PlayerLoadValue: RscStructuredText
 		{
-			idc = 4014;
+			idc = IDC_ITEM_DIALOG_LOAD_VALUE;
 
 			text = "100%";
 			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
@@ -208,7 +208,7 @@ class RscEsmItemRedeemDialog
 		};
 		class FilterDropdown: RscCombo
 		{
-			idc = 4008;
+			idc = IDC_ITEM_DIALOG_FILTER_DROPDOWN;
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onStoreDropDownSelectionChanged";
 
 			x = 27 * GUI_GRID_W + GUI_GRID_X;

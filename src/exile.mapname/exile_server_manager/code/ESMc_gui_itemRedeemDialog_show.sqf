@@ -1,72 +1,69 @@
+/* ----------------------------------------------------------------------------
+Function:
+	ESMc_gui_itemRedeemDialog_show
+
+Description:
+	Shows the item redemption dialog
+
+Author:
+	Exile Mod
+	www.exilemod.com
+	© 2015-current_year!() Exile Mod Team
+
+	This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+
+Co-author:
+	Exile Server Manager
+	www.esmbot.com
+	© 2018-current_year!() Bryan "WolfkillArcadia"
+
+	This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+---------------------------------------------------------------------------- */
+
 disableSerialization;
 
-ExileClientCurrentTrader = _this getVariable "ExileTraderType";
-
 // Show the dialog
-createDialog "RscExileTraderDialog";
+createDialog "RscEsmItemRedeemDialog";
 
 // Ensure it is there
-waitUntil { !isNull findDisplay IDD_EXILE_TRADER_DIALOG };
+waitUntil { not_null!(findDisplay const!(IDD_ITEM_DIALOG)) };
 
-_dialog = uiNameSpace getVariable ["RscExileTraderDialog", displayNull];
+private _dialog = uiNameSpace getVariable ["RscEsmItemRedeemDialog", displayNull];
 
-uiNameSpace setVariable ["RscExileTraderDialogIsInitialized", false];
-
-// Update trader name
-_traderName = _dialog displayCtrl IDC_TRADER_DIALOG_TRADER_NAME;
-_traderName ctrlSetText getText(missionConfigFile >> "CfgTraders" >> ExileClientCurrentTrader >> "name");
+uiNameSpace setVariable ["RscRedeemDialogIsInitialized", false];
 
 // Move away the focus of the abort button
+private _traderName = _dialog displayCtrl const!(IDC_ITEM_DIALOG_TRADER_NAME);
 ctrlSetFocus _traderName;
 
-// If the trader allows filtering for compatible weapon items, show the filter option
-_primaryWeaponCheckbox = _dialog displayCtrl IDC_TRADER_DIALOG_PRIMARY_WEAPON_FILTER;
-_handgunCheckbox = _dialog displayCtrl IDC_TRADER_DIALOG_HANDGUN_FILTER;
-_storeDropdown = _dialog displayCtrl IDC_TRADER_DIALOG_STORE_DROPDOWN;
-_storeDropdownSize = ctrlPosition _storeDropdown; // Even if Bohemia named this "position", it seems like this is [x, y, w, h]
-
-if (getNumber (missionConfigFile >> "CfgTraders" >> ExileClientCurrentTrader >> "showWeaponFilter") isEqualTo 1) then
-{
-	_primaryWeaponCheckbox ctrlShow true;
-	_handgunCheckbox ctrlShow true;
-	
-	// Make it smaller/thinner
-	_storeDropdownSize set [2, 13.2 * GUI_GRID_W];
-}
-else 
-{
-	_primaryWeaponCheckbox ctrlShow false;
-	_handgunCheckbox ctrlShow false;
-	
-	// Reset to original width
-	_storeDropdownSize set [2, 16.5 * GUI_GRID_W];
-};
-
-_storeDropdown ctrlSetPosition _storeDropdownSize;
-_storeDropdown ctrlCommit 0;
- 
 // Quantity Dropdown
-_quantityDropdown = _dialog displayCtrl IDC_TRADER_DIALOG_QUANTITY_DROPDOWN;
+private _quantityDropdown = _dialog displayCtrl const!(IDC_ITEM_DIALOG_QUANTITY_DROPDOWN);
+
+// Clear
 lbClear _quantityDropdown;
+
+// Update dropdown
 _quantityDropdown lbAdd "1x";
 _quantityDropdown lbSetCurSel 0;
 _quantityDropdown ctrlEnable false;
 
 // Disable things by default
-_purchaseButton = _dialog displayCtrl IDC_TRADER_DIALOG_PURCHASE_BUTTON;
+private _purchaseButton = _dialog displayCtrl const!(IDC_ITEM_DIALOG_PURCHASE_BUTTON);
 _purchaseButton ctrlEnable false;
 
-_sellButton = _dialog displayCtrl IDC_TRADER_DIALOG_SELL_BUTTON;
+private _sellButton = _dialog displayCtrl const!(IDC_ITEM_DIALOG_REDEEM_BUTTON);
 _sellButton ctrlEnable false;
 
 true call ExileClient_gui_postProcessing_toggleDialogBackgroundBlur;
-call ExileClient_gui_traderDialog_updatePlayerControls;
-call ExileClient_gui_traderDialog_updateInventoryDropdown;
-call ExileClient_gui_traderDialog_updateInventoryListBox;
-call ExileClient_gui_traderDialog_updateStoreDropdown;
-call ExileClient_gui_traderDialog_updateStoreListBox;
-"" call ExileClient_gui_traderDialog_updateItemStats;
 
-uiNameSpace setVariable ["RscExileTraderDialogIsInitialized", true];
+nil call ESMc_gui_itemRedeemDialog_updatePlayerControls;
+nil call ESMc_gui_itemRedeemDialog_updateInventoryDropdown;
+nil call ESMc_gui_itemRedeemDialog_updateInventoryListBox;
+nil call ESMc_gui_itemRedeemDialog_updateStoreDropdown;
+nil call ESMc_gui_itemRedeemDialog_updateStoreListBox;
+
+uiNameSpace setVariable ["RscRedeemDialogIsInitialized", true];
 
 true

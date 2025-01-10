@@ -1,12 +1,14 @@
 disableSerialization;
 
-_dialog = uiNameSpace getVariable ["RscExileTraderDialog", displayNull];
+if !(uiNameSpace getVariable ["RscRedeemDialogIsInitialized", false]) exitWith {};
 
-_categoryDropdown = _dialog displayCtrl IDC_TRADER_DIALOG_STORE_DROPDOWN;
+_dialog = uiNameSpace getVariable ["RscEsmItemRedeemDialog", displayNull];
+
+_categoryDropdown = _dialog displayCtrl IDC_ITEM_DIALOG_STORE_DROPDOWN;
 _currentCategoryIndex = lbCurSel _categoryDropdown;
 _currentCategory = _categoryDropdown lbData _currentCategoryIndex;
 
-_storeListBox = _dialog displayCtrl IDC_TRADER_DIALOG_STORE_LISTBOX;
+_storeListBox = _dialog displayCtrl IDC_ITEM_DIALOG_STORE_LISTBOX;
 
 lbClear _storeListBox;
 
@@ -19,7 +21,7 @@ _filterToItemClasses = [];
 // If the player has a primary weapon equipped, allow filtering
 if !((primaryWeapon player) isEqualTo "") then
 {
-	_primaryWeaponCheckbox = _dialog displayCtrl IDC_TRADER_DIALOG_PRIMARY_WEAPON_FILTER;
+	_primaryWeaponCheckbox = _dialog displayCtrl IDC_ITEM_DIALOG_PRIMARY_WEAPON_FILTER;
 
 	// If the checkbox is checked, proceed
 	if (cbChecked _primaryWeaponCheckbox) then
@@ -32,7 +34,7 @@ if !((primaryWeapon player) isEqualTo "") then
 // Check if we filter for items that are compatible to our handgun (BOOM!)
 if !((handgunWeapon player) isEqualTo "") then
 {
-	_handgunCheckbox = _dialog displayCtrl IDC_TRADER_DIALOG_HANDGUN_FILTER;
+	_handgunCheckbox = _dialog displayCtrl IDC_ITEM_DIALOG_HANDGUN_FILTER;
 
 	// If the checkbox is checked, proceed
 	if (cbChecked _handgunCheckbox) then
