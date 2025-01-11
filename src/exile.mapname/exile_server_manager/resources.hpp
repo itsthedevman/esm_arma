@@ -1,2 +1,2 @@
-#include "resources\RscEsmItemRedeemDialog"
-#include "resources\RscEsmVehicleRedeemDialog"
+#include "resources\RscEsmItemRedeemDialog.hpp"
+#include "resources\RscEsmVehicleRedeemDialog.hpp"

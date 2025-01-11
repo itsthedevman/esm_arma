@@ -37,4 +37,12 @@ ExileServer_system_territory_maintenance_recalculateDueDate = "Exile_Server_Over
 ExileServer_system_territory_network_territoryUpgradeRequest = "Exile_Server_Overrides\ExileServer_system_territory_network_territoryUpgradeRequest.sqf";
 ExileServer_system_trading_network_purchaseVehicleSkinRequest = "Exile_Server_Overrides\ExileServer_system_trading_network_purchaseVehicleSkinRequest.sqf";
 ExileServer_system_territory_network_payTerritoryProtectionMoneyRequest = "Exile_Server_Overrides\ExileServer_system_territory_network_payTerritoryProtectionMoneyRequest.sqf";
+
+//////////////////////////////////
+// ESM Dev
 ExileClient_util_player_objectFromPlayerUID = "ExileClient_util_player_objectFromPlayerUID.sqf";
+
+//////////////////////////////////
+// ESM
+//////////////////////////////////
+ExileClient_action_stealFlag_duration = "exile_server_manager\overwrites\ExileClient_action_stealFlag_duration.sqf";
