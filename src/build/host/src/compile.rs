@@ -138,7 +138,7 @@ fn define_fn(context: &Data, matches: &Captures) -> CompilerResult {
 }
 
 // network_fn!("ESMs_system_network_message")
-//      -> ["ExileServer_system_network_esm_networkMessage", "ESMs_system_network_message"]
+//      -> ["ExileServer_system_network_esm_systemMessage", "ESMs_system_network_message"]
 fn network_fn(context: &Data, matches: &Captures) -> CompilerResult {
     let esm_function_name = matches
         .get(1)
@@ -148,35 +148,45 @@ fn network_fn(context: &Data, matches: &Captures) -> CompilerResult {
         ))?
         .as_str();
 
-    // Get prefix and suffix, combine and transform
     let parts: Vec<&str> = esm_function_name.split('_').collect();
+
+    let function_prefix = parts[0];
+    let function_prefix = if function_prefix == "ESMs" {
+        "ExileServer"
+    } else if function_prefix == "ESMc" {
+        "ExileClient"
+    } else {
+        return Err(format!(
+            "{} -> network_fn! - Unexpected function name prefix: {:?}",
+            context.file_path, function_prefix
+        )
+        .into());
+    };
+
     let network_index =
         parts.iter().position(|&p| p == "network").ok_or(format!(
             "{} -> network_fn! - 'network' not found in function name",
             context.file_path
         ))?;
 
-    let prefix_index = network_index.checked_sub(1).ok_or(format!(
-        "{} -> network_fn! - No prefix found before 'network'",
-        context.file_path
-    ))?;
+    // Just take the first part after ESMs as prefix
+    let prefix = parts[1];
 
-    let prefix = parts.get(prefix_index).ok_or(format!(
-        "{} -> network_fn! - No prefix found before 'network'",
-        context.file_path
-    ))?;
+    let middle_parts = &parts[2..network_index];
 
-    let suffix = parts.get(network_index + 1).ok_or(format!(
-        "{} -> network_fn! - No suffix found after 'network'",
-        context.file_path
-    ))?;
+    // If no middle parts, use prefix, otherwise use middle parts
+    let first_part = if middle_parts.is_empty() {
+        prefix
+    } else {
+        &middle_parts.join("_")
+    };
 
-    let transformed = format!("{}_{}", prefix, suffix)
+    let suffix = format!("{}_{}", first_part, parts[network_index + 1..].join("_"))
         .to_snake_case()
         .to_lower_camel_case();
 
     let exile_function_name =
-        format!("ExileServer_system_network_esm_{}", transformed);
+        format!("{function_prefix}_esm_{prefix}_network_{suffix}");
 
     Ok(Some(format!(
         r#"["{}", "{}"]"#,
@@ -655,19 +665,58 @@ mod tests {
 
         assert_eq!(
             output,
-            r#"["ExileServer_system_network_esm_systemMessage", "ESMs_system_network_message"]"#
+            r#"["ExileServer_esm_system_network_systemMessage", "ESMs_system_network_message"]"#
         );
 
         // Mmmm
         let output = compile!(
-            r#"network_fn!("ESMs_system_iceCreamMachine_network_dispenseSoftServe")"#,
+            r#"network_fn!("ESMs_object_iceCreamMachine_network_dispenseSoftServe")"#,
             REGEX_NETWORK_FN,
             network_fn
         );
 
         assert_eq!(
             output,
-            r#"["ExileServer_system_network_esm_iceCreamMachineDispenseSoftServe", "ESMs_system_iceCreamMachine_network_dispenseSoftServe"]"#
+            r#"["ExileServer_esm_object_network_iceCreamMachineDispenseSoftServe", "ESMs_object_iceCreamMachine_network_dispenseSoftServe"]"#
+        );
+
+        //
+
+        let output = compile!(
+            r#"network_fn!("ESMs_object_player_network_import")"#,
+            REGEX_NETWORK_FN,
+            network_fn
+        );
+
+        assert_eq!(
+            output,
+            r#"["ExileServer_esm_object_network_playerImport", "ESMs_object_player_network_import"]"#
+        );
+
+        //
+
+        let output = compile!(
+            r#"network_fn!("ESMs_util_encryptionKey_network_updateSignature")"#,
+            REGEX_NETWORK_FN,
+            network_fn
+        );
+
+        assert_eq!(
+            output,
+            r#"["ExileServer_esm_util_network_encryptionKeyUpdateSignature", "ESMs_util_encryptionKey_network_updateSignature"]"#
+        );
+
+        //
+
+        let output = compile!(
+            r#"network_fn!("ESMc_system_reward_network_loadAllResponse")"#,
+            REGEX_NETWORK_FN,
+            network_fn
+        );
+
+        assert_eq!(
+            output,
+            r#"["ExileClient_esm_system_network_rewardLoadAllResponse", "ESMc_system_reward_network_loadAllResponse"]"#
         );
     }
 

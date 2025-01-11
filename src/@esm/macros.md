@@ -59,7 +59,7 @@ Creates an Exile-formatted network function name pair. Requires 'network' in the
 ```sqf
 network_fn!("ESMs_system_reward_network_loadAll")
 // ->
-["ExileServer_system_network_esm_rewardLoadAll", "ESMs_system_reward_network_loadAll"]
+["ExileServer_esm_system_network_rewardLoadAll", "ESMs_system_reward_network_loadAll"]
 ```
 
 ### HashMap Operations
