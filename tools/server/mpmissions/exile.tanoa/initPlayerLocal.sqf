@@ -89,10 +89,10 @@ private _npcs = [
     private _logic = "Logic" createVehicleLocal [0, 0, 0];
     private _trader = (_x select 0) createVehicleLocal [0, 0, 0];
     private _animations = _x select 1;
-    
+
     _logic setPosWorld (_x select 5);
     _logic setVectorDirAndUp [_x select 6, _x select 7];
-    
+
     _trader setVariable ["BIS_enableRandomization", false];
     _trader setVariable ["BIS_fnc_animalBehaviour_disable", true];
     _trader setVariable ["ExileAnimations", _animations];
@@ -114,3 +114,6 @@ private _npcs = [
     _trader addEventHandler ["AnimDone", {_this call ExileClient_object_trader_event_onAnimationDone}];
 }
 forEach _npcs;
+
+// ESM
+[] execVM "exile_server_manager\preInit.sqf";
