@@ -88,6 +88,9 @@ forEach
     define_fn!("ESMs_system_network_discord_send_to"),
 	define_fn!("ESMs_system_process_preInit"),
     define_fn!("ESMs_system_process_postInit"),
+    define_fn!("ESMs_system_reward_network_loadAllRequest"),
+    define_fn!("ESMs_system_reward_network_redeemItemRequest"),
+    define_fn!("ESMs_system_reward_network_redeemVehicleRequest")
     define_fn!("ESMs_system_territory_checkAccess"),
     define_fn!("ESMs_system_territory_encodeID"),
     define_fn!("ESMs_system_territory_get"),
@@ -115,18 +118,33 @@ forEach
 ];
 
 ////////////////////////////////////////////////////
-// Create delegator methods for our network messages
 // Allows forwarding Exile network messages to ESM functions
 {
-     missionNamespace setVariable [
-        _x select 0, // Exile function
-        missionNamespace getVariable [_x select 1, {}] // ESM function
-    ];
+    private _exileFunction = _x select 0;
+    private _esmFunction = _x select 1;
+
+    private _code = missionNamespace getVariable [_function, {}];
+
+    if (_code isEqualTo {}) then
+    {
+        diag_log (
+            format [
+                "ERROR | Attempted to delegate %1 to an empty function. %2 may be empty or not defined",
+                _exileFunction,
+                _esmFunction
+            ]
+        );
+
+        continue;
+    };
+
+    missionNamespace setVariable [_exileFunction, _esmFunction];
 }
 forEach
 [
-    // network_fn!("ESMs_system_reward_network_loadAll"),
-    // network_fn!("ESMs_system_reward_network_redeem")
+    network_fn!("ESMs_system_reward_network_loadAllRequest"),
+    network_fn!("ESMs_system_reward_network_redeemItemRequest"),
+    network_fn!("ESMs_system_reward_network_redeemVehicleRequest")
 ];
 
 [] call ESMs_system_process_preInit;

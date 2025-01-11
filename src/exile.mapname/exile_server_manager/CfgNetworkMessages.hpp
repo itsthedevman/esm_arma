@@ -12,11 +12,36 @@ class flagStealStartedRequest
 };
 
 ///////////////////////////////////////////////////////////////////////////
-// Redeem item from reward system
+// Loads all redeemables for a player
+// Calls ESMs_system_reward_network_loadAllRequest
 ///////////////////////////////////////////////////////////////////////////
-class redeemItemRequest
+class rewardLoadAllRequest
 {
-	module = "system";
+	module = "esm_system";
+
+	parameters[] =
+	{
+		// TODO
+	};
+};
+
+class rewardLoadAllResponse
+{
+	module = "esm_system";
+
+	parameters[] =
+	{
+		// TODO
+	};
+};
+
+///////////////////////////////////////////////////////////////////////////
+// Redeem item from reward system
+// Calls ESMs_system_reward_network_redeemItemRequest
+///////////////////////////////////////////////////////////////////////////
+class rewardRedeemItemRequest
+{
+	module = "esm_system";
 
 	parameters[] =
 	{
@@ -26,16 +51,38 @@ class redeemItemRequest
 	};
 };
 
+class rewardRedeemItemResponse
+{
+	module = "esm_system";
+
+	parameters[] =
+	{
+		// TODO
+	};
+};
+
+
 ///////////////////////////////////////////////////////////////////////////
 // Redeem vehicle from reward system
+// Calls ESMs_system_reward_network_redeemVehicleRequest
 ///////////////////////////////////////////////////////////////////////////
-class redeemVehicleRequest
+class rewardRedeemVehicleRequest
 {
-	module = "system";
+	module = "esm_system";
 
 	parameters[] =
 	{
 		"STRING",	// Vehicle classname
 		"STRING"	// Pin code
+	};
+};
+
+class rewardRedeemVehicleResponse
+{
+	module = "esm_system";
+
+	parameters[] =
+	{
+		// TODO
 	};
 };
