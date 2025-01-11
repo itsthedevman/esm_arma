@@ -1007,9 +1007,9 @@ mkdir -p {ARMA_PATH}/server_profile;
     Ok(())
 }
 
-pub fn start_a3_client(build: &mut Builder) -> BuildResult {
-    Ok(())
-}
+// pub fn start_a3_client(build: &mut Builder) -> BuildResult {
+//     Ok(())
+// }
 
 pub fn stream_logs(builder: &mut Builder) -> BuildResult {
     println!();

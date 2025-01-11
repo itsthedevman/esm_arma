@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 git_root=$(pwd)
 
-cd src/build/receiver
-cargo build --release --target x86_64-pc-windows-gnu
+cargo build --release --target x86_64-pc-windows-gnu --manifest-path $git_root/src/build/receiver/Cargo.toml
 
 cd $git_root/target/x86_64-pc-windows-gnu/release
-mv receiver.exe ~/Public/esm_build_receiver.exe
+mv receiver.exe $HOME/Public/exile_server_manager/esm_build_receiver.exe
