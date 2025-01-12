@@ -86,9 +86,9 @@ fn localize(context: &Data, matches: &Captures) -> CompilerResult {
         Some(c) => c.as_str(),
         None => {
             return Err(format!(
-                "{} -> localize! - Wrong number of arguments, given 0, expected 1",
-                context.file_path
-            )
+            "[L{}|{}] -> localize! - Wrong number of arguments, given 0, expected 1",
+            context.line_number, context.file_path
+        )
             .into())
         }
     };
@@ -124,8 +124,8 @@ fn define_fn(context: &Data, matches: &Captures) -> CompilerResult {
         Some(c) => c.as_str(),
         None => {
             return Err(format!(
-                "{} -> define_fn! - Wrong number of arguments, given 0, expected 1",
-                context.file_path
+                "[L{}|{}] -> define_fn! - Wrong number of arguments, given 0, expected 1",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -143,8 +143,8 @@ fn network_fn(context: &Data, matches: &Captures) -> CompilerResult {
     let esm_function_name = matches
         .get(1)
         .ok_or(format!(
-            "{} -> network_fn! - Wrong number of arguments, given 0, expected 1",
-            context.file_path
+            "[L{}|{}] -> network_fn! - Wrong number of arguments, given 0, expected 1",
+            context.line_number, context.file_path
         ))?
         .as_str();
 
@@ -157,16 +157,16 @@ fn network_fn(context: &Data, matches: &Captures) -> CompilerResult {
         "ExileClient"
     } else {
         return Err(format!(
-            "{} -> network_fn! - Unexpected function name prefix: {:?}",
-            context.file_path, function_prefix
+            "[L{}|{}] -> network_fn! - Unexpected function name prefix: {:?}",
+            context.line_number, context.file_path, function_prefix
         )
         .into());
     };
 
     let network_index =
         parts.iter().position(|&p| p == "network").ok_or(format!(
-            "{} -> network_fn! - 'network' not found in function name",
-            context.file_path
+            "[L{}|{}] -> network_fn! - 'network' not found in function name",
+            context.line_number, context.file_path
         ))?;
 
     // Just take the first part after ESMs as prefix
@@ -204,9 +204,9 @@ fn os_path(context: &Data, matches: &Captures) -> CompilerResult {
             .collect(),
         None => {
             return Err(format!(
-                "{} -> os_path! - Wrong number of arguments, given 0, expected 1+",
-                context.file_path
-            )
+            "[L{}|{}] -> os_path! - Wrong number of arguments, given 0, expected 1+",
+            context.line_number, context.file_path
+        )
             .into())
         }
     };
@@ -228,8 +228,8 @@ fn type_eq(context: &Data, matches: &Captures) -> CompilerResult {
         Some(c) => c.as_str(),
         None => {
             return Err(format!(
-                "{} -> type? - Wrong number of arguments, given 0, expected 2",
-                context.file_path
+                "[L{}|{}] -> type? - Wrong number of arguments, given 0, expected 2",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -244,16 +244,16 @@ fn type_eq(context: &Data, matches: &Captures) -> CompilerResult {
             "NIL" => "nil",
             t => {
                 return Err(format!(
-                    "{} -> type? - Unsupported type provided: {t}",
-                    context.file_path
+                    "[L{}|{}] -> type? - Unsupported type provided: {t}",
+                    context.line_number, context.file_path
                 )
                 .into())
             }
         },
         None => {
             return Err(format!(
-                "{} -> type? - Wrong number of arguments, given 1, expected 2",
-                context.file_path
+                "[L{}|{}] -> type? - Wrong number of arguments, given 1, expected 2",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -269,9 +269,9 @@ fn type_ne(context: &Data, matches: &Captures) -> CompilerResult {
         Some(c) => c.as_str(),
         None => {
             return Err(format!(
-                "{} -> !type? - Wrong number of arguments, given 0, expected 2",
-                context.file_path
-            )
+            "[L{}|{}] -> !type? - Wrong number of arguments, given 0, expected 2",
+            context.line_number, context.file_path
+        )
             .into())
         }
     };
@@ -285,17 +285,17 @@ fn type_ne(context: &Data, matches: &Captures) -> CompilerResult {
             "NIL" => "nil",
             t => {
                 return Err(format!(
-                    "{} -> !type? - Unsupported type provided: {t}",
-                    context.file_path
+                    "[L{}|{}] -> !type? - Unsupported type provided: {t}",
+                    context.line_number, context.file_path
                 )
                 .into())
             }
         },
         None => {
             return Err(format!(
-                "{} -> !type? - Wrong number of arguments, given 1, expected 2",
-                context.file_path
-            )
+            "[L{}|{}] -> !type? - Wrong number of arguments, given 1, expected 2",
+            context.line_number, context.file_path
+        )
             .into())
         }
     };
@@ -316,16 +316,16 @@ fn rv_type(context: &Data, matches: &Captures) -> CompilerResult {
                 "NIL" => "nil",
                 t => {
                     return Err(format!(
-                        "{} -> rv_type! - Invalid type provided to type: {t}",
-                        context.file_path
+                        "[L{}|{}] -> rv_type! - Invalid type provided to type: {t}",
+                        context.line_number, context.file_path
                     )
                     .into())
                 }
             },
             None => {
                 return Err(format!(
-                "{} -> rv_type! - Wrong number of arguments, given 0, expected 1",
-                context.file_path
+                "[L{}|{}] -> rv_type! - Wrong number of arguments, given 0, expected 1",
+                context.line_number, context.file_path
             )
                 .into())
             }
@@ -341,8 +341,8 @@ fn hash_get(context: &Data, matches: &Captures) -> CompilerResult {
         Some(m) => m.as_str(),
         None => {
             return Err(format!(
-                "{} -> get! - Wrong number of arguments, given 0, expect 2..3",
-                context.file_path
+                "[L{}|{}] -> get! - Wrong number of arguments, given 0, expect 2..3",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -352,8 +352,8 @@ fn hash_get(context: &Data, matches: &Captures) -> CompilerResult {
         Some(m) => m.as_str(),
         None => {
             return Err(format!(
-                "{} -> get! - Wrong number of arguments, given 1, expect 2..3",
-                context.file_path
+                "[L{}|{}] -> get! - Wrong number of arguments, given 1, expect 2..3",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -375,8 +375,8 @@ fn hash_dig(context: &Data, matches: &Captures) -> CompilerResult {
         Some(m) => m.as_str(),
         None => {
             return Err(format!(
-                "{} -> dig! - Wrong number of arguments, given 0, expect 1..",
-                context.file_path
+                "[L{}|{}] -> dig! - Wrong number of arguments, given 0, expect 1..",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -390,8 +390,8 @@ fn hash_key(context: &Data, matches: &Captures) -> CompilerResult {
         Some(m) => m.as_str(),
         None => {
             return Err(format!(
-                "{} -> key? - Wrong number of arguments, given 0, expect 1..",
-                context.file_path
+                "[L{}|{}] -> key? - Wrong number of arguments, given 0, expect 1..",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -409,8 +409,8 @@ fn log(context: &Data, matches: &Captures) -> CompilerResult {
         Some(m) => m.as_str(),
         None => {
             return Err(format!(
-                "{} -> log! - Wrong number of arguments, given 0, expect 2..3",
-                context.file_path
+                "[L{}|{}] -> log! - Wrong number of arguments, given 0, expect 2..3",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -436,8 +436,8 @@ fn empty(context: &Data, matches: &Captures) -> CompilerResult {
         Some(m) => m.as_str(),
         None => {
             return Err(format!(
-                "{} -> empty? - Wrong number of arguments, given 0, expect 1",
-                context.file_path
+                "[L{}|{}] -> empty? - Wrong number of arguments, given 0, expect 1",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -451,8 +451,8 @@ fn not_empty(context: &Data, matches: &Captures) -> CompilerResult {
         Some(m) => m.as_str(),
         None => {
             return Err(format!(
-                "{} -> !empty? - Wrong number of arguments, given 0, expect 1",
-                context.file_path
+                "[L{}|{}] -> !empty? - Wrong number of arguments, given 0, expect 1",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -466,8 +466,8 @@ fn returns_nil(context: &Data, matches: &Captures) -> CompilerResult {
         Some(m) => m.as_str(),
         None => {
             return Err(format!(
-                "{} -> returns_nil! - Wrong number of arguments, given 0, expect 1",
-                context.file_path
+                "[L{}|{}] -> returns_nil! - Wrong number of arguments, given 0, expect 1",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -483,8 +483,8 @@ fn not_nil(context: &Data, matches: &Captures) -> CompilerResult {
         Some(m) => m.as_str(),
         None => {
             return Err(format!(
-                "{} -> !nil? - Wrong number of arguments, given 0, expect 1",
-                context.file_path
+                "[L{}|{}] -> !nil? - Wrong number of arguments, given 0, expect 1",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -498,8 +498,8 @@ fn nil(context: &Data, matches: &Captures) -> CompilerResult {
         Some(m) => m.as_str(),
         None => {
             return Err(format!(
-                "{} -> nil? - Wrong number of arguments, given 0, expect 1",
-                context.file_path
+                "[L{}|{}] -> nil? - Wrong number of arguments, given 0, expect 1",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -513,8 +513,8 @@ fn null(context: &Data, matches: &Captures) -> CompilerResult {
         Some(m) => m.as_str(),
         None => {
             return Err(format!(
-                "{} -> null? - Wrong number of arguments, given 0, expect 1",
-                context.file_path
+                "[L{}|{}] -> null? - Wrong number of arguments, given 0, expect 1",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -535,8 +535,8 @@ fn replace_const(context: &Data, matches: &Captures) -> CompilerResult {
         Some(m) => m.as_str(),
         None => {
             return Err(format!(
-                "{} -> const! - Wrong number of arguments, given 0, expect 1",
-                context.file_path
+                "[L{}|{}] -> const! - Wrong number of arguments, given 0, expect 1",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -545,7 +545,13 @@ fn replace_const(context: &Data, matches: &Captures) -> CompilerResult {
     // Load the constant
     let constant = match CONSTANTS.get(content) {
         Some(c) => c,
-        None => return Ok(None),
+        None => {
+            return Err(format!(
+                "[L{}|{}] -> const! - \"{content}\" is not defined",
+                context.line_number, context.file_path
+            )
+            .into())
+        }
     };
 
     let replacement = match constant {
@@ -555,8 +561,8 @@ fn replace_const(context: &Data, matches: &Captures) -> CompilerResult {
         Value::String(s) => format!("\"{s}\""),
         _ => {
             return Err(format!(
-                "{} -> const! - Constant \"{constant}\" returns an object/array. These are not supported at this time",
-                context.file_path
+                "[L{}|{}] -> const! - \"{content}\" contains an object/array. These are not supported at this time",
+                context.line_number, context.file_path
             )
             .into())
         }
@@ -852,6 +858,7 @@ mod tests {
                 file_path: "".into(),
                 file_name: "ESMs_compiler_test".into(),
                 file_extension: "".into(),
+                line_number: 0,
             }
         );
 
@@ -886,6 +893,7 @@ mod tests {
                 file_path: "".into(),
                 file_name: "ESMs_compiler_test".into(),
                 file_extension: "".into(),
+                line_number: 0,
             }
         );
 

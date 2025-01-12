@@ -118,6 +118,7 @@ impl Compiler {
                 file_name: file.file_name.to_owned(),
                 file_path: file.relative_path.to_owned(),
                 file_extension: file.extension.to_owned(),
+                line_number: 0,
             };
 
             for replacement in self.replacements.iter() {
@@ -154,18 +155,34 @@ impl File {
         replacement: &Replacement,
         data: &Data,
     ) -> CompilerResult {
-        let content = self.content.to_owned();
-        let captures: Vec<Captures> =
-            replacement.regex.captures_iter(&content).collect();
+        let mut new_content = String::new();
 
-        for capture in captures {
-            if let Some(result) = (replacement.callback)(data, &capture)? {
-                self.content = self
-                    .content
-                    .replace(capture.get(0).unwrap().as_str(), &result);
+        // Split content into lines while preserving line endings
+        for (line_number, line) in self.content.lines().enumerate() {
+            let mut current_line = line.to_string();
+
+            // Find matches in this specific line
+            let captures: Vec<Captures> =
+                replacement.regex.captures_iter(line).collect();
+
+            for capture in captures {
+                // Create a Data struct with line info
+                let line_data = Data {
+                    line_number: line_number + 1,
+                    ..data.clone()
+                };
+
+                if let Some(result) = (replacement.callback)(&line_data, &capture)? {
+                    current_line = current_line
+                        .replace(capture.get(0).unwrap().as_str(), &result);
+                }
             }
+
+            new_content.push_str(&current_line);
+            new_content.push('\n');
         }
 
+        self.content = new_content;
         Ok(())
     }
 }
@@ -178,12 +195,13 @@ pub struct Replacement {
     pub regex: Regex,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Data {
     pub target: String,
     pub file_path: String,
     pub file_name: String,
     pub file_extension: String,
+    pub line_number: usize,
 }
 
 #[cfg(test)]
