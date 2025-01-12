@@ -28,33 +28,16 @@ disableSerialization;
 createDialog "RscEsmItemRedeemDialog";
 
 // Ensure it is there
-waitUntil { not_null!(findDisplay const!(IDD_ITEM_DIALOG)) };
+waitUntil { !isNull findDisplay const!(IDD_ITEM_DIALOG) };
 
 private _dialog = uiNameSpace getVariable ["RscEsmItemRedeemDialog", displayNull];
-
 uiNameSpace setVariable ["RscRedeemDialogIsInitialized", false];
 
 // Move away the focus of the abort button
-private _traderName = _dialog displayCtrl const!(IDC_ITEM_DIALOG_TRADER_NAME);
-ctrlSetFocus _traderName;
+ctrlSetFocus (_dialog displayCtrl const!(IDC_ITEM_DIALOG_CAPTION_LEFT));
 
-// Quantity Dropdown
-private _quantityDropdown = _dialog displayCtrl const!(IDC_ITEM_DIALOG_QUANTITY_DROPDOWN);
-
-// Clear
-lbClear _quantityDropdown;
-
-// Update dropdown
-_quantityDropdown lbAdd "1x";
-_quantityDropdown lbSetCurSel 0;
-_quantityDropdown ctrlEnable false;
-
-// Disable things by default
-private _purchaseButton = _dialog displayCtrl const!(IDC_ITEM_DIALOG_PURCHASE_BUTTON);
-_purchaseButton ctrlEnable false;
-
-private _sellButton = _dialog displayCtrl const!(IDC_ITEM_DIALOG_REDEEM_BUTTON);
-_sellButton ctrlEnable false;
+// Disable redemption button by default
+(_dialog displayCtrl const!(IDC_ITEM_DIALOG_REDEEM_BUTTON)) ctrlEnable false;
 
 true call ExileClient_gui_postProcessing_toggleDialogBackgroundBlur;
 

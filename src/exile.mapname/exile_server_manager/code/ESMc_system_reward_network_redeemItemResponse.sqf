@@ -32,7 +32,7 @@ private _containerNetID = _this select 6;
 
 ExileClientIsWaitingForServerTradeResponse = false;
 
-if (_responseCode isNotEqualTo TRADING_RESPONSE_OK) exitWith
+if (_responseCode isNotEqualTo const!(TRADING_RESPONSE_OK)) exitWith
 {
 	[
 		"ErrorTitleAndText",
@@ -66,7 +66,7 @@ switch (_rewardType) do
 	{
 		switch (_containerType) do
 		{
-			case TRADE_CONTAINER_EQUIPMENT:
+			case const!(TRADE_CONTAINER_EQUIPMENT):
 			{
 				// When you buy a uniform/vest/backpack in to your equipment,
 				// show the newest drop down options
@@ -85,7 +85,7 @@ switch (_rewardType) do
 				};
 			};
 
-			case TRADE_CONTAINER_UNIFORM:
+			case const!(TRADE_CONTAINER_UNIFORM):
 			{
 				{
 					[
@@ -95,7 +95,7 @@ switch (_rewardType) do
 				count _quantity;
 			};
 
-			case TRADE_CONTAINER_VEST:
+			case const!(TRADE_CONTAINER_VEST):
 			{
 				{
 					[
@@ -105,7 +105,7 @@ switch (_rewardType) do
 				count _quantity;
 			};
 
-			case TRADE_CONTAINER_BACKPACK:
+			case const!(TRADE_CONTAINER_BACKPACK):
 			{
 				{
 					[
@@ -115,7 +115,7 @@ switch (_rewardType) do
 				count _quantity;
 			};
 
-			case TRADE_CONTAINER_VEHICLE:
+			case const!(TRADE_CONTAINER_VEHICLE):
 			{
 				private _vehicle = objectFromNetId _containerNetID;
 
@@ -156,7 +156,7 @@ if (_dialog isNotEqualTo displayNull) then
 	call ESMc_gui_itemRedeemDialog_updateStoreListBox;
 
 	// Simulate a click on the item again, so the whole "can i buy this?" logic triggers
-	private _storeListBox = _dialog displayCtrl IDC_ITEM_DIALOG_STORE_LISTBOX;
+	private _storeListBox = _dialog displayCtrl const!(IDC_ITEM_DIALOG_STORE_LIST);
 
 	[
 		_storeListBox,

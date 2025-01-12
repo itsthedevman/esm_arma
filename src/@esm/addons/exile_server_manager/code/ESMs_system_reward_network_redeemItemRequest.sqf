@@ -41,23 +41,23 @@ try
 	private _vehicleObject = objNull;
 	if (isNull _playerObject) then
 	{
-		throw TRADING_RESPONSE_INVALID_PLAYER;
+		throw const!(TRADING_RESPONSE_INVALID_PLAYER);
 	};
 
 	// Check if we are storing to a vehicle so it saves
-	if (_containerType isEqualTo TRADE_CONTAINER_VEHICLE) then
+	if (_containerType isEqualTo const!(TRADE_CONTAINER_VEHICLE)) then
 	{
 		_vehicleObject = objectFromNetID(_containerNetID);
 		if (isNull _vehicleObject) then
 		{
-			throw TRADING_RESPONSE_INVALID_VEHICLE;
+			throw const!(TRADING_RESPONSE_INVALID_VEHICLE);
 		};
 	};
 
 	// The dead may not redeem stuff
 	if !(alive _playerObject) then
 	{
-		throw TRADING_RESPONSE_DEAD_PLAYER;
+		throw const!(TRADING_RESPONSE_DEAD_PLAYER);
 	};
 
 	// Load the reward
@@ -66,7 +66,7 @@ try
 	// Make sure we have the valid reward ID
 	if (nil?(_reward)) then
 	{
-		throw TRADING_RESPONSE_INVALID_REWARD;
+		throw const!(TRADING_RESPONSE_INVALID_REWARD);
 	};
 
 	// The good stuff
@@ -109,13 +109,13 @@ try
 			// Disallow vehicles because this isn't the way to do it
 			if (isClass (configFile >> "CfgVehicles" >> _itemClassname)) then
 			{
-				throw TRADING_RESPONSE_INVALID_VEHICLE;
+				throw const!(TRADING_RESPONSE_INVALID_VEHICLE);
 			};
 
 			// Check if the item class is valid
 			if !(isClass (missionConfigFile >> "CfgExileArsenal" >> _itemClassname)) then
 			{
-				throw TRADING_RESPONSE_INVALID_OBJECT_CLASS;
+				throw const!(TRADING_RESPONSE_INVALID_OBJECT_CLASS);
 			};
 
 			// Don't do anything, Exile lets the client handle it, I'll let the client handle it
@@ -124,7 +124,7 @@ try
 
 		default
 		{
-			throw TRADING_RESPONSE_INVALID_REWARD_TYPE;
+			throw const!(TRADING_RESPONSE_INVALID_REWARD_TYPE);
 		};
 	};
 
@@ -137,7 +137,7 @@ try
 		_sessionID,
 		"redeemItemResponse",
 		[
-			TRADING_RESPONSE_OK,
+			const!(TRADING_RESPONSE_OK),
 			_rewardType,
 			_itemClassname,
 			_quantity,
@@ -159,7 +159,7 @@ try
 			_playerMoney
 		];
 
-		ESM_DatabaseExtension callExtension format["1:TRADING:%1",_traderLog];
+		ESM_DatabaseExtension callExtension format["1:TRADING:%1", _traderLog];
 	};
 
 	// If the item was placed inside of the vehicle, save the vehicle in our database

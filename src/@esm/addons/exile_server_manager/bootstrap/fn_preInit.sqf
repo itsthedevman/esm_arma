@@ -90,7 +90,7 @@ forEach
     define_fn!("ESMs_system_process_postInit"),
     define_fn!("ESMs_system_reward_network_loadAllRequest"),
     define_fn!("ESMs_system_reward_network_redeemItemRequest"),
-    define_fn!("ESMs_system_reward_network_redeemVehicleRequest")
+    define_fn!("ESMs_system_reward_network_redeemVehicleRequest"),
     define_fn!("ESMs_system_territory_checkAccess"),
     define_fn!("ESMs_system_territory_encodeID"),
     define_fn!("ESMs_system_territory_get"),
