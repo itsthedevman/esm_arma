@@ -45,7 +45,7 @@ class rewardRedeemItemRequest
 
 	parameters[] =
 	{
-		"STRING", 	// Item classname
+		"STRING", 	// Reward code
 		"STRING",	// Container type
 		"STRING"	// Container net ID
 	};
@@ -57,7 +57,14 @@ class rewardRedeemItemResponse
 
 	parameters[] =
 	{
-		// TODO
+		"SCALAR", 	// Response code
+		"STRING", 	// Reward code
+		"STRING", 	// Reward type
+		"STRING", 	// Item classname if reward type is "classname"
+		"SCALAR", 	// Quantity
+		"SCALAR", 	// Container type
+		"STRING" 	// NetID of vehicle if container type is "vehicle"
+
 	};
 };
 
