@@ -1,46 +1,72 @@
+/* ----------------------------------------------------------------------------
+Function:
+	ESMc_gui_vehicleRedeemDialog_updateVehicle
+
+Description:
+	TODO
+
+Author:
+	Exile Mod
+	www.exilemod.com
+	© 2015-current_year!() Exile Mod Team
+
+	This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+
+Co-author:
+	Exile Server Manager
+	www.esmbot.com
+	© 2018-current_year!() Bryan "WolfkillArcadia"
+
+	This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+---------------------------------------------------------------------------- */
+
 disableSerialization;
 
-_vehicleClass = _this;
-_dialog = uiNameSpace getVariable ["RscExileVehicleTraderDialog", displayNull];
-_traderObject = uiNameSpace getVariable ["ExileCurrentTrader", objNull];
-_vehicleConfig = configFile >> "CfgVehicles" >> _vehicleClass;
+private _vehicleClass = _this;
 
-// Disable the purchase button if not effordable
-_salesPrice = getNumber(missionConfigFile >> "CfgExileArsenal" >> _vehicleClass >> "price");
+private _dialog = uiNameSpace getVariable ["RscEsmVehicleRedeemDialog", displayNull];
+
+private _vehicleConfig = configFile >> "CfgVehicles" >> _vehicleClass;
 
 _pin = ctrlText (_dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_PIN_EDIT);
 
-if(count _pin isEqualTo 4)then
-{
-	_quality = getNumber(missionConfigFile >> "CfgExileArsenal" >> _vehicleClass >> "quality");
-	_requiredRespect = getNumber(missionConfigFile >> "CfgTrading" >> "requiredRespect" >> format["Level%1",_quality]);
-	_purchaseButton = _dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_PURCHASE_BUTTON;
-
-	if(_requiredRespect <= ExileClientPlayerScore)then
-	{
-		_purchaseButton ctrlEnable (_salesPrice <= (player getVariable ["ExileMoney", 0]));
-	}
-	else
-	{
-		_purchaseButton ctrlEnable false;
-	};
-};
+private _redeemButton = _dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_PURCHASE_BUTTON;
+_redeemButton ctrlEnable (count(_pin) isEqualTo 4);
 
 // Get the maximum speed, capacity, passengers, armor
-_armor = getNumber(_vehicleConfig >> "armor");
-_fuelCapacity = getNumber(_vehicleConfig >> "fuelCapacity"); // liters
-_maximumLoad = getNumber(_vehicleConfig >> "maximumLoad");
-_maximumSpeed = getNumber(_vehicleConfig >> "maxSpeed");
+private _armor = getNumber(_vehicleConfig >> "armor");
+private _fuelCapacity = getNumber(_vehicleConfig >> "fuelCapacity"); // liters
+private _maximumLoad = getNumber(_vehicleConfig >> "maximumLoad");
+private _maximumSpeed = getNumber(_vehicleConfig >> "maxSpeed");
 
 // Update the stats
-_stats = [];
-_stats pushBack ["Speed", 		format["%1km/h", 	_maximumSpeed], 	_maximumSpeed/STAT_VEHICLE_SPEED_MAX 	];
-_stats pushBack ["Capacity", 	format["%1", 		_maximumLoad], 		_maximumLoad/STAT_VEHICLE_LOAD_MAX 		];
-_stats pushBack ["Armor", 		format["%1", 		_armor], 			_armor/STAT_VEHICLE_ARMOR_MAX 			];
-_stats pushBack ["Fuel Tank", 	format["%1l", 		_fuelCapacity], 	_fuelCapacity/STAT_VEHICLE_FUEL_MAX 	];
+private _stats = [
+	[
+		"Speed",
+		format["%1km/h", _maximumSpeed],
+		_maximumSpeed / STAT_VEHICLE_SPEED_MAX
+	],
+	[
+		"Capacity",
+		format["%1", _maximumLoad],
+		_maximumLoad / STAT_VEHICLE_LOAD_MAX
+	],
+	[
+		"Armor",
+		format["%1", _armor],
+		_armor / STAT_VEHICLE_ARMOR_MAX
+	],
+	[
+		"Fuel Tank",
+		format["%1l", _fuelCapacity],
+		_fuelCapacity / STAT_VEHICLE_FUEL_MAX
+	]
+];
 
 // Then enable the stat bars
-_controlID = IDC_VEHICLE_TRADER_STAT01_BACKGROUND;
+private _controlID = IDC_VEHICLE_TRADER_STAT01_BACKGROUND;
 
 {
 	// Background

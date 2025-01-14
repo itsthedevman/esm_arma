@@ -1,15 +1,30 @@
+/* ----------------------------------------------------------------------------
+Function:
+	ESMc_gui_vehicleRedeemDialog_show
+
+Description:
+	TODO
+
+Author:
+	Exile Mod
+	www.exilemod.com
+	© 2015-current_year!() Exile Mod Team
+
+	This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+
+Co-author:
+	Exile Server Manager
+	www.esmbot.com
+	© 2018-current_year!() Bryan "WolfkillArcadia"
+
+	This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License.
+	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
+---------------------------------------------------------------------------- */
+
 disableSerialization;
 
-_traderObject = _this;
-
-ExileClientCurrentTrader = _this getVariable "ExileTraderType";
-
 ExileClientPinCode = "";
-
-// Background blur
-//ExileClientPostProcessingBackgroundBlur ppEffectAdjust [2];
-//ExileClientPostProcessingBackgroundBlur ppEffectEnable true;
-//ExileClientPostProcessingBackgroundBlur ppEffectCommit 1;
 
 // Hide our hud
 false call ExileClient_gui_hud_toggle;
@@ -18,36 +33,38 @@ false call ExileClient_gui_hud_toggle;
 ExileClientMoonLight setLightBrightness 5;
 
 // Show the dialog
-createDialog "RscExileVehicleTraderDialog";
+createDialog "RscEsmVehicleRedeemDialog";
 
-_dialog = uiNameSpace getVariable ["RscExileVehicleTraderDialog", displayNull];
+private _dialog = uiNameSpace getVariable ["RscEsmVehicleRedeemDialog", displayNull];
 
 // Disable purchase button by default (no vehicle selected)
-_purchaseButton = _dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_PURCHASE_BUTTON;
-_purchaseButton ctrlEnable false;
-
+private _redeemButton = _dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_PURCHASE_BUTTON;
+_redeemButton ctrlEnable false;
 
 // Add the categories to the drop down
-_traderCategories = getArray(missionConfigFile >> "CfgTraders" >> ExileClientCurrentTrader >> "categories");
+private _traderCategories = getArray(
+	missionConfigFile >> "CfgTraders" >> ExileClientCurrentTrader >> "categories"
+);
 
 // Create the combo boxes
-_categoryComboBox = _dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_CATEGORY_DROPDOWN;
+private _categoryComboBox = _dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_CATEGORY_DROPDOWN;
 
 // Add the "ALL" Combo
-_allIndex = _categoryComboBox lbAdd "";
+private _allIndex = _categoryComboBox lbAdd "";
 _categoryComboBox lbSetCurSel _allIndex;
 
 {
-	_categoryClass = _x;
-	_categoryConfig = missionConfigFile >> "CfgTraderCategories" >> _categoryClass;
-	_categoryIndex = _categoryComboBox lbAdd getText(_categoryConfig >> "name");
+	private _categoryClass = _x;
+	private _categoryConfig = missionConfigFile >> "CfgTraderCategories" >> _categoryClass;
+	private _categoryIndex = _categoryComboBox lbAdd getText(_categoryConfig >> "name");
+
 	_categoryComboBox lbSetData [_categoryIndex, _categoryClass];
 	_categoryComboBox lbSetPicture [_categoryIndex, getText(_categoryConfig >> "icon")];
 }
 forEach _traderCategories;
 
 // Update the vehicle list
-[""] call ExileClient_gui_vehicleTraderDialog_updateVehicleListBox;
+[""] call ESMc_gui_vehicleRedeemDialog_updateVehicleListBox;
 
 // Initialize model box
 call ExileClient_gui_modelBox_create;
