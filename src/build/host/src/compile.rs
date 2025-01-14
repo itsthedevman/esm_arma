@@ -24,72 +24,120 @@ lazy_static! {
 
 type CompilerResult = Result<Option<String>, CompilerError>;
 
-const REGEX_CONST: &str = r#"const!\((\w+)\)"#;
-const REGEX_CURRENT_YEAR: &str = r#"current_year!\(\)"#;
-const REGEX_DEF_FN: &str = r#"define_fn!\("(\w+)?"\)"#;
-const REGEX_DIG: &str = r#"dig!\((.+[^)])\)"#;
-const REGEX_EMPTY_NEGATED: &str = r#"!empty\?\((\S+[^)])\)"#;
-const REGEX_EMPTY: &str = r#"empty\?\((\S+[^)])\)"#;
-const REGEX_FILE_NAME: &str = r#"file_name!\(\)"#;
-const REGEX_GET_WITH_DEFAULT: &str = r"get!\((.+),\s*(.+),\s*(.+[^)])\)";
-const REGEX_GET: &str = r"get!\((.+)?,\s*(.+[^)])?\)";
-const REGEX_KEY: &str = r#"key\?\((.+[^)])\)"#;
-const REGEX_LOCALIZE: &str = r#"localize!\("(\w+)"((?:,\s*[\w\s"]+)*)\)"#;
-const REGEX_LOG_WITH_ARGS: &str =
-    r#"(trace|info|warn|debug|error)!\((".+")*,\s*(.*)+\)"#;
-const REGEX_LOG: &str = r#"(trace|info|warn|debug|error)!\((.+)?\)"#;
-const REGEX_NETWORK_FN: &str = r#"network_fn!\("(\w+)?"\)"#;
-const REGEX_NIL_NEGATED: &str = r#"!nil\?\((\w+)?\)"#;
-const REGEX_NIL: &str = r#"nil\?\((\w+)?\)"#;
-const REGEX_NULL: &str = r"null\?\((\w+)?\)";
-const REGEX_NULL_NEGATED: &str = r"!null\?\((\w+)?\)";
-const REGEX_OS_PATH: &str = r"os_path!\((.+,?)?\)";
-const REGEX_RETURNS_NIL: &str = r#"returns_nil!\((\w+)\)"#;
-const REGEX_RV_TYPE: &str = r"rv_type!\((ARRAY|BOOL|HASH|STRING|NIL)?\)";
-const REGEX_TYPE_CHECK_NEGATED: &str =
-    r"!type\?\((.+)?,\s*(ARRAY|BOOL|HASH|STRING|NIL)?\)";
-const REGEX_TYPE_CHECK: &str = r"type\?\((.+)?,\s*(ARRAY|BOOL|HASH|STRING|NIL)?\)";
+const NAME_CONST: &str = "const!";
+const PATTERN_CONST: &str = r#"(\w+)"#;
+
+const NAME_CURRENT_YEAR: &str = "current_year!";
+const PATTERN_CURRENT_YEAR: &str = "";
+
+const NAME_DEF_FN: &str = "define_fn!";
+const PATTERN_DEF_FN: &str = r#""(\w+)?""#;
+
+const NAME_DIG: &str = "dig!";
+const PATTERN_DIG: &str = r#"(.+[^)])"#;
+
+const NAME_EMPTY_NEGATED: &str = "!empty?";
+const PATTERN_EMPTY_NEGATED: &str = r#"(\S+[^)])"#;
+
+const NAME_EMPTY: &str = "empty?";
+const PATTERN_EMPTY: &str = r#"(\S+[^)])"#;
+
+const NAME_FILE_NAME: &str = "file_name!";
+const PATTERN_FILE_NAME: &str = "";
+
+const NAME_GET_WITH_DEFAULT: &str = "get!";
+const PATTERN_GET_WITH_DEFAULT: &str = r"(.+),\s*(.+),\s*(.+[^)])";
+
+const NAME_GET: &str = "get!";
+const PATTERN_GET: &str = r"(.+)?,\s*(.+[^)])?";
+
+const NAME_KEY: &str = "key?";
+const PATTERN_KEY: &str = r#"(.+[^)])"#;
+
+const NAME_LOCALIZE: &str = "localize!";
+const PATTERN_LOCALIZE: &str = r#""(\w+)"((?:,\s*[\w\s"]+)*)"#;
+
+const NAME_LOG_TRACE: &str = "trace!";
+const NAME_LOG_DEBUG: &str = "debug!";
+const NAME_LOG_INFO: &str = "info!";
+const NAME_LOG_WARN: &str = "warn!";
+const NAME_LOG_ERROR: &str = "error!";
+const PATTERN_LOG_WITH_ARGS: &str = r#"(".+")*,\s*(.*)+"#;
+
+const PATTERN_LOG: &str = r#"(.+)"#;
+
+const NAME_NETWORK_FN: &str = "network_fn!";
+const PATTERN_NETWORK_FN: &str = r#""(\w+)?""#;
+
+const NAME_NIL_NEGATED: &str = "!nil?";
+const PATTERN_NIL_NEGATED: &str = r#"(\w+)?"#;
+
+const NAME_NIL: &str = "nil?";
+const PATTERN_NIL: &str = r#"(\w+)?"#;
+
+const NAME_NULL: &str = "null?";
+const PATTERN_NULL: &str = r"(\w+)?";
+
+const NAME_NULL_NEGATED: &str = "!null?";
+const PATTERN_NULL_NEGATED: &str = r"(\w+)?";
+
+const NAME_OS_PATH: &str = "os_path!";
+const PATTERN_OS_PATH: &str = r"(.+,?)?";
+
+const NAME_RETURNS_NIL: &str = "returns_nil!";
+const PATTERN_RETURNS_NIL: &str = r#"(\w+)"#;
+
+const NAME_RV_TYPE: &str = "rv_type!";
+const PATTERN_RV_TYPE: &str = r"(ARRAY|BOOL|HASH|STRING|NIL)?";
+
+const NAME_TYPE_CHECK_NEGATED: &str = "!type?";
+const PATTERN_TYPE_CHECK_NEGATED: &str = r"(.+)?,\s*(ARRAY|BOOL|HASH|STRING|NIL)?";
+
+const NAME_TYPE_CHECK: &str = "type?";
+const PATTERN_TYPE_CHECK: &str = r"(.+)?,\s*(ARRAY|BOOL|HASH|STRING|NIL)?";
 
 pub fn bind_replacements(compiler: &mut Compiler) {
-    // The order of these matter
-    // Macros without arguments are first
-    // Macros that could end up with another macro being used as an argument
-    // need to be last
     compiler
-        .replace(REGEX_CURRENT_YEAR, current_year)
-        .replace(REGEX_FILE_NAME, file_name)
-        .replace(REGEX_DEF_FN, define_fn)
-        .replace(REGEX_NETWORK_FN, network_fn)
-        .replace(REGEX_OS_PATH, os_path)
-        .replace(REGEX_TYPE_CHECK_NEGATED, type_ne)
-        .replace(REGEX_TYPE_CHECK, type_eq)
-        .replace(REGEX_RV_TYPE, rv_type)
-        .replace(REGEX_GET_WITH_DEFAULT, hash_get)
-        .replace(REGEX_GET, hash_get)
-        .replace(REGEX_DIG, hash_dig)
-        .replace(REGEX_KEY, hash_key)
-        .replace(REGEX_LOG_WITH_ARGS, log)
-        .replace(REGEX_LOG, log)
-        .replace(REGEX_RETURNS_NIL, returns_nil)
-        .replace(REGEX_EMPTY, empty)
-        .replace(REGEX_EMPTY_NEGATED, not_empty)
-        .replace(REGEX_NIL_NEGATED, not_nil)
-        .replace(REGEX_NIL, nil)
-        .replace(REGEX_NULL_NEGATED, not_null)
-        .replace(REGEX_NULL, null)
-        .replace(REGEX_CONST, replace_const)
-        .replace(REGEX_LOCALIZE, localize);
+        .replace_macro(NAME_CURRENT_YEAR, PATTERN_CURRENT_YEAR, current_year)
+        .replace_macro(NAME_FILE_NAME, PATTERN_FILE_NAME, file_name)
+        .replace_macro(NAME_LOG_DEBUG, PATTERN_LOG_WITH_ARGS, log)
+        .replace_macro(NAME_LOG_DEBUG, PATTERN_LOG, log)
+        .replace_macro(NAME_LOG_ERROR, PATTERN_LOG_WITH_ARGS, log)
+        .replace_macro(NAME_LOG_ERROR, PATTERN_LOG, log)
+        .replace_macro(NAME_LOG_INFO, PATTERN_LOG_WITH_ARGS, log)
+        .replace_macro(NAME_LOG_INFO, PATTERN_LOG, log)
+        .replace_macro(NAME_LOG_TRACE, PATTERN_LOG_WITH_ARGS, log)
+        .replace_macro(NAME_LOG_TRACE, PATTERN_LOG, log)
+        .replace_macro(NAME_LOG_WARN, PATTERN_LOG_WITH_ARGS, log)
+        .replace_macro(NAME_LOG_WARN, PATTERN_LOG, log)
+        .replace_macro(NAME_CONST, PATTERN_CONST, replace_const)
+        .replace_macro(NAME_DEF_FN, PATTERN_DEF_FN, define_fn)
+        .replace_macro(NAME_DIG, PATTERN_DIG, hash_dig)
+        .replace_macro(NAME_EMPTY_NEGATED, PATTERN_EMPTY_NEGATED, not_empty)
+        .replace_macro(NAME_EMPTY, PATTERN_EMPTY, empty)
+        .replace_macro(NAME_GET_WITH_DEFAULT, PATTERN_GET_WITH_DEFAULT, hash_get)
+        .replace_macro(NAME_GET, PATTERN_GET, hash_get)
+        .replace_macro(NAME_KEY, PATTERN_KEY, hash_key)
+        .replace_macro(NAME_LOCALIZE, PATTERN_LOCALIZE, localize)
+        .replace_macro(NAME_NETWORK_FN, PATTERN_NETWORK_FN, network_fn)
+        .replace_macro(NAME_NIL_NEGATED, PATTERN_NIL_NEGATED, not_nil)
+        .replace_macro(NAME_NIL, PATTERN_NIL, nil)
+        .replace_macro(NAME_NULL_NEGATED, PATTERN_NULL_NEGATED, not_null)
+        .replace_macro(NAME_NULL, PATTERN_NULL, null)
+        .replace_macro(NAME_OS_PATH, PATTERN_OS_PATH, os_path)
+        .replace_macro(NAME_RETURNS_NIL, PATTERN_RETURNS_NIL, returns_nil)
+        .replace_macro(NAME_RV_TYPE, PATTERN_RV_TYPE, rv_type)
+        .replace_macro(NAME_TYPE_CHECK_NEGATED, PATTERN_TYPE_CHECK_NEGATED, type_ne)
+        .replace_macro(NAME_TYPE_CHECK, PATTERN_TYPE_CHECK, type_eq);
 }
 
-fn localize(context: &Data, matches: &Captures) -> CompilerResult {
+fn localize(_context: &Data, matches: &Captures) -> CompilerResult {
     let locale_name = match matches.get(1) {
         Some(c) => c.as_str(),
         None => {
-            return Err(format!(
-            "[L{}|{}] -> localize! - Wrong number of arguments, given 0, expected 1",
-            context.line_number, context.file_path
-        )
-            .into())
+            return Err(
+                format!("Wrong number of arguments, given 0, expected 1",).into()
+            )
         }
     };
 
@@ -119,15 +167,13 @@ fn file_name(context: &Data, _matches: &Captures) -> CompilerResult {
 
 // define_fn!("ESMs_util_log") -> ["ESMs_util_log", "exile_server_manager\code\ESMs_util_log.sqf"]
 // Also replaces slashes based on OS
-fn define_fn(context: &Data, matches: &Captures) -> CompilerResult {
+fn define_fn(_context: &Data, matches: &Captures) -> CompilerResult {
     let function_name = match matches.get(1) {
         Some(c) => c.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> define_fn! - Wrong number of arguments, given 0, expected 1",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expected 1",).into()
             )
-            .into())
         }
     };
 
@@ -139,13 +185,10 @@ fn define_fn(context: &Data, matches: &Captures) -> CompilerResult {
 
 // network_fn!("ESMs_system_network_message")
 //      -> ["ExileServer_system_network_esm_systemMessage", "ESMs_system_network_message"]
-fn network_fn(context: &Data, matches: &Captures) -> CompilerResult {
+fn network_fn(_context: &Data, matches: &Captures) -> CompilerResult {
     let esm_function_name = matches
         .get(1)
-        .ok_or(format!(
-            "[L{}|{}] -> network_fn! - Wrong number of arguments, given 0, expected 1",
-            context.line_number, context.file_path
-        ))?
+        .ok_or(format!("Wrong number of arguments, given 0, expected 1",))?
         .as_str();
 
     let parts: Vec<&str> = esm_function_name.split('_').collect();
@@ -157,17 +200,16 @@ fn network_fn(context: &Data, matches: &Captures) -> CompilerResult {
         "ExileClient"
     } else {
         return Err(format!(
-            "[L{}|{}] -> network_fn! - Unexpected function name prefix: {:?}",
-            context.line_number, context.file_path, function_prefix
+            "Unexpected function name prefix: {:?}",
+            function_prefix
         )
         .into());
     };
 
-    let network_index =
-        parts.iter().position(|&p| p == "network").ok_or(format!(
-            "[L{}|{}] -> network_fn! - 'network' not found in function name",
-            context.line_number, context.file_path
-        ))?;
+    let network_index = parts
+        .iter()
+        .position(|&p| p == "network")
+        .ok_or(format!("'network' not found in function name",))?;
 
     // Just take the first part after ESMs as prefix
     let prefix = parts[1];
@@ -195,7 +237,7 @@ fn network_fn(context: &Data, matches: &Captures) -> CompilerResult {
 }
 
 // os_path!("my_mod", "some_dir") -> Windows: "my_mod\some_dir" - Linux: "my_mod/some_dir"
-fn os_path(context: &Data, matches: &Captures) -> CompilerResult {
+fn os_path(_context: &Data, matches: &Captures) -> CompilerResult {
     let path_chunks: Vec<String> = match matches.get(1) {
         Some(c) => c
             .as_str()
@@ -203,11 +245,9 @@ fn os_path(context: &Data, matches: &Captures) -> CompilerResult {
             .map(|p| p.trim().replace('"', ""))
             .collect(),
         None => {
-            return Err(format!(
-            "[L{}|{}] -> os_path! - Wrong number of arguments, given 0, expected 1+",
-            context.line_number, context.file_path
-        )
-            .into())
+            return Err(
+                format!("Wrong number of arguments, given 0, expected 1+",).into()
+            )
         }
     };
 
@@ -223,15 +263,13 @@ fn os_path(context: &Data, matches: &Captures) -> CompilerResult {
 
 // type?([], ARRAY) -> [] isEqualType []
 // type?(_some_var, HASH) -> _some_var isEqualType createHashMap
-fn type_eq(context: &Data, matches: &Captures) -> CompilerResult {
+fn type_eq(_context: &Data, matches: &Captures) -> CompilerResult {
     let comparee = match matches.get(1) {
         Some(c) => c.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> type? - Wrong number of arguments, given 0, expected 2",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expected 2",).into()
             )
-            .into())
         }
     };
 
@@ -242,20 +280,12 @@ fn type_eq(context: &Data, matches: &Captures) -> CompilerResult {
             "HASH" => "createHashMap",
             "STRING" => "\"\"",
             "NIL" => "nil",
-            t => {
-                return Err(format!(
-                    "[L{}|{}] -> type? - Unsupported type provided: {t}",
-                    context.line_number, context.file_path
-                )
-                .into())
-            }
+            t => return Err(format!("Unsupported type provided: {t}",).into()),
         },
         None => {
-            return Err(format!(
-                "[L{}|{}] -> type? - Wrong number of arguments, given 1, expected 2",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 1, expected 2",).into()
             )
-            .into())
         }
     };
 
@@ -264,15 +294,13 @@ fn type_eq(context: &Data, matches: &Captures) -> CompilerResult {
 
 // !type?([], ARRAY) -> !([] isEqualType [])
 // !type?(_some_var, HASH) -> !(_some_var isEqualType createHashMap)
-fn type_ne(context: &Data, matches: &Captures) -> CompilerResult {
+fn type_ne(_context: &Data, matches: &Captures) -> CompilerResult {
     let comparee = match matches.get(1) {
         Some(c) => c.as_str(),
         None => {
-            return Err(format!(
-            "[L{}|{}] -> !type? - Wrong number of arguments, given 0, expected 2",
-            context.line_number, context.file_path
-        )
-            .into())
+            return Err(
+                format!("Wrong number of arguments, given 0, expected 2",).into()
+            )
         }
     };
 
@@ -283,20 +311,12 @@ fn type_ne(context: &Data, matches: &Captures) -> CompilerResult {
             "HASH" => "createHashMap",
             "STRING" => "\"\"",
             "NIL" => "nil",
-            t => {
-                return Err(format!(
-                    "[L{}|{}] -> !type? - Unsupported type provided: {t}",
-                    context.line_number, context.file_path
-                )
-                .into())
-            }
+            t => return Err(format!("Unsupported type provided: {t}",).into()),
         },
         None => {
-            return Err(format!(
-            "[L{}|{}] -> !type? - Wrong number of arguments, given 1, expected 2",
-            context.line_number, context.file_path
-        )
-            .into())
+            return Err(
+                format!("Wrong number of arguments, given 1, expected 2",).into()
+            )
         }
     };
 
@@ -305,7 +325,7 @@ fn type_ne(context: &Data, matches: &Captures) -> CompilerResult {
 
 // rv_type!(ARRAY) -> []
 // rv_type!(HASH) -> createHashMap
-fn rv_type(context: &Data, matches: &Captures) -> CompilerResult {
+fn rv_type(_context: &Data, matches: &Captures) -> CompilerResult {
     Ok(Some(
         match matches.get(1) {
             Some(m) => match m.as_str() {
@@ -315,18 +335,13 @@ fn rv_type(context: &Data, matches: &Captures) -> CompilerResult {
                 "STRING" => "\"\"",
                 "NIL" => "nil",
                 t => {
-                    return Err(format!(
-                        "[L{}|{}] -> rv_type! - Invalid type provided to type: {t}",
-                        context.line_number, context.file_path
-                    )
-                    .into())
+                    return Err(format!("Invalid type provided to type: {t}",).into())
                 }
             },
             None => {
                 return Err(format!(
-                "[L{}|{}] -> rv_type! - Wrong number of arguments, given 0, expected 1",
-                context.line_number, context.file_path
-            )
+                    "Wrong number of arguments, given 0, expected 1",
+                )
                 .into())
             }
         }
@@ -336,26 +351,22 @@ fn rv_type(context: &Data, matches: &Captures) -> CompilerResult {
 
 // get!(_hash_map, "key") -> _hash_map getOrDefault ["key", nil];
 // get!(createHashMap, "key", 1) -> createHashMap getOrDefault ["key", 1];
-fn hash_get(context: &Data, matches: &Captures) -> CompilerResult {
+fn hash_get(_context: &Data, matches: &Captures) -> CompilerResult {
     let hash_map = match matches.get(1) {
         Some(m) => m.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> get! - Wrong number of arguments, given 0, expect 2..3",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expect 2..3",).into()
             )
-            .into())
         }
     };
 
     let key = match matches.get(2) {
         Some(m) => m.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> get! - Wrong number of arguments, given 1, expect 2..3",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 1, expect 2..3",).into()
             )
-            .into())
         }
     };
 
@@ -370,30 +381,26 @@ fn hash_get(context: &Data, matches: &Captures) -> CompilerResult {
     )))
 }
 
-fn hash_dig(context: &Data, matches: &Captures) -> CompilerResult {
+fn hash_dig(_context: &Data, matches: &Captures) -> CompilerResult {
     let contents = match matches.get(1) {
         Some(m) => m.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> dig! - Wrong number of arguments, given 0, expect 1..",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expect 1..",).into()
             )
-            .into())
         }
     };
 
     Ok(Some(format!("[{}] call ESMs_util_hashmap_dig", contents)))
 }
 
-fn hash_key(context: &Data, matches: &Captures) -> CompilerResult {
+fn hash_key(_context: &Data, matches: &Captures) -> CompilerResult {
     let contents = match matches.get(1) {
         Some(m) => m.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> key? - Wrong number of arguments, given 0, expect 1..",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expect 1..",).into()
             )
-            .into())
         }
     };
 
@@ -403,20 +410,19 @@ fn hash_key(context: &Data, matches: &Captures) -> CompilerResult {
 // info!(_my_var) -> ["file_name", format["%1", _my_var], "info"] call ESMs_util_log;
 // debug!("Its %1 me, %2", _a, "mario") -> ["file_name", format["Its %1 me, %2", _a, "mario"], "debug"] call ESMs_util_log;
 fn log(context: &Data, matches: &Captures) -> CompilerResult {
-    let log_level = matches.get(1).unwrap().as_str();
+    // Without the "!" at the end
+    let log_level = &context.name[..context.name.len() - 1].to_string();
 
-    let content = match matches.get(2) {
+    let content = match matches.get(1) {
         Some(m) => m.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> log! - Wrong number of arguments, given 0, expect 2..3",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expect 1..2",).into()
             )
-            .into())
         }
     };
 
-    Ok(Some(match matches.get(3) {
+    Ok(Some(match matches.get(2) {
         Some(args) => format!(
             "[\"{}\", format[{}, {}], \"{}\"] call ESMs_util_log",
             context.file_name,
@@ -431,45 +437,39 @@ fn log(context: &Data, matches: &Captures) -> CompilerResult {
     }))
 }
 
-fn empty(context: &Data, matches: &Captures) -> CompilerResult {
+fn empty(_context: &Data, matches: &Captures) -> CompilerResult {
     let contents = match matches.get(1) {
         Some(m) => m.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> empty? - Wrong number of arguments, given 0, expect 1",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expect 1",).into()
             )
-            .into())
         }
     };
 
     Ok(Some(format!("count({}) isEqualTo 0", contents)))
 }
 
-fn not_empty(context: &Data, matches: &Captures) -> CompilerResult {
+fn not_empty(_context: &Data, matches: &Captures) -> CompilerResult {
     let contents = match matches.get(1) {
         Some(m) => m.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> !empty? - Wrong number of arguments, given 0, expect 1",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expect 1",).into()
             )
-            .into())
         }
     };
 
     Ok(Some(format!("count({}) isNotEqualTo 0", contents)))
 }
 
-fn returns_nil(context: &Data, matches: &Captures) -> CompilerResult {
+fn returns_nil(_context: &Data, matches: &Captures) -> CompilerResult {
     let variable = match matches.get(1) {
         Some(m) => m.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> returns_nil! - Wrong number of arguments, given 0, expect 1",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expect 1",).into()
             )
-            .into())
         }
     };
 
@@ -478,45 +478,39 @@ fn returns_nil(context: &Data, matches: &Captures) -> CompilerResult {
     )))
 }
 
-fn not_nil(context: &Data, matches: &Captures) -> CompilerResult {
+fn not_nil(_context: &Data, matches: &Captures) -> CompilerResult {
     let content = match matches.get(1) {
         Some(m) => m.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> !nil? - Wrong number of arguments, given 0, expect 1",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expect 1",).into()
             )
-            .into())
         }
     };
 
     Ok(Some(format!("!(isNil \"{content}\")")))
 }
 
-fn nil(context: &Data, matches: &Captures) -> CompilerResult {
+fn nil(_context: &Data, matches: &Captures) -> CompilerResult {
     let content = match matches.get(1) {
         Some(m) => m.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> nil? - Wrong number of arguments, given 0, expect 1",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expect 1",).into()
             )
-            .into())
         }
     };
 
     Ok(Some(format!("isNil \"{content}\"")))
 }
 
-fn null(context: &Data, matches: &Captures) -> CompilerResult {
+fn null(_context: &Data, matches: &Captures) -> CompilerResult {
     let content = match matches.get(1) {
         Some(m) => m.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> null? - Wrong number of arguments, given 0, expect 1",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expect 1",).into()
             )
-            .into())
         }
     };
 
@@ -530,28 +524,20 @@ fn not_null(context: &Data, matches: &Captures) -> CompilerResult {
     Ok(Some(format!("!({content})")))
 }
 
-fn replace_const(context: &Data, matches: &Captures) -> CompilerResult {
+fn replace_const(_context: &Data, matches: &Captures) -> CompilerResult {
     let content = match matches.get(1) {
         Some(m) => m.as_str(),
         None => {
-            return Err(format!(
-                "[L{}|{}] -> const! - Wrong number of arguments, given 0, expect 1",
-                context.line_number, context.file_path
+            return Err(
+                format!("Wrong number of arguments, given 0, expect 1",).into()
             )
-            .into())
         }
     };
 
     // Load the constant
     let constant = match CONSTANTS.get(content) {
         Some(c) => c,
-        None => {
-            return Err(format!(
-                "[L{}|{}] -> const! - \"{content}\" is not defined",
-                context.line_number, context.file_path
-            )
-            .into())
-        }
+        None => return Err(format!("\"{content}\" is not defined",).into()),
     };
 
     let replacement = match constant {
@@ -561,8 +547,8 @@ fn replace_const(context: &Data, matches: &Captures) -> CompilerResult {
         Value::String(s) => format!("\"{s}\""),
         _ => {
             return Err(format!(
-                "[L{}|{}] -> const! - \"{content}\" contains an object/array. These are not supported at this time",
-                context.line_number, context.file_path
+                "\"{content}\" contains an object/array. These are not supported at this time",
+
             )
             .into())
         }
@@ -580,47 +566,67 @@ fn current_year(_context: &Data, _matches: &Captures) -> CompilerResult {
 mod tests {
     use super::*;
     use compiler::Data;
+    use compiler::*;
     use regex::Regex;
 
     #[macro_export]
     macro_rules! compile {
-        ($code:expr, $regex:expr, $parsing_method:ident) => {{
-            let regex = Regex::new($regex).unwrap();
-            let captures: Vec<Captures> = regex.captures_iter($code).collect();
+        ($code:expr, $name:expr, $pattern:expr, $parsing_method:ident) => {{
+            let full_pattern = if $pattern.is_empty() {
+                format!(r#"{}(?:\(\))"#, regex::escape($name))
+            } else {
+                format!(r#"{}\({}(?:\))"#, regex::escape($name), $pattern)
+            };
 
-            let mut output = $code.to_string();
-            for capture in captures {
-                if let Some(result) =
-                    $parsing_method(&Data::default(), &capture).unwrap()
-                {
-                    output =
-                        output.replace(capture.get(0).unwrap().as_str(), &result);
-                }
-            }
+            let regex = Regex::new(&full_pattern).unwrap();
 
-            output
+            let replacement = Replacement {
+                name: $name.into(),
+                callback: Box::new($parsing_method),
+                regex,
+            };
+
+            let mut file = File {
+                content: $code.to_string(),
+                ..File::default()
+            };
+
+            file.replace(&replacement, &Data::default()).unwrap();
+            file.content
         }};
 
-        ($code:expr, $regex:expr, $parsing_method:ident, $data:expr) => {{
-            let regex = Regex::new($regex).unwrap();
-            let captures: Vec<Captures> = regex.captures_iter($code).collect();
+        ($code:expr, $name:expr, $pattern:expr, $parsing_method:ident, $data:expr) => {{
+            let full_pattern = if $pattern.is_empty() {
+                format!(r#"{}(?:\(\))"#, regex::escape($name))
+            } else {
+                format!(r#"{}\({}(?:\))"#, regex::escape($name), $pattern)
+            };
 
-            let mut output = $code.to_string();
-            for capture in captures {
-                if let Some(result) = $parsing_method(&$data, &capture).unwrap() {
-                    output =
-                        output.replace(capture.get(0).unwrap().as_str(), &result);
-                }
-            }
+            let regex = Regex::new(&full_pattern).unwrap();
+            let replacement = Replacement {
+                name: $name.into(),
+                callback: Box::new($parsing_method),
+                regex,
+            };
 
-            output
+            let mut file = File {
+                content: $code.to_string(),
+                ..File::default()
+            };
+
+            file.replace(&replacement, &$data).unwrap();
+            file.content
         }};
     }
 
     #[test]
     fn it_replaces_localize() {
-        let output =
-            compile!(r#"localize!("Foo_Barrington")"#, REGEX_LOCALIZE, localize);
+        let output = compile!(
+            r#"localize!("Foo_Barrington")"#,
+            NAME_LOCALIZE,
+            PATTERN_LOCALIZE,
+            localize
+        );
         assert_eq!(output, r#"localize "$STR_ESM_Foo_Barrington""#);
     }
 
@@ -628,7 +634,8 @@ mod tests {
     fn it_replaces_localize_format() {
         let output = compile!(
             r#"localize!("Foo_Barrington", _foo, _bar, "baz", false)"#,
-            REGEX_LOCALIZE,
+            NAME_LOCALIZE,
+            PATTERN_LOCALIZE,
             localize
         );
 
@@ -643,7 +650,13 @@ mod tests {
         let mut data = Data::default();
         data.file_name = "ESMs_test".into();
 
-        let output = compile!(r#"file_name!()"#, REGEX_FILE_NAME, file_name, data);
+        let output = compile!(
+            r#"file_name!()"#,
+            NAME_FILE_NAME,
+            PATTERN_FILE_NAME,
+            file_name,
+            data
+        );
         assert_eq!(output, r#""ESMs_test""#);
     }
 
@@ -651,7 +664,8 @@ mod tests {
     fn it_replaces_define_fn() {
         let output = compile!(
             r#"define_fn!("MY_Awesome_Method")"#,
-            REGEX_DEF_FN,
+            NAME_DEF_FN,
+            PATTERN_DEF_FN,
             define_fn
         );
 
@@ -665,7 +679,8 @@ mod tests {
     fn it_replaces_network_fn() {
         let output = compile!(
             r#"network_fn!("ESMs_system_network_message")"#,
-            REGEX_NETWORK_FN,
+            NAME_NETWORK_FN,
+            PATTERN_NETWORK_FN,
             network_fn
         );
 
@@ -674,10 +689,10 @@ mod tests {
             r#"["ExileServer_esm_system_network_systemMessage", "ESMs_system_network_message"]"#
         );
 
-        // Mmmm
         let output = compile!(
             r#"network_fn!("ESMs_object_iceCreamMachine_network_dispenseSoftServe")"#,
-            REGEX_NETWORK_FN,
+            NAME_NETWORK_FN,
+            PATTERN_NETWORK_FN,
             network_fn
         );
 
@@ -686,11 +701,10 @@ mod tests {
             r#"["ExileServer_esm_object_network_iceCreamMachineDispenseSoftServe", "ESMs_object_iceCreamMachine_network_dispenseSoftServe"]"#
         );
 
-        //
-
         let output = compile!(
             r#"network_fn!("ESMs_object_player_network_import")"#,
-            REGEX_NETWORK_FN,
+            NAME_NETWORK_FN,
+            PATTERN_NETWORK_FN,
             network_fn
         );
 
@@ -699,11 +713,10 @@ mod tests {
             r#"["ExileServer_esm_object_network_playerImport", "ESMs_object_player_network_import"]"#
         );
 
-        //
-
         let output = compile!(
             r#"network_fn!("ESMs_util_encryptionKey_network_updateSignature")"#,
-            REGEX_NETWORK_FN,
+            NAME_NETWORK_FN,
+            PATTERN_NETWORK_FN,
             network_fn
         );
 
@@ -712,11 +725,10 @@ mod tests {
             r#"["ExileServer_esm_util_network_encryptionKeyUpdateSignature", "ESMs_util_encryptionKey_network_updateSignature"]"#
         );
 
-        //
-
         let output = compile!(
             r#"network_fn!("ESMc_system_reward_network_loadAllResponse")"#,
-            REGEX_NETWORK_FN,
+            NAME_NETWORK_FN,
+            PATTERN_NETWORK_FN,
             network_fn
         );
 
@@ -728,8 +740,12 @@ mod tests {
 
     #[test]
     fn it_replaces_type() {
-        let output =
-            compile!(r#"type?(_variable, STRING);"#, REGEX_TYPE_CHECK, type_eq);
+        let output = compile!(
+            r#"type?(_variable, STRING);"#,
+            NAME_TYPE_CHECK,
+            PATTERN_TYPE_CHECK,
+            type_eq
+        );
         assert_eq!(output, r#"_variable isEqualType "";"#);
     }
 
@@ -737,7 +753,8 @@ mod tests {
     fn it_replaces_not_type() {
         let output = compile!(
             r#"!type?(VARIABLE, HASH);"#,
-            REGEX_TYPE_CHECK_NEGATED,
+            NAME_TYPE_CHECK_NEGATED,
+            PATTERN_TYPE_CHECK_NEGATED,
             type_ne
         );
         assert_eq!(output, r#"!(VARIABLE isEqualType createHashMap);"#);
@@ -751,7 +768,8 @@ mod tests {
 
             (get!(_hash_map, "key"));
         "#,
-            REGEX_GET,
+            NAME_GET,
+            PATTERN_GET,
             hash_get
         );
 
@@ -773,7 +791,8 @@ mod tests {
 
             get!(_hash_map, "key", "this is the default");
         "#,
-            REGEX_GET_WITH_DEFAULT,
+            NAME_GET_WITH_DEFAULT,
+            PATTERN_GET_WITH_DEFAULT,
             hash_get
         );
 
@@ -797,7 +816,8 @@ mod tests {
             dig!(_hash_map, "key_1", "key_2");
             dig!([] call ESMs_util_hashmap_fromArray, "key1", _key2, "key_3");
         "#,
-            REGEX_DIG,
+            NAME_DIG,
+            PATTERN_DIG,
             hash_dig
         );
 
@@ -823,7 +843,8 @@ mod tests {
             key?(_hash_map, "key_1", "key_2");
             key?([] call ESMs_util_hashmap_fromArray, "key1", _key2, "key_3");
         "#,
-            REGEX_KEY,
+            NAME_KEY,
+            PATTERN_KEY,
             hash_key
         );
 
@@ -841,60 +862,96 @@ mod tests {
 
     #[test]
     fn it_replaces_log() {
+        let data = &Data {
+            file_name: "ESMs_compiler_test".into(),
+            ..Data::default()
+        };
+
+        let output = compile!(
+            r#"trace!("Trace");"#,
+            NAME_LOG_TRACE,
+            PATTERN_LOG,
+            log,
+            data
+        );
+
+        assert_eq!(
+            output,
+            r#"["ESMs_compiler_test", format["%1", "Trace"], "trace"] call ESMs_util_log;"#
+        );
+
+        let output = compile!(
+            r#"debug!("Debug");"#,
+            NAME_LOG_DEBUG,
+            PATTERN_LOG,
+            log,
+            data
+        );
+
+        assert_eq!(
+            output,
+            r#"["ESMs_compiler_test", format["%1", "Debug"], "debug"] call ESMs_util_log;"#
+        );
+
+        let output =
+            compile!(r#"info!("Info");"#, NAME_LOG_INFO, PATTERN_LOG, log, data);
+
+        assert_eq!(
+            output,
+            r#"["ESMs_compiler_test", format["%1", "Info"], "info"] call ESMs_util_log;"#
+        );
+
         let output = compile!(
             r#"
             private _testing = "foo";
-
-            trace!("Trace");
-            debug!("Debug");
-            info!("Info");
             warn!(_testing);
-            error!([true, false]);
-        "#,
-            REGEX_LOG,
+            "#,
+            NAME_LOG_WARN,
+            PATTERN_LOG,
             log,
-            Data {
-                target: "".into(),
-                file_path: "".into(),
-                file_name: "ESMs_compiler_test".into(),
-                file_extension: "".into(),
-                line_number: 0,
-            }
+            data
         );
 
         assert_eq!(
             output,
             r#"
             private _testing = "foo";
-
-            ["ESMs_compiler_test", format["%1", "Trace"], "trace"] call ESMs_util_log;
-            ["ESMs_compiler_test", format["%1", "Debug"], "debug"] call ESMs_util_log;
-            ["ESMs_compiler_test", format["%1", "Info"], "info"] call ESMs_util_log;
             ["ESMs_compiler_test", format["%1", _testing], "warn"] call ESMs_util_log;
-            ["ESMs_compiler_test", format["%1", [true, false]], "error"] call ESMs_util_log;
-        "#
-        )
+            "#
+        );
+
+        let output = compile!(
+            r#"error!([true, false]);"#,
+            NAME_LOG_ERROR,
+            PATTERN_LOG,
+            log,
+            data
+        );
+
+        assert_eq!(
+            output,
+            r#"["ESMs_compiler_test", format["%1", [true, false]], "error"] call ESMs_util_log;"#
+        );
     }
 
     #[test]
     fn it_replaces_log_with_args() {
+        let data = &Data {
+            file_name: "ESMs_compiler_test".into(),
+            ..Data::default()
+        };
+
         let output = compile!(
             r#"
             private _testing = "foo";
             private _variables = "bar";
 
             debug!("Testing - %1bar - foo%2", _testing, _variables);
-            info!("Logging %1", true);
         "#,
-            REGEX_LOG_WITH_ARGS,
+            NAME_LOG_DEBUG,
+            PATTERN_LOG_WITH_ARGS,
             log,
-            Data {
-                target: "".into(),
-                file_path: "".into(),
-                file_name: "ESMs_compiler_test".into(),
-                file_extension: "".into(),
-                line_number: 0,
-            }
+            data
         );
 
         assert_eq!(
@@ -904,7 +961,6 @@ mod tests {
             private _variables = "bar";
 
             ["ESMs_compiler_test", format["Testing - %1bar - foo%2", _testing, _variables], "debug"] call ESMs_util_log;
-            ["ESMs_compiler_test", format["Logging %1", true], "info"] call ESMs_util_log;
         "#
         )
     }
@@ -917,7 +973,8 @@ mod tests {
             (empty?([]))
             if ((empty?(foo)) then {};
         "#,
-            REGEX_EMPTY,
+            NAME_EMPTY,
+            PATTERN_EMPTY,
             empty
         );
 
@@ -939,7 +996,8 @@ mod tests {
             (!empty?([]))
             if ((!empty?(foo)) then {};
         "#,
-            REGEX_EMPTY_NEGATED,
+            NAME_EMPTY_NEGATED,
+            PATTERN_EMPTY_NEGATED,
             not_empty
         );
 
@@ -957,7 +1015,8 @@ mod tests {
     fn it_replaces_returns_nil() {
         let output = compile!(
             r#"returns_nil!(_variable);"#,
-            REGEX_RETURNS_NIL,
+            NAME_RETURNS_NIL,
+            PATTERN_RETURNS_NIL,
             returns_nil
         );
 
@@ -969,56 +1028,88 @@ mod tests {
 
     #[test]
     fn it_replaces_nil() {
-        let output = compile!(r#"nil?(_variable);"#, REGEX_NIL, nil);
+        let output = compile!(r#"nil?(_variable);"#, NAME_NIL, PATTERN_NIL, nil);
         assert_eq!(output, r#"isNil "_variable";"#)
     }
 
     #[test]
     fn it_replaces_not_nil() {
-        let output = compile!(r#"!nil?(_variable);"#, REGEX_NIL_NEGATED, not_nil);
+        let output = compile!(
+            r#"!nil?(_variable);"#,
+            NAME_NIL_NEGATED,
+            PATTERN_NIL_NEGATED,
+            not_nil
+        );
         assert_eq!(output, r#"!(isNil "_variable");"#)
     }
 
     #[test]
     fn it_replaces_null() {
-        let output = compile!(r#"null?(objNull);"#, REGEX_NULL, null);
+        let output = compile!(r#"null?(objNull);"#, NAME_NULL, PATTERN_NULL, null);
         assert_eq!(output, r#"isNull objNull;"#);
 
-        let output = compile!(r#"null?(_playerObject);"#, REGEX_NULL, null);
+        let output =
+            compile!(r#"null?(_playerObject);"#, NAME_NULL, PATTERN_NULL, null);
         assert_eq!(output, r#"isNull _playerObject;"#);
     }
 
     #[test]
     fn it_replaces_not_null() {
-        let output = compile!(r#"!null?(objNull);"#, REGEX_NULL_NEGATED, not_null);
+        let output = compile!(
+            r#"!null?(objNull);"#,
+            NAME_NULL_NEGATED,
+            PATTERN_NULL_NEGATED,
+            not_null
+        );
 
         assert_eq!(output, r#"!(isNull objNull);"#);
 
-        let output =
-            compile!(r#"!null?(_playerObject);"#, REGEX_NULL_NEGATED, not_null);
+        let output = compile!(
+            r#"!null?(_playerObject);"#,
+            NAME_NULL_NEGATED,
+            PATTERN_NULL_NEGATED,
+            not_null
+        );
 
         assert_eq!(output, r#"!(isNull _playerObject);"#);
     }
 
     #[test]
     fn it_replaces_constants() {
-        let output =
-            compile!(r#"const!(EXAMPLE_STRING);"#, REGEX_CONST, replace_const);
+        let output = compile!(
+            r#"const!(EXAMPLE_STRING);"#,
+            NAME_CONST,
+            PATTERN_CONST,
+            replace_const
+        );
+
         assert_eq!(output, r#""Hello world!";"#);
 
-        let output =
-            compile!(r#"const!(EXAMPLE_NUMBER);"#, REGEX_CONST, replace_const);
+        let output = compile!(
+            r#"const!(EXAMPLE_NUMBER);"#,
+            NAME_CONST,
+            PATTERN_CONST,
+            replace_const
+        );
         assert_eq!(output, r#"69;"#); // Nice
 
-        let output =
-            compile!(r#"const!(EXAMPLE_BOOL);"#, REGEX_CONST, replace_const);
+        let output = compile!(
+            r#"const!(EXAMPLE_BOOL);"#,
+            NAME_CONST,
+            PATTERN_CONST,
+            replace_const
+        );
         assert_eq!(output, r#"false;"#)
     }
 
     #[test]
     fn it_replaces_current_year() {
-        let output =
-            compile!(r#"current_year!();"#, REGEX_CURRENT_YEAR, current_year);
+        let output = compile!(
+            r#"current_year!();"#,
+            NAME_CURRENT_YEAR,
+            PATTERN_CURRENT_YEAR,
+            current_year
+        );
 
         let regex = Regex::new(r"\d{4}").unwrap();
         assert!(regex.is_match(&output))

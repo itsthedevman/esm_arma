@@ -72,9 +72,31 @@ impl Compiler {
     {
         let regex = Regex::new(regex_str).unwrap();
         self.replacements.push(Replacement {
+            name: regex_str.into(),
             callback: Box::new(callback),
             regex,
         });
+        self
+    }
+
+    pub fn replace_macro<'a, F: 'static>(
+        &'a mut self,
+        name: &'a str,
+        inner_regex: &'a str,
+        callback: F,
+    ) -> &'a mut Self
+    where
+        F: Fn(&Data, &Captures) -> Result<Option<String>, CompilerError>,
+    {
+        let regex = &format!(r"{name}\({}\)", inner_regex);
+        let regex = Regex::new(regex).unwrap();
+
+        self.replacements.push(Replacement {
+            name: name.into(),
+            callback: Box::new(callback),
+            regex,
+        });
+
         self
     }
 
@@ -113,7 +135,8 @@ impl Compiler {
 
     fn apply_replacements(&mut self) -> CompilerResult {
         for file in self.files.iter_mut() {
-            let data = Data {
+            let data: Data = Data {
+                name: String::new(),
                 target: self.target.to_owned(),
                 file_name: file.file_name.to_owned(),
                 file_path: file.relative_path.to_owned(),
@@ -141,7 +164,7 @@ impl Compiler {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct File {
     pub relative_path: String,
     pub file_name: String,
@@ -168,11 +191,25 @@ impl File {
             for capture in captures {
                 // Create a Data struct with line info
                 let line_data = Data {
+                    name: replacement.name.to_owned(),
                     line_number: line_number + 1,
                     ..data.clone()
                 };
 
-                if let Some(result) = (replacement.callback)(&line_data, &capture)? {
+                let result = match (replacement.callback)(&line_data, &capture) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        return Err(format!(
+                            "[L{}|{}] -> {} - {e}",
+                            line_data.line_number,
+                            line_data.file_path,
+                            replacement.name
+                        )
+                        .into())
+                    }
+                };
+
+                if let Some(result) = result {
                     current_line = current_line
                         .replace(capture.get(0).unwrap().as_str(), &result);
                 }
@@ -180,6 +217,11 @@ impl File {
 
             new_content.push_str(&current_line);
             new_content.push('\n');
+        }
+
+        // Remove trailing newline if original didn't have one
+        if !self.content.ends_with('\n') {
+            new_content.pop();
         }
 
         self.content = new_content;
@@ -191,12 +233,14 @@ type ReplacementFn = dyn Fn(&Data, &Captures) -> ReplacementResult;
 type ReplacementResult = Result<Option<String>, CompilerError>;
 
 pub struct Replacement {
+    pub name: String,
     pub callback: Box<ReplacementFn>,
     pub regex: Regex,
 }
 
 #[derive(Default, Clone)]
 pub struct Data {
+    pub name: String,
     pub target: String,
     pub file_path: String,
     pub file_name: String,
@@ -215,29 +259,33 @@ mod tests {
                 .source("/home/ubuntu/esm_arma/@esm/addons")
                 .destination("/home/ubuntu/esm_arma/target/@esm/addons")
                 .target("windows")
-                .replace(r#"compiler\.os\.path\((.+,?)\)"#, |compiler, matches| {
-                    let path_chunks: Vec<String> = matches
-                        .get(1)
-                        .unwrap()
-                        .as_str()
-                        .split(',')
-                        .map(|p| p.trim().replace('"', ""))
-                        .collect();
+                .replace_macro(
+                    "compiler.os.path",
+                    r#"(.+,?)"#,
+                    |compiler: &Data, matches: &Captures| {
+                        let path_chunks: Vec<String> = matches
+                            .get(1)
+                            .unwrap()
+                            .as_str()
+                            .split(',')
+                            .map(|p| p.trim().replace('"', ""))
+                            .collect();
 
-                    let separator = if compiler.target == "windows" {
-                        "\\"
-                    } else {
-                        "/"
-                    };
+                        let separator = if compiler.target == "windows" {
+                            "\\"
+                        } else {
+                            "/"
+                        };
 
-                    // Windows: \my_addon\path
-                    // Linux: /my_addon/path
-                    Ok(Some(format!(
-                        "\"{}{}\"",
-                        separator,
-                        path_chunks.join(separator)
-                    )))
-                })
+                        // Windows: \my_addon\path
+                        // Linux: /my_addon/path
+                        Ok(Some(format!(
+                            "\"{}{}\"",
+                            separator,
+                            path_chunks.join(separator)
+                        )))
+                    }
+                )
                 .compile(),
             Ok(())
         )
