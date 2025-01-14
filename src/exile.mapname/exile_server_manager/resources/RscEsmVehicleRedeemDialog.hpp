@@ -21,7 +21,7 @@ Co-author:
 
 class RscEsmVehicleRedeemDialog
 {
-	idd = 24038;
+	idd = const!(IDD_VEHICLE_DIALOG);
 	onLoad = "uiNamespace setVariable ['RscEsmVehicleRedeemDialog', _this select 0]";
 	onUnload = "call ESMc_gui_vehicleRedeemDialog_event_onUnload; uiNamespace setVariable ['RscEsmVehicleRedeemDialog', displayNull]";
 
@@ -29,7 +29,7 @@ class RscEsmVehicleRedeemDialog
 	{
 		class DialogBackground: RscText
 		{
-			idc = 1000;
+			idc = const!(IDC_VEHICLE_DIALOG_BACKGROUND);
 
 			x = -43.52 * GUI_GRID_W + GUI_GRID_X;
 			y = -9.32 * GUI_GRID_H + GUI_GRID_Y;
@@ -39,7 +39,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class DialogTitle: RscText
 		{
-			idc = 1001;
+			idc = const!(IDC_VEHICLE_DIALOG_TITLE);
 
 			text = "Purchase Vehicle"; //--- ToDo: Localize;
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
@@ -50,7 +50,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class CancelBackground: RscText
 		{
-			idc = 1006;
+			idc = const!(IDC_VEHICLE_DIALOG_CANCEL_BACKGROUND);
 
 			x = -43.52 * GUI_GRID_W + GUI_GRID_X;
 			y = 31.59 * GUI_GRID_H + GUI_GRID_Y;
@@ -60,7 +60,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class CategoryDropDown: RscCombo
 		{
-			idc = 4000;
+			idc = const!(IDC_VEHICLE_DIALOG_CATEGORY_DROP_DOWN);
 			onLBSelChanged = "_this call ESMc_gui_vehicleRedeemDialog_event_onCategoryDropDownSelectionChanged";
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
@@ -70,7 +70,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class VehiclesListBox: RscExileItemListBox
 		{
-			idc = 4001;
+			idc = const!(IDC_VEHICLE_DIALOG_VEHICLES_LIST_BOX);
 			onLBSelChanged = "_this call ESMc_gui_vehicleRedeemDialog_event_onVehicleListBoxSelectionChanged";
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
@@ -79,12 +79,12 @@ class RscEsmVehicleRedeemDialog
 			h = 12.7273 * GUI_GRID_H;
 			sizeEx = 0.8 *    (   (   ((safezoneW / safezoneH) min 1.2) / 1.2) / 25) * GUI_GRID_H;
 		};
-		class ButtonPurchase: RscButtonMenuOK
+		class ButtonRedeem: RscButtonMenuOK
 		{
-			idc = 4002;
-			onMouseButtonClick = "_this call ESMc_gui_vehicleRedeemDialog_event_onPurchaseButtonClick";
+			idc = const!(IDC_VEHICLE_DIALOG_BUTTON_REDEEM);
+			onMouseButtonClick = "_this call ESMc_gui_vehicleRedeemDialog_event_onRedeemButtonClick";
 
-			text = "Purchase now"; //--- ToDo: Localize;
+			text = "Redeem now"; //--- ToDo: Localize;
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 17.95 * GUI_GRID_H + GUI_GRID_Y;
 			w = 22.803 * GUI_GRID_W;
@@ -95,7 +95,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class CancelButton: RscButtonMenuCancel
 		{
-			idc = 4006;
+			idc = const!(IDC_VEHICLE_DIALOG_CANCEL_BUTTON);
 			action = "closeDialog 0";
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
@@ -107,7 +107,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class PinBox: RscEdit
 		{
-			idc = 4008;
+			idc = const!(IDC_VEHICLE_DIALOG_PIN_BOX);
 			onChar = "_this spawn ESMc_gui_vehicleRedeemDialog_event_onInputBoxChars";
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
@@ -118,7 +118,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class PinText: RscStructuredText
 		{
-			idc = 1100;
+			idc = const!(IDC_VEHICLE_DIALOG_PIN_TEXT);
 			text = "Pin Code:"; //--- ToDo: Localize;
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 14.86 * GUI_GRID_H + GUI_GRID_Y;
@@ -127,7 +127,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat01Background: RscText
 		{
-			idc = 6000;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT01_BACKGROUND);
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 8.86 * GUI_GRID_H + GUI_GRID_Y;
@@ -137,7 +137,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat01Progress: RscProgress
 		{
-			idc = 6001;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT01_PROGRESS);
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 8.86 * GUI_GRID_H + GUI_GRID_Y;
@@ -148,7 +148,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat01Label: RscText
 		{
-			idc = 6002;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT01_LABEL);
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 8.86 * GUI_GRID_H + GUI_GRID_Y;
@@ -157,7 +157,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat01Value: RscStructuredText
 		{
-			idc = 6003;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT01_VALUE);
 			style = 1;
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
@@ -167,7 +167,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat02Background: RscText
 		{
-			idc = 6004;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT02_BACKGROUND);
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 10.32 * GUI_GRID_H + GUI_GRID_Y;
@@ -177,7 +177,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat02Progress: RscProgress
 		{
-			idc = 6005;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT02_PROGRESS);
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 10.32 * GUI_GRID_H + GUI_GRID_Y;
@@ -188,7 +188,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat02Label: RscText
 		{
-			idc = 6006;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT02_LABEL);
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 10.32 * GUI_GRID_H + GUI_GRID_Y;
@@ -197,7 +197,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat02Value: RscStructuredText
 		{
-			idc = 6007;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT02_VALUE);
 			style = 1;
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
@@ -207,7 +207,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat03Background: RscText
 		{
-			idc = 6008;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT03_BACKGROUND);
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 11.77 * GUI_GRID_H + GUI_GRID_Y;
@@ -217,7 +217,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat03Progress: RscProgress
 		{
-			idc = 6009;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT03_PROGRESS);
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 11.77 * GUI_GRID_H + GUI_GRID_Y;
@@ -228,7 +228,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat03Label: RscText
 		{
-			idc = 6010;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT03_LABEL);
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 11.77 * GUI_GRID_H + GUI_GRID_Y;
@@ -237,7 +237,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat03Value: RscStructuredText
 		{
-			idc = 6011;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT03_VALUE);
 			style = 1;
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
@@ -247,7 +247,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat04Background: RscText
 		{
-			idc = 6012;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT04_BACKGROUND);
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 13.23 * GUI_GRID_H + GUI_GRID_Y;
@@ -257,7 +257,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat04Progress: RscProgress
 		{
-			idc = 6013;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT04_PROGRESS);
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 13.23 * GUI_GRID_H + GUI_GRID_Y;
@@ -268,7 +268,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat04Label: RscText
 		{
-			idc = 6014;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT04_LABEL);
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;
 			y = 13.23 * GUI_GRID_H + GUI_GRID_Y;
@@ -277,7 +277,7 @@ class RscEsmVehicleRedeemDialog
 		};
 		class Stat04Value: RscStructuredText
 		{
-			idc = 6015;
+			idc = const!(IDC_VEHICLE_DIALOG_STAT04_VALUE);
 			style = 1;
 
 			x = -41.89 * GUI_GRID_W + GUI_GRID_X;

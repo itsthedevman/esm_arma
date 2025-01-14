@@ -90,6 +90,7 @@ class rewardRedeemVehicleResponse
 
 	parameters[] =
 	{
-		// TODO
+		"SCALAR",	// Response Code
+		"STRING",	// NetID of new vehicle
 	};
 };
