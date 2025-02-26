@@ -572,13 +572,7 @@ mod tests {
     #[macro_export]
     macro_rules! compile {
         ($code:expr, $name:expr, $pattern:expr, $parsing_method:ident) => {{
-            let full_pattern = if $pattern.is_empty() {
-                format!(r#"{}(?:\(\))"#, regex::escape($name))
-            } else {
-                format!(r#"{}\({}(?:\))"#, regex::escape($name), $pattern)
-            };
-
-            let regex = Regex::new(&full_pattern).unwrap();
+            let regex = Replacement::create_regex($name, $pattern);
 
             let replacement = Replacement {
                 name: $name.into(),
@@ -1047,6 +1041,15 @@ mod tests {
     fn it_replaces_null() {
         let output = compile!(r#"null?(objNull);"#, NAME_NULL, PATTERN_NULL, null);
         assert_eq!(output, r#"isNull objNull;"#);
+
+        let output = compile!(
+            r#"if (null?(_playerObject)) then"#,
+            NAME_NULL,
+            PATTERN_NULL,
+            null
+        );
+
+        assert_eq!(output, r#"if (isNull _playerObject) then"#);
 
         let output =
             compile!(r#"null?(_playerObject);"#, NAME_NULL, PATTERN_NULL, null);

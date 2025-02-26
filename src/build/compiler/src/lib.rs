@@ -88,8 +88,7 @@ impl Compiler {
     where
         F: Fn(&Data, &Captures) -> Result<Option<String>, CompilerError>,
     {
-        let regex = &format!(r"{name}\({}\)", inner_regex);
-        let regex = Regex::new(regex).unwrap();
+        let regex = Replacement::create_regex(name, inner_regex);
 
         self.replacements.push(Replacement {
             name: name.into(),
@@ -236,6 +235,18 @@ pub struct Replacement {
     pub name: String,
     pub callback: Box<ReplacementFn>,
     pub regex: Regex,
+}
+
+impl Replacement {
+    pub fn create_regex(name: &str, pattern: &str) -> Regex {
+        let full_pattern = if pattern.is_empty() {
+            format!(r#"{}(?:\(\))"#, regex::escape(name))
+        } else {
+            format!(r#"{}\({}(?:\))"#, regex::escape(name), pattern)
+        };
+
+        Regex::new(&full_pattern).unwrap()
+    }
 }
 
 #[derive(Default, Clone)]
