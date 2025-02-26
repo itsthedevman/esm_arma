@@ -990,6 +990,9 @@ pub fn start_a3_server(builder: &mut Builder) -> BuildResult {
                     Remove-Item -Path '{server_path}\\@esm' -Recurse;
                     Copy-Item -Path '{build_path}\\@esm' -Destination '{server_path}\\@esm' -Recurse;
 
+                    Remove-Item -Path '{server_path}\\mpmissions\\{mission_name}.pbo';
+                    Copy-Item -Path '{build_path}\\{mission_name}.pbo' -Destination '{server_path}\\mpmissions\\{mission_name}.pbo';
+
                     Start-Process '{server_path}\\{server_executable}' `
                         -ArgumentList '{server_args}' `
                         -WorkingDirectory '{server_path}';
@@ -998,6 +1001,7 @@ pub fn start_a3_server(builder: &mut Builder) -> BuildResult {
                 server_path = builder.remote.server_path,
                 server_executable = builder.server_executable,
                 server_args = builder.remote.server_args,
+                mission_name = MISSION_NAME
             )
         }
         BuildOS::Linux => {
