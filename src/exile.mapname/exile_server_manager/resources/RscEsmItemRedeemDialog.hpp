@@ -27,7 +27,7 @@ class RscEsmItemRedeemDialog
 
 	class controlsBackground
 	{
-		class DialogCaptionLeft: RscText
+		class DialogCaptionLeft: RscEsmText
 		{
 			idc = const!(IDC_ITEM_DIALOG_CAPTION_LEFT);
 
@@ -37,7 +37,7 @@ class RscEsmItemRedeemDialog
 			h = 1 * GUI_GRID_H;
 			colorBackground[] = {0.1,0.1,0.1,1};
 		};
-		class DialogBackgroundLeft: RscText
+		class DialogBackgroundLeft: RscEsmText
 		{
 			idc = const!(IDC_ITEM_DIALOG_BACKGROUND_LEFT);
 
@@ -47,7 +47,7 @@ class RscEsmItemRedeemDialog
 			h = 24 * GUI_GRID_H;
 			colorBackground[] = {0.05,0.05,0.05,0.7};
 		};
-		class DialogBackgroundMiddle: RscText
+		class DialogBackgroundMiddle: RscEsmText
 		{
 			idc = const!(IDC_ITEM_DIALOG_BACKGROUND_MIDDLE);
 
@@ -57,7 +57,7 @@ class RscEsmItemRedeemDialog
 			h = 24 * GUI_GRID_H;
 			colorBackground[] = {0.05,0.05,0.05,0.7};
 		};
-		class DialogCaptionMiddle: RscText
+		class DialogCaptionMiddle: RscEsmText
 		{
 			idc = const!(IDC_ITEM_DIALOG_CAPTION_MIDDLE);
 
@@ -68,7 +68,7 @@ class RscEsmItemRedeemDialog
 			h = 1 * GUI_GRID_H;
 			colorBackground[] = {0.1,0.1,0.1,1};
 		};
-		class TextPlayerMoney: RscStructuredText
+		class TextPlayerMoney: RscEsmStructuredText
 		{
 			idc = const!(IDC_ITEM_DIALOG_PLAYER_MONEY);
 
@@ -78,7 +78,7 @@ class RscEsmItemRedeemDialog
 			w = 8 * GUI_GRID_W;
 			h = 1 * GUI_GRID_H;
 		};
-		class CloseCross: RscActiveText
+		class CloseCross: RscEsmActiveText
 		{
 			idc = const!(IDC_ITEM_DIALOG_CLOSE_CROSS);
 			action = "closeDialog 0;";
@@ -94,7 +94,7 @@ class RscEsmItemRedeemDialog
 			colorActive[] = {1,1,1,1};
 			tooltip = "Close";
 		};
-		class InventoryDropDown: RscCombo
+		class InventoryDropDown: RscEsmCombo
 		{
 			idc = const!(IDC_ITEM_DIALOG_INVENTORY_DROPDOWN);
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onPlayerInventoryDropDownSelectionChanged";
@@ -104,7 +104,7 @@ class RscEsmItemRedeemDialog
 			w = 16.5 * GUI_GRID_W;
 			h = 1 * GUI_GRID_H;
 		};
-		class InventoryListBox: RscExileItemListBox
+		class InventoryListBox: RscEsmListBox
 		{
 			idc = const!(IDC_ITEM_DIALOG_INVENTORY_LIST);
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onPlayerInventoryListBoxSelectionChanged";
@@ -116,7 +116,7 @@ class RscEsmItemRedeemDialog
 			colorBackground[] = {1,1,1,0.1};
 			sizeEx = 0.8 *    (   (   ((safezoneW / safezoneH) min 1.2) / 1.2) / 25) * GUI_GRID_H;
 		};
-		class CancelButton: RscButtonMenu
+		class CancelButton: RscEsmButtonMenu
 		{
 			idc = const!(IDC_ITEM_DIALOG_CANCEL_BUTTON);
 			action = "closeDialog 0;";
@@ -129,7 +129,7 @@ class RscEsmItemRedeemDialog
 			colorText[] = {1,1,1,1};
 			colorBackground[] = {0,0,0,0.8};
 		};
-		class StoreDropDown: RscCombo
+		class StoreDropDown: RscEsmCombo
 		{
 			idc = const!(IDC_ITEM_DIALOG_STORE_DROPDOWN);
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onStoreDropDownSelectionChanged";
@@ -139,7 +139,7 @@ class RscEsmItemRedeemDialog
 			w = 12 * GUI_GRID_W;
 			h = 1 * GUI_GRID_H;
 		};
-		class StoreListBox: RscExileItemListBox
+		class StoreListBox: RscEsmListBox
 		{
 			idc = const!(IDC_ITEM_DIALOG_STORE_LIST);
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onStoreListBoxSelectionChanged";
@@ -152,7 +152,7 @@ class RscEsmItemRedeemDialog
 			colorBackground[] = {1,1,1,0.1};
 			sizeEx = 0.8 *    (   (   ((safezoneW / safezoneH) min 1.2) / 1.2) / 25) * GUI_GRID_H;
 		};
-		class RedeemButton: RscButtonMenu
+		class RedeemButton: RscEsmButtonMenu
 		{
 			idc = const!(IDC_ITEM_DIALOG_REDEEM_BUTTON);
 			onMouseButtonClick = "_this call ESMc_gui_itemRedeemDialog_event_onRedeemButtonClick";
@@ -165,7 +165,7 @@ class RscEsmItemRedeemDialog
 			colorText[] = {1,1,1,1};
 			colorBackground[] = {0,0,0,0.8};
 		};
-		class PlayerLoadBackground: RscText
+		class PlayerLoadBackground: RscEsmText
 		{
 			idc = const!(IDC_ITEM_DIALOG_BACKGROUND_PLAYER_LOAD);
 
@@ -175,7 +175,7 @@ class RscEsmItemRedeemDialog
 			h = 1 * GUI_GRID_H;
 			colorBackground[] = {0,0,0,0.5};
 		};
-		class PlayerLoadProgress: RscProgress
+		class PlayerLoadProgress: RscEsmProgress
 		{
 			idc = const!(IDC_ITEM_DIALOG_PROGRESS_PLAYER_LOAD);
 
@@ -186,7 +186,7 @@ class RscEsmItemRedeemDialog
 			colorText[] = {1,1,1,0.25};
 			colorBackground[] = {1,1,1,0.25};
 		};
-		class PlayerLoadLabel: RscText
+		class PlayerLoadLabel: RscEsmText
 		{
 			idc = const!(IDC_ITEM_DIALOG_LOAD_LABEL);
 
@@ -196,7 +196,7 @@ class RscEsmItemRedeemDialog
 			w = 16.5 * GUI_GRID_W;
 			h = 1 * GUI_GRID_H;
 		};
-		class PlayerLoadValue: RscStructuredText
+		class PlayerLoadValue: RscEsmStructuredText
 		{
 			idc = const!(IDC_ITEM_DIALOG_LOAD_VALUE);
 
@@ -206,7 +206,7 @@ class RscEsmItemRedeemDialog
 			w = 16.5 * GUI_GRID_W;
 			h = 1 * GUI_GRID_H;
 		};
-		class FilterDropdown: RscCombo
+		class FilterDropdown: RscEsmCombo
 		{
 			idc = const!(IDC_ITEM_DIALOG_FILTER_DROPDOWN);
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onStoreDropDownSelectionChanged";

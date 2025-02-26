@@ -33,9 +33,7 @@ private _redeemButton = _dialog displayCtrl IDC_ITEM_DIALOG_PURCHASE_BUTTON;
 
 if (ctrlEnabled _redeemButton) then
 {
-	// We do not use any of the parameters on the onPurchaseButtonClick event,
-	// so we can just call it directly
-	call ESMc_gui_itemRedeemDialog_event_onPurchaseButtonClick;
+	call ESMc_gui_itemRedeemDialog_event_onRedeemButtonClick;
 };
 
 true

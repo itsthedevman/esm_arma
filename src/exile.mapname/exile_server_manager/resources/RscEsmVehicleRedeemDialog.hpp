@@ -27,7 +27,7 @@ class RscEsmVehicleRedeemDialog
 
 	class controlsBackground
 	{
-		class DialogBackground: RscText
+		class DialogBackground: RscEsmText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_BACKGROUND);
 
@@ -37,7 +37,7 @@ class RscEsmVehicleRedeemDialog
 			h = 30 * GUI_GRID_H;
 			colorBackground[] = {0.05,0.05,0.05,0.7};
 		};
-		class DialogTitle: RscText
+		class DialogTitle: RscEsmText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_TITLE);
 
@@ -48,7 +48,7 @@ class RscEsmVehicleRedeemDialog
 			h = 1.81818 * GUI_GRID_H;
 			sizeEx = 1 * safezoneH / 25 * GUI_GRID_H;
 		};
-		class CancelBackground: RscText
+		class CancelBackground: RscEsmText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_CANCEL_BACKGROUND);
 
@@ -58,7 +58,7 @@ class RscEsmVehicleRedeemDialog
 			h = 2.72727 * GUI_GRID_H;
 			colorBackground[] = {0.05,0.05,0.05,0.7};
 		};
-		class CategoryDropDown: RscCombo
+		class CategoryDropDown: RscEsmCombo
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_CATEGORY_DROP_DOWN);
 			onLBSelChanged = "_this call ESMc_gui_vehicleRedeemDialog_event_onCategoryDropDownSelectionChanged";
@@ -68,7 +68,7 @@ class RscEsmVehicleRedeemDialog
 			w = 22.803 * GUI_GRID_W;
 			h = 1.27273 * GUI_GRID_H;
 		};
-		class VehiclesListBox: RscExileItemListBox
+		class VehiclesListBox: RscEsmListBox
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_VEHICLES_LIST_BOX);
 			onLBSelChanged = "_this call ESMc_gui_vehicleRedeemDialog_event_onVehicleListBoxSelectionChanged";
@@ -79,7 +79,7 @@ class RscEsmVehicleRedeemDialog
 			h = 12.7273 * GUI_GRID_H;
 			sizeEx = 0.8 *    (   (   ((safezoneW / safezoneH) min 1.2) / 1.2) / 25) * GUI_GRID_H;
 		};
-		class ButtonRedeem: RscButtonMenuOK
+		class ButtonRedeem: RscEsmButtonMenuOK
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_BUTTON_REDEEM);
 			onMouseButtonClick = "_this call ESMc_gui_vehicleRedeemDialog_event_onRedeemButtonClick";
@@ -93,7 +93,7 @@ class RscEsmVehicleRedeemDialog
 			colorBackground[] = {0,0,0,0.8};
 			sizeEx = 0.75 * safezoneH / 25 * GUI_GRID_H;
 		};
-		class CancelButton: RscButtonMenuCancel
+		class CancelButton: RscEsmButtonMenuCancel
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_CANCEL_BUTTON);
 			action = "closeDialog 0";
@@ -105,7 +105,7 @@ class RscEsmVehicleRedeemDialog
 			colorText[] = {1,1,1,1};
 			colorBackground[] = {0,0,0,0.8};
 		};
-		class PinBox: RscEdit
+		class PinBox: RscEsmEdit
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_PIN_BOX);
 			onChar = "_this spawn ESMc_gui_vehicleRedeemDialog_event_onInputBoxChars";
@@ -116,7 +116,7 @@ class RscEsmVehicleRedeemDialog
 			h = 1.63636 * GUI_GRID_H;
 			colorBackground[] = {0.05,0.05,0.05,0.7};
 		};
-		class PinText: RscStructuredText
+		class PinText: RscEsmStructuredText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_PIN_TEXT);
 			text = "Pin Code:"; //--- ToDo: Localize;
@@ -125,7 +125,7 @@ class RscEsmVehicleRedeemDialog
 			w = 22.803 * GUI_GRID_W;
 			h = 1.45455 * GUI_GRID_H;
 		};
-		class Stat01Background: RscText
+		class Stat01Background: RscEsmText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT01_BACKGROUND);
 
@@ -135,7 +135,7 @@ class RscEsmVehicleRedeemDialog
 			h = 1.27273 * GUI_GRID_H;
 			colorBackground[] = {0,0,0,0.5};
 		};
-		class Stat01Progress: RscProgress
+		class Stat01Progress: RscEsmProgress
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT01_PROGRESS);
 
@@ -146,7 +146,7 @@ class RscEsmVehicleRedeemDialog
 			colorText[] = {1,1,1,0.25};
 			colorBackground[] = {1,1,1,0.25};
 		};
-		class Stat01Label: RscText
+		class Stat01Label: RscEsmText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT01_LABEL);
 
@@ -155,7 +155,7 @@ class RscEsmVehicleRedeemDialog
 			w = 22.803 * GUI_GRID_W;
 			h = 1.27273 * GUI_GRID_H;
 		};
-		class Stat01Value: RscStructuredText
+		class Stat01Value: RscEsmStructuredText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT01_VALUE);
 			style = 1;
@@ -165,7 +165,7 @@ class RscEsmVehicleRedeemDialog
 			w = 22.803 * GUI_GRID_W;
 			h = 1.27273 * GUI_GRID_H;
 		};
-		class Stat02Background: RscText
+		class Stat02Background: RscEsmText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT02_BACKGROUND);
 
@@ -175,7 +175,7 @@ class RscEsmVehicleRedeemDialog
 			h = 1.27273 * GUI_GRID_H;
 			colorBackground[] = {0,0,0,0.5};
 		};
-		class Stat02Progress: RscProgress
+		class Stat02Progress: RscEsmProgress
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT02_PROGRESS);
 
@@ -186,7 +186,7 @@ class RscEsmVehicleRedeemDialog
 			colorText[] = {1,1,1,0.25};
 			colorBackground[] = {1,1,1,0.25};
 		};
-		class Stat02Label: RscText
+		class Stat02Label: RscEsmText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT02_LABEL);
 
@@ -195,7 +195,7 @@ class RscEsmVehicleRedeemDialog
 			w = 22.803 * GUI_GRID_W;
 			h = 1.27273 * GUI_GRID_H;
 		};
-		class Stat02Value: RscStructuredText
+		class Stat02Value: RscEsmStructuredText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT02_VALUE);
 			style = 1;
@@ -205,7 +205,7 @@ class RscEsmVehicleRedeemDialog
 			w = 22.803 * GUI_GRID_W;
 			h = 1.27273 * GUI_GRID_H;
 		};
-		class Stat03Background: RscText
+		class Stat03Background: RscEsmText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT03_BACKGROUND);
 
@@ -215,7 +215,7 @@ class RscEsmVehicleRedeemDialog
 			h = 1.27273 * GUI_GRID_H;
 			colorBackground[] = {0,0,0,0.5};
 		};
-		class Stat03Progress: RscProgress
+		class Stat03Progress: RscEsmProgress
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT03_PROGRESS);
 
@@ -226,7 +226,7 @@ class RscEsmVehicleRedeemDialog
 			colorText[] = {1,1,1,0.25};
 			colorBackground[] = {1,1,1,0.25};
 		};
-		class Stat03Label: RscText
+		class Stat03Label: RscEsmText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT03_LABEL);
 
@@ -235,7 +235,7 @@ class RscEsmVehicleRedeemDialog
 			w = 22.803 * GUI_GRID_W;
 			h = 1.27273 * GUI_GRID_H;
 		};
-		class Stat03Value: RscStructuredText
+		class Stat03Value: RscEsmStructuredText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT03_VALUE);
 			style = 1;
@@ -245,7 +245,7 @@ class RscEsmVehicleRedeemDialog
 			w = 22.803 * GUI_GRID_W;
 			h = 1.27273 * GUI_GRID_H;
 		};
-		class Stat04Background: RscText
+		class Stat04Background: RscEsmText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT04_BACKGROUND);
 
@@ -255,7 +255,7 @@ class RscEsmVehicleRedeemDialog
 			h = 1.27273 * GUI_GRID_H;
 			colorBackground[] = {0,0,0,0.5};
 		};
-		class Stat04Progress: RscProgress
+		class Stat04Progress: RscEsmProgress
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT04_PROGRESS);
 
@@ -266,7 +266,7 @@ class RscEsmVehicleRedeemDialog
 			colorText[] = {1,1,1,0.25};
 			colorBackground[] = {1,1,1,0.25};
 		};
-		class Stat04Label: RscText
+		class Stat04Label: RscEsmText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT04_LABEL);
 
@@ -275,7 +275,7 @@ class RscEsmVehicleRedeemDialog
 			w = 22.803 * GUI_GRID_W;
 			h = 1.27273 * GUI_GRID_H;
 		};
-		class Stat04Value: RscStructuredText
+		class Stat04Value: RscEsmStructuredText
 		{
 			idc = const!(IDC_VEHICLE_DIALOG_STAT04_VALUE);
 			style = 1;
