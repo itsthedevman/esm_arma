@@ -30,8 +30,8 @@ const PATTERN_CONST: &str = r#"(\w+)"#;
 const NAME_CURRENT_YEAR: &str = "current_year!";
 const PATTERN_CURRENT_YEAR: &str = "";
 
-const NAME_DEF_FN: &str = "define_fn!";
-const PATTERN_DEF_FN: &str = r#""(\w+)?""#;
+const NAME_SERVER_FN: &str = "server_fn!";
+const PATTERN_SERVER_FN: &str = r#""(\w+)?""#;
 
 const NAME_DIG: &str = "dig!";
 const PATTERN_DIG: &str = r#"(.+[^)])"#;
@@ -68,6 +68,9 @@ const PATTERN_LOG: &str = r#"(.+)"#;
 
 const NAME_NETWORK_FN: &str = "network_fn!";
 const PATTERN_NETWORK_FN: &str = r#""(\w+)?""#;
+
+const NAME_MISSION_FN: &str = "mission_fn!";
+const PATTERN_MISSION_FN: &str = r#""(\w+)?""#;
 
 const NAME_NIL_NEGATED: &str = "!nil?";
 const PATTERN_NIL_NEGATED: &str = r#"(\w+)?"#;
@@ -111,7 +114,7 @@ pub fn bind_replacements(compiler: &mut Compiler) {
         .replace_macro(NAME_LOG_WARN, PATTERN_LOG_WITH_ARGS, log)
         .replace_macro(NAME_LOG_WARN, PATTERN_LOG, log)
         .replace_macro(NAME_CONST, PATTERN_CONST, replace_const)
-        .replace_macro(NAME_DEF_FN, PATTERN_DEF_FN, define_fn)
+        .replace_macro(NAME_SERVER_FN, PATTERN_SERVER_FN, server_fn)
         .replace_macro(NAME_DIG, PATTERN_DIG, hash_dig)
         .replace_macro(NAME_EMPTY_NEGATED, PATTERN_EMPTY_NEGATED, not_empty)
         .replace_macro(NAME_EMPTY, PATTERN_EMPTY, empty)
@@ -120,6 +123,7 @@ pub fn bind_replacements(compiler: &mut Compiler) {
         .replace_macro(NAME_KEY, PATTERN_KEY, hash_key)
         .replace_macro(NAME_LOCALIZE, PATTERN_LOCALIZE, localize)
         .replace_macro(NAME_NETWORK_FN, PATTERN_NETWORK_FN, network_fn)
+        .replace_macro(NAME_MISSION_FN, PATTERN_MISSION_FN, mission_fn)
         .replace_macro(NAME_NIL_NEGATED, PATTERN_NIL_NEGATED, not_nil)
         .replace_macro(NAME_NIL, PATTERN_NIL, nil)
         .replace_macro(NAME_NULL_NEGATED, PATTERN_NULL_NEGATED, not_null)
@@ -165,9 +169,8 @@ fn file_name(context: &Data, _matches: &Captures) -> CompilerResult {
     Ok(Some(format!("{:?}", context.file_name)))
 }
 
-// define_fn!("ESMs_util_log") -> ["ESMs_util_log", "exile_server_manager\code\ESMs_util_log.sqf"]
-// Also replaces slashes based on OS
-fn define_fn(_context: &Data, matches: &Captures) -> CompilerResult {
+// server_fn!("ESMs_util_log") -> ["ESMs_util_log", "\exile_server_manager\code\ESMs_util_log.sqf"]
+fn server_fn(_context: &Data, matches: &Captures) -> CompilerResult {
     let function_name = match matches.get(1) {
         Some(c) => c.as_str(),
         None => {
@@ -179,6 +182,24 @@ fn define_fn(_context: &Data, matches: &Captures) -> CompilerResult {
 
     Ok(Some(format!(
         "[\"{function_name}\", \"{sep}exile_server_manager{sep}code{sep}{function_name}.sqf\"]",
+        sep = "\\"
+    )))
+}
+
+// mission_fn!("ESMc_util_log") -> ["ESMc_util_log", "exile_server_manager\code\ESMs_util_log.sqf"]
+// Note the missing front slash
+fn mission_fn(_context: &Data, matches: &Captures) -> CompilerResult {
+    let function_name = match matches.get(1) {
+        Some(c) => c.as_str(),
+        None => {
+            return Err(
+                format!("Wrong number of arguments, given 0, expected 1",).into()
+            )
+        }
+    };
+
+    Ok(Some(format!(
+        "[\"{function_name}\", \"exile_server_manager{sep}code{sep}{function_name}.sqf\"]",
         sep = "\\"
     )))
 }
@@ -655,17 +676,32 @@ mod tests {
     }
 
     #[test]
-    fn it_replaces_define_fn() {
+    fn it_replaces_server_fn() {
         let output = compile!(
-            r#"define_fn!("MY_Awesome_Method")"#,
-            NAME_DEF_FN,
-            PATTERN_DEF_FN,
-            define_fn
+            r#"server_fn!("MY_Awesome_Method")"#,
+            NAME_SERVER_FN,
+            PATTERN_SERVER_FN,
+            server_fn
         );
 
         assert_eq!(
             output,
             r#"["MY_Awesome_Method", "\exile_server_manager\code\MY_Awesome_Method.sqf"]"#
+        );
+    }
+
+    #[test]
+    fn it_replaces_mission_fn() {
+        let output = compile!(
+            r#"mission_fn!("MY_Awesome_Method")"#,
+            NAME_MISSION_FN,
+            PATTERN_MISSION_FN,
+            mission_fn
+        );
+
+        assert_eq!(
+            output,
+            r#"["MY_Awesome_Method", "exile_server_manager\code\MY_Awesome_Method.sqf"]"#
         );
     }
 

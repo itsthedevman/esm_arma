@@ -46,12 +46,21 @@ os_path!("my_mod", "code")
 ```
 
 ### Function Definition
-#### `define_fn!(function_name)`
-Creates Exile function definition array required by `fn_preInit.sqf`. Automatically handles OS-specific path separators.
+#### `server_fn!(function_name)`
+Creates Exile server function definition array required by `fn_preInit.sqf`.
 ```sqf
-define_fn!("ESMs_util_test_myFunction")
+server_fn!("ESMs_util_test_myFunction")
 // ->
-["ESMs_util_test_myFunction", "/exile_server_manager/code/ESMs_util_test_myFunction.sqf"]
+["ESMs_util_test_myFunction", "\exile_server_manager\code\ESMs_util_test_myFunction.sqf"]
+```
+
+#### `mission_fn!(function_name)`
+Creates Exile mission function definition array required by `fn_preInit.sqf`.
+Note, the missing leading slash
+```sqf
+mission_fn!("ESMs_util_test_myFunction")
+// ->
+["ESMs_util_test_myFunction", "exile_server_manager\code\ESMs_util_test_myFunction.sqf"]
 ```
 
 #### `network_fn!(function_name)`
