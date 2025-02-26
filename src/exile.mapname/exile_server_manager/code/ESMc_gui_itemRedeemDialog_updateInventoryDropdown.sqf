@@ -24,17 +24,16 @@ Co-author:
 
 disableSerialization;
 
-if !(uiNameSpace getVariable ["RscRedeemDialogIsInitialized", false]) exitWith {};
-
+systemChat "2.1";
 private _dialog = uiNameSpace getVariable ["RscEsmItemRedeemDialog", displayNull];
 
 // Update inventory dropdown
-private _inventoryDropdown = _dialog displayCtrl IDC_ITEM_DIALOG_INVENTORY_DROPDOWN;
+private _inventoryDropdown = _dialog displayCtrl const!(IDC_ITEM_DIALOG_INVENTORY_DROPDOWN);
 
 lbClear _inventoryDropdown;
 
 private _index = _inventoryDropdown lbAdd "Equipment";
-_inventoryDropdown lbSetValue [_index, TRADE_CONTAINER_EQUIPMENT];
+_inventoryDropdown lbSetValue [_index, const!(TRADE_CONTAINER_EQUIPMENT)];
 _inventoryDropdown lbSetPicture [_index, "a3\ui_f\data\gui\Rsc\RscDisplayArsenal\face_ca.paa"];
 _inventoryDropdown lbSetCurSel 0;
 
@@ -46,14 +45,14 @@ if !((uniform player) isEqualTo "") then
 		_index, "a3\ui_f\data\gui\Rsc\RscDisplayArsenal\uniform_ca.paa"
 	];
 
-	_inventoryDropdown lbSetValue [_index, TRADE_CONTAINER_UNIFORM];
+	_inventoryDropdown lbSetValue [_index, const!(TRADE_CONTAINER_UNIFORM)];
 };
 
 if !((vest player) isEqualTo "") then
 {
 	_index = _inventoryDropdown lbAdd "Vest";
 	_inventoryDropdown lbSetPicture [_index, "a3\ui_f\data\gui\Rsc\RscDisplayArsenal\vest_ca.paa"];
-	_inventoryDropdown lbSetValue [_index, TRADE_CONTAINER_VEST];
+	_inventoryDropdown lbSetValue [_index, const!(TRADE_CONTAINER_VEST)];
 };
 
 if !((backpack player) isEqualTo "") then
@@ -64,7 +63,7 @@ if !((backpack player) isEqualTo "") then
 		_index, "a3\ui_f\data\gui\Rsc\RscDisplayArsenal\backpack_ca.paa"
 	];
 
-	_inventoryDropdown lbSetValue [_index, TRADE_CONTAINER_BACKPACK];
+	_inventoryDropdown lbSetValue [_index, const!(TRADE_CONTAINER_BACKPACK)];
 };
 
 private _nearVehicles = nearestObjects [player, ["LandVehicle", "Air", "Ship"], 80];
@@ -79,10 +78,11 @@ private _nearVehicles = nearestObjects [player, ["LandVehicle", "Air", "Ship"], 
 			);
 
 			_inventoryDropdown lbSetData [_index, netId _x];
-			_inventoryDropdown lbSetValue [_index, TRADE_CONTAINER_VEHICLE];
+			_inventoryDropdown lbSetValue [_index, const!(TRADE_CONTAINER_VEHICLE)];
 		};
 	};
 }
 forEach _nearVehicles;
 
+systemChat "2.2";
 true

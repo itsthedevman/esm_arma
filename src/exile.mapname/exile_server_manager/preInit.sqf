@@ -75,3 +75,5 @@ forEach
 	network_fn!("ESMc_system_reward_network_redeemItemResponse"),
 	network_fn!("ESMc_system_reward_network_redeemVehicleResponse")
 ];
+
+systemChat "Finished loading";

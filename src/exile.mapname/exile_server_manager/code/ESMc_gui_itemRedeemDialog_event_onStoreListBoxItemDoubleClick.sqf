@@ -29,7 +29,7 @@ private _clickedOnIndex = _this select 1;
 // Check if the purchase button is active and if so,
 // simulate a click on that (owww, am i lazy)
 private _dialog = uiNameSpace getVariable ["RscEsmItemRedeemDialog", displayNull];
-private _redeemButton = _dialog displayCtrl IDC_ITEM_DIALOG_PURCHASE_BUTTON;
+private _redeemButton = _dialog displayCtrl const!(IDC_ITEM_DIALOG_REDEEM_BUTTON);
 
 if (ctrlEnabled _redeemButton) then
 {

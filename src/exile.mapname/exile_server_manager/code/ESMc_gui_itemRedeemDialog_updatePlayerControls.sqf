@@ -22,24 +22,24 @@ Co-author:
 	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
 ---------------------------------------------------------------------------- */
 
+systemChat "1.1";
 disableSerialization;
-
-if !(uiNameSpace getVariable ["RscRedeemDialogIsInitialized", false]) exitWith {};
 
 private _dialog = uiNameSpace getVariable ["RscEsmItemRedeemDialog", displayNull];
 
 // Update player name
-private _playerName = _dialog displayCtrl IDC_ITEM_DIALOG_PLAYER_NAME;
+private _playerName = _dialog displayCtrl const!(IDC_ITEM_DIALOG_PLAYER_NAME);
 _playerName ctrlSetText (toUpper profileName);
 
 // Update player money
 private _playerPopTabs = player getVariable ["ExileMoney", 0];
 private _popTabsString = _playerPopTabs call ExileClient_util_string_exponentToString;
-private _playerMoney = _dialog displayCtrl IDC_ITEM_DIALOG_PLAYER_MONEY;
+private _playerMoney = _dialog displayCtrl const!(IDC_ITEM_DIALOG_PLAYER_MONEY);
 
 _playerMoney ctrlSetStructuredText (parseText format[
 	"<t size='1' font='puristaMedium' align='right'>%1<img image='\exile_assets\texture\ui\poptab_inline_ca.paa' size='1' shadow='true' /></t>",
 	_popTabsString
 ]);
 
+systemChat "1.2";
 true

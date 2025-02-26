@@ -35,7 +35,7 @@ if ((_categoryClasses select 0) isEqualTo "") then
 };
 
 // Clear the list
-private _itemListControl = _dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_VEHICLE_LIST;
+private _itemListControl = _dialog displayCtrl const!(IDC_VEHICLE_DIALOG_VEHICLES_LIST);
 lbClear _itemListControl;
 
 {
@@ -52,15 +52,15 @@ lbClear _itemListControl;
 		);
 
 		_quality = getNumber(missionConfigFile >> "CfgExileArsenal" >> _className >> "quality");
-		private _qualityColor = COLOR_QUALITY_LEVEL_1;
+		private _qualityColor = const!(COLOR_QUALITY_LEVEL_1);
 
 		switch (_quality) do
 		{
-			case QUALITY_LEVEL_2: 		 { _qualityColor = COLOR_QUALITY_LEVEL_2; };
-			case QUALITY_LEVEL_3:		 { _qualityColor = COLOR_QUALITY_LEVEL_3; };
-			case QUALITY_LEVEL_4:		 { _qualityColor = COLOR_QUALITY_LEVEL_4; };
-			case QUALITY_LEVEL_5:		 { _qualityColor = COLOR_QUALITY_LEVEL_5; };
-			case QUALITY_LEVEL_6:		 { _qualityColor = COLOR_QUALITY_LEVEL_6; };
+			case const!(QUALITY_LEVEL_2): 		 { _qualityColor = const!(COLOR_QUALITY_LEVEL_2); };
+			case const!(QUALITY_LEVEL_3):		 { _qualityColor = const!(COLOR_QUALITY_LEVEL_3); };
+			case const!(QUALITY_LEVEL_4):		 { _qualityColor = const!(COLOR_QUALITY_LEVEL_4); };
+			case const!(QUALITY_LEVEL_5):		 { _qualityColor = const!(COLOR_QUALITY_LEVEL_5); };
+			case const!(QUALITY_LEVEL_6):		 { _qualityColor = const!(COLOR_QUALITY_LEVEL_6); };
 		};
 
 		_itemListControl lbSetData [_indexEntryIndex, _className];

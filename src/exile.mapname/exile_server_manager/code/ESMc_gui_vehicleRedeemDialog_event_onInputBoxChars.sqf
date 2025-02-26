@@ -29,7 +29,7 @@ private _character = _this select 1;
 
 private _dialog = uiNameSpace getVariable ["RscExileVehicleTraderDialog", displayNull];
 
-private _redeemButton = _dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_PURCHASE_BUTTON;
+private _redeemButton = _dialog displayCtrl const!(IDC_VEHICLE_DIALOG_REDEEM_BUTTON);
 
 private _vehicleClass = uiNamespace getVariable ["RscExileVehicleTraderDialogVehicleClass", ""];
 private _quality = getNumber(missionConfigFile >> "CfgExileArsenal" >> _vehicleClass >> "quality");

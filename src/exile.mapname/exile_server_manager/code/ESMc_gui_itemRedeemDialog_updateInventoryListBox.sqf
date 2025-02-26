@@ -24,32 +24,31 @@ Co-author:
 
 disableSerialization;
 
-if !(uiNameSpace getVariable ["RscRedeemDialogIsInitialized", false]) exitWith {};
-
+systemChat "3.1";
 private _dialog = uiNameSpace getVariable ["RscEsmItemRedeemDialog", displayNull];
 
 // Get current index
-private _inventoryDropdown = _dialog displayCtrl IDC_ITEM_DIALOG_INVENTORY_DROPDOWN;
+private _inventoryDropdown = _dialog displayCtrl const!(IDC_ITEM_DIALOG_INVENTORY_DROPDOWN);
 private _dropdownIndex = lbCurSel _inventoryDropdown;
 private _tradeContainerType = _inventoryDropdown lbValue _dropdownIndex;
 private _tradeVehicleObject = objNull;
 
 // Inventory List Box
-private _inventoryListBox = _dialog displayCtrl IDC_ITEM_DIALOG_INVENTORY_LISTBOX;
+private _inventoryListBox = _dialog displayCtrl const!(IDC_ITEM_DIALOG_INVENTORY_LIST);
 
 lbClear _inventoryListBox;
 
 private _items = [];
 switch (_tradeContainerType) do
 {
-	case TRADE_CONTAINER_EQUIPMENT:
+	case const!(TRADE_CONTAINER_EQUIPMENT):
 	{
 		_currentLoad = (loadAbs player);
 		_maximumLoad = getNumber(configfile >> "CfgInventoryGlobalVariable" >> "maxSoldierLoad");
 		_items = [player, true] call ExileClient_util_playerEquipment_list;
 	};
 
-	case TRADE_CONTAINER_UNIFORM:
+	case const!(TRADE_CONTAINER_UNIFORM):
 	{
 		_containerClass = getText(
 			configFile >> "CfgWeapons" >> (uniform player) >> "ItemInfo" >> "containerClass"
@@ -60,7 +59,7 @@ switch (_tradeContainerType) do
 		_items = (uniformContainer player) call ExileClient_util_containerCargo_list;
 	};
 
-	case TRADE_CONTAINER_VEST:
+	case const!(TRADE_CONTAINER_VEST):
 	{
 		_containerClass = getText(
 			configFile >> "CfgWeapons" >> (vest player) >> "ItemInfo" >> "containerClass"
@@ -71,14 +70,14 @@ switch (_tradeContainerType) do
 		_items = (vestContainer player) call ExileClient_util_containerCargo_list;
 	};
 
-	case TRADE_CONTAINER_BACKPACK:
+	case const!(TRADE_CONTAINER_BACKPACK):
 	{
 		_maximumLoad = getNumber(configFile >> "CfgVehicles" >> (backpack player) >> "maximumLoad");
 		_currentLoad = (loadBackpack player) * _maximumLoad;
 		_items = (backpackContainer player) call ExileClient_util_containerCargo_list;
 	};
 
-	default // TRADE_CONTAINER_VEHICLE
+	default // const!(TRADE_CONTAINER_VEHICLE)
 	{
 		_tradeVehicleNetID = _inventoryDropdown lbData _dropdownIndex;
 		_tradeVehicleObject = objectFromNetId _tradeVehicleNetID;
@@ -90,10 +89,10 @@ switch (_tradeContainerType) do
 };
 
 // Update player load
-private _inventoryLoadProgress = _dialog displayCtrl IDC_ITEM_DIALOG_PLAYER_LOAD_PROGRESS;
+private _inventoryLoadProgress = _dialog displayCtrl const!(IDC_ITEM_DIALOG_PLAYER_LOAD_PROGRESS);
 _inventoryLoadProgress progressSetPosition (_currentLoad / (_maximumLoad max 1));
 
-private _inventoryLoadValue = _dialog displayCtrl IDC_ITEM_DIALOG_PLAYER_LOAD_VALUE;
+private _inventoryLoadValue = _dialog displayCtrl const!(IDC_ITEM_DIALOG_PLAYER_LOAD_VALUE);
 _inventoryLoadValue ctrlSetStructuredText (parseText format[
 	"<t size='1' font='puristaMedium' align='right'>%1/%2</t>", round(_currentLoad), _maximumLoad
 ]);
@@ -108,15 +107,15 @@ _inventoryLoadValue ctrlSetStructuredText (parseText format[
 	);
 
 	private _sellPrice = _itemClassName call ExileClient_util_gear_calculateSellPrice;
-	private _qualityColor = COLOR_QUALITY_LEVEL_1;
+	private _qualityColor = const!(COLOR_QUALITY_LEVEL_1);
 
 	switch (_quality) do
 	{
-		case QUALITY_LEVEL_2: 		 { _qualityColor = COLOR_QUALITY_LEVEL_2; };
-		case QUALITY_LEVEL_3:		 { _qualityColor = COLOR_QUALITY_LEVEL_3; };
-		case QUALITY_LEVEL_4:		 { _qualityColor = COLOR_QUALITY_LEVEL_4; };
-		case QUALITY_LEVEL_5:		 { _qualityColor = COLOR_QUALITY_LEVEL_5; };
-		case QUALITY_LEVEL_6:		 { _qualityColor = COLOR_QUALITY_LEVEL_6; };
+		case const!(QUALITY_LEVEL_2): 		 { _qualityColor = const!(COLOR_QUALITY_LEVEL_2); };
+		case const!(QUALITY_LEVEL_3):		 { _qualityColor = const!(COLOR_QUALITY_LEVEL_3); };
+		case const!(QUALITY_LEVEL_4):		 { _qualityColor = const!(COLOR_QUALITY_LEVEL_4); };
+		case const!(QUALITY_LEVEL_5):		 { _qualityColor = const!(COLOR_QUALITY_LEVEL_5); };
+		case const!(QUALITY_LEVEL_6):		 { _qualityColor = const!(COLOR_QUALITY_LEVEL_6); };
 	};
 
 	_indexEntryIndex = _inventoryListBox lbAdd getText(
@@ -131,4 +130,5 @@ _inventoryLoadValue ctrlSetStructuredText (parseText format[
 }
 forEach _items;
 
+systemChat "3.2";
 true

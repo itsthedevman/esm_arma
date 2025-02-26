@@ -123,7 +123,7 @@ forEach
     private _exileFunction = _x select 0;
     private _esmFunction = _x select 1;
 
-    private _code = missionNamespace getVariable [_function, {}];
+    private _code = missionNamespace getVariable [_esmFunction, {}];
 
     if (_code isEqualTo {}) then
     {

@@ -30,9 +30,9 @@ private _dialog = uiNameSpace getVariable ["RscEsmVehicleRedeemDialog", displayN
 
 private _vehicleConfig = configFile >> "CfgVehicles" >> _vehicleClass;
 
-_pin = ctrlText (_dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_PIN_EDIT);
+_pin = ctrlText (_dialog displayCtrl const!(IDC_VEHICLE_DIALOG_PIN_EDIT));
 
-private _redeemButton = _dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_PURCHASE_BUTTON;
+private _redeemButton = _dialog displayCtrl const!(IDC_VEHICLE_DIALOG_REDEEM_BUTTON);
 _redeemButton ctrlEnable (count(_pin) isEqualTo 4);
 
 // Get the maximum speed, capacity, passengers, armor
@@ -46,27 +46,27 @@ private _stats = [
 	[
 		"Speed",
 		format["%1km/h", _maximumSpeed],
-		_maximumSpeed / STAT_VEHICLE_SPEED_MAX
+		_maximumSpeed / const!(STAT_VEHICLE_SPEED_MAX)
 	],
 	[
 		"Capacity",
 		format["%1", _maximumLoad],
-		_maximumLoad / STAT_VEHICLE_LOAD_MAX
+		_maximumLoad / const!(STAT_VEHICLE_LOAD_MAX)
 	],
 	[
 		"Armor",
 		format["%1", _armor],
-		_armor / STAT_VEHICLE_ARMOR_MAX
+		_armor / const!(STAT_VEHICLE_ARMOR_MAX)
 	],
 	[
 		"Fuel Tank",
 		format["%1l", _fuelCapacity],
-		_fuelCapacity / STAT_VEHICLE_FUEL_MAX
+		_fuelCapacity / const!(STAT_VEHICLE_FUEL_MAX)
 	]
 ];
 
 // Then enable the stat bars
-private _controlID = IDC_VEHICLE_TRADER_STAT01_BACKGROUND;
+private _controlID = const!(IDC_VEHICLE_DIALOG_STAT01_BACKGROUND);
 
 {
 	// Background

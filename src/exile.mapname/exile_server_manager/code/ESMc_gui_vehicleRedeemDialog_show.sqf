@@ -38,7 +38,7 @@ createDialog "RscEsmVehicleRedeemDialog";
 private _dialog = uiNameSpace getVariable ["RscEsmVehicleRedeemDialog", displayNull];
 
 // Disable purchase button by default (no vehicle selected)
-private _redeemButton = _dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_PURCHASE_BUTTON;
+private _redeemButton = _dialog displayCtrl const!(IDC_VEHICLE_DIALOG_REDEEM_BUTTON);
 _redeemButton ctrlEnable false;
 
 // Add the categories to the drop down
@@ -47,7 +47,7 @@ private _traderCategories = getArray(
 );
 
 // Create the combo boxes
-private _categoryComboBox = _dialog displayCtrl IDC_VEHICLE_TRADER_DIALOG_CATEGORY_DROPDOWN;
+private _categoryComboBox = _dialog displayCtrl const!(IDC_VEHICLE_DIALOG_CATEGORY_DROPDOWN);
 
 // Add the "ALL" Combo
 private _allIndex = _categoryComboBox lbAdd "";

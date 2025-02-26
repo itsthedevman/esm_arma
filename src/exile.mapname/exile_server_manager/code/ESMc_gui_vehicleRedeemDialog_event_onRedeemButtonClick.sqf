@@ -25,7 +25,7 @@ Co-author:
 private _vehicleClass = uiNameSpace getVariable ["RscExileVehicleTraderDialogVehicleClass", ""];
 
 private _display = uiNamespace getVariable ["RscEsmVehicleRedeemDialog", displayNull];
-private _pin = ctrlText (_display displayCtrl IDC_VEHICLE_TRADER_DIALOG_PIN_EDIT);
+private _pin = ctrlText (_display displayCtrl const!(IDC_VEHICLE_DIALOG_PIN_EDIT));
 
 closeDialog 0;
 

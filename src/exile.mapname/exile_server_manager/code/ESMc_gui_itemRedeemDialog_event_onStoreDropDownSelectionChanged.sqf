@@ -31,10 +31,10 @@ private _index = _this select 1;
 private _dialog = uiNameSpace getVariable ["RscEsmItemRedeemDialog", displayNull];
 
 // Cannot buy anything, because no selection
-private _storeListBox = _dialog displayCtrl IDC_ITEM_DIALOG_STORE_LISTBOX;
+private _storeListBox = _dialog displayCtrl const!(IDC_ITEM_DIALOG_STORE_LIST);
 _storeListBox lbSetCurSel -1;
 
-private _inventoryListBox = _dialog displayCtrl IDC_ITEM_DIALOG_INVENTORY_LISTBOX;
+private _inventoryListBox = _dialog displayCtrl const!(IDC_ITEM_DIALOG_INVENTORY_LIST);
 _inventoryListBox lbSetCurSel -1;
 
 call ESMc_gui_itemRedeemDialog_updateStoreListBox;

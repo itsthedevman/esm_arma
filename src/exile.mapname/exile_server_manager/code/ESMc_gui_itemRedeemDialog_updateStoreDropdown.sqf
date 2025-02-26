@@ -22,12 +22,11 @@ Co-author:
 	To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/4.0/.
 ---------------------------------------------------------------------------- */
 
-if !(uiNameSpace getVariable ["RscRedeemDialogIsInitialized", false]) exitWith {};
-
-_dialog = uiNameSpace getVariable ["RscEsmItemRedeemDialog", displayNull];
+systemChat "4.1";
+private _dialog = uiNameSpace getVariable ["RscEsmItemRedeemDialog", displayNull];
 
 // Create the category dropdown
-private _storeDropdown = _dialog displayCtrl IDC_ITEM_DIALOG_STORE_DROPDOWN;
+private _storeDropdown = _dialog displayCtrl const!(IDC_ITEM_DIALOG_STORE_DROPDOWN);
 
 lbClear _storeDropdown;
 
@@ -36,16 +35,18 @@ _storeDropdown lbSetData [0, ""];
 _storeDropdown lbSetCurSel 0;
 
 {
-	_categoryClass = _x;
-	_categoryConfig = missionConfigFile >> "CfgTraderCategories" >> _categoryClass;
-	_categoryName = getText(_categoryConfig >> "name");
-	_categoryIcon = getText(_categoryConfig >> "icon");
+	private _categoryClass = _x;
+	private _categoryConfig = missionConfigFile >> "CfgTraderCategories" >> _categoryClass;
+	private _categoryName = getText(_categoryConfig >> "name");
+	private _categoryIcon = getText(_categoryConfig >> "icon");
 
 	// Fill the combos
-	_categoryIndex = _storeDropdown lbAdd _categoryName;
+	private _categoryIndex = _storeDropdown lbAdd _categoryName;
+
 	_storeDropdown lbSetData [_categoryIndex, _categoryClass];
-	_categoryComboBox lbSetPicture [_categoryIndex, _categoryIcon];
+	// _categoryComboBox lbSetPicture [_categoryIndex, _categoryIcon];
 }
 forEach [];
 
+systemChat "4.2";
 true

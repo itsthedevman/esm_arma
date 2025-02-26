@@ -24,16 +24,19 @@ Co-author:
 
 disableSerialization;
 
-if !(uiNameSpace getVariable ["RscRedeemDialogIsInitialized", false]) exitWith {};
-
+systemChat "5.1";
 private _dialog = uiNameSpace getVariable ["RscEsmItemRedeemDialog", displayNull];
 
-private _categoryDropdown = _dialog displayCtrl IDC_ITEM_DIALOG_STORE_DROPDOWN;
+private _categoryDropdown = _dialog displayCtrl const!(IDC_ITEM_DIALOG_STORE_DROPDOWN);
 private _currentCategoryIndex = lbCurSel _categoryDropdown;
 private _currentCategory = _categoryDropdown lbData _currentCategoryIndex;
 
-private _storeListBox = _dialog displayCtrl IDC_ITEM_DIALOG_STORE_LISTBOX;
+private _storeListBox = _dialog displayCtrl const!(IDC_ITEM_DIALOG_STORE_LIST);
 lbClear _storeListBox;
+
+// TODO
+systemChat "5.2";
+if (true) exitWith {};
 
 private _traderConfig = missionConfigFile >> "CfgTraders" >> ExileClientCurrentTrader;
 
@@ -44,7 +47,7 @@ _filterToItemClasses = [];
 // If the player has a primary weapon equipped, allow filtering
 if !((primaryWeapon player) isEqualTo "") then
 {
-	_primaryWeaponCheckbox = _dialog displayCtrl IDC_ITEM_DIALOG_PRIMARY_WEAPON_FILTER;
+	_primaryWeaponCheckbox = _dialog displayCtrl const!(IDC_ITEM_DIALOG_PRIMARY_WEAPON_FILTER);
 
 	// If the checkbox is checked, proceed
 	if (cbChecked _primaryWeaponCheckbox) then
@@ -57,7 +60,7 @@ if !((primaryWeapon player) isEqualTo "") then
 // Check if we filter for items that are compatible to our handgun (BOOM!)
 if !((handgunWeapon player) isEqualTo "") then
 {
-	_handgunCheckbox = _dialog displayCtrl IDC_ITEM_DIALOG_HANDGUN_FILTER;
+	_handgunCheckbox = _dialog displayCtrl const!(IDC_ITEM_DIALOG_HANDGUN_FILTER);
 
 	// If the checkbox is checked, proceed
 	if (cbChecked _handgunCheckbox) then
@@ -95,17 +98,17 @@ if !((handgunWeapon player) isEqualTo "") then
 				_quality = getNumber(missionConfigFile >> "CfgExileArsenal" >> _itemClassName >> "quality");
 				_salesPrice = getNumber(missionConfigFile >> "CfgExileArsenal" >> _itemClassName >> "price");
 				_requiredRespect = getNumber(missionConfigFile >> "CfgTrading" >> "requiredRespect" >> format["Level%1",_quality]);
-				_qualityColor = COLOR_QUALITY_LEVEL_1;
-				_popTabColor = COLOR_WHITE_ARRAY;
-				_imageColor = COLOR_WHITE_ARRAY;
+				_qualityColor = const!(COLOR_QUALITY_LEVEL_1);
+				_popTabColor = const!(COLOR_WHITE_ARRAY);
+				_imageColor = const!(COLOR_WHITE_ARRAY);
 
 				switch (_quality) do
 				{
-					case QUALITY_LEVEL_2: 		 { _qualityColor = COLOR_QUALITY_LEVEL_2; };
-					case QUALITY_LEVEL_3:		 { _qualityColor = COLOR_QUALITY_LEVEL_3; };
-					case QUALITY_LEVEL_4:		 { _qualityColor = COLOR_QUALITY_LEVEL_4; };
-					case QUALITY_LEVEL_5:		 { _qualityColor = COLOR_QUALITY_LEVEL_5; };
-					case QUALITY_LEVEL_6:		 { _qualityColor = COLOR_QUALITY_LEVEL_6; };
+					case const!(QUALITY_LEVEL_2): { _qualityColor = const!(COLOR_QUALITY_LEVEL_2); };
+					case const!(QUALITY_LEVEL_3): { _qualityColor = const!(COLOR_QUALITY_LEVEL_3); };
+					case const!(QUALITY_LEVEL_4): { _qualityColor = const!(COLOR_QUALITY_LEVEL_4); };
+					case const!(QUALITY_LEVEL_5): { _qualityColor = const!(COLOR_QUALITY_LEVEL_5); };
+					case const!(QUALITY_LEVEL_6): { _qualityColor = const!(COLOR_QUALITY_LEVEL_6); };
 				};
 
 				_playerMoney = player getVariable ["ExileMoney", 0];
@@ -113,7 +116,7 @@ if !((handgunWeapon player) isEqualTo "") then
 				// If the player cant afford the item, mark the price in dark red
 		    	if (_salesPrice > _playerMoney) then
 	    		{
-	    			_popTabColor = COLOR_RED_ARRAY_SUBTLE;
+	    			_popTabColor = const!(COLOR_RED_ARRAY_SUBTLE);
 	    			_missingPopTabs = _salesPrice - _playerMoney;
 	    			_storeListBox lbSetTooltip [_indexEntryIndex, format["Missing %1 Pop Tabs", _missingPopTabs call ExileClient_util_string_exponentToString]];
 	    		};

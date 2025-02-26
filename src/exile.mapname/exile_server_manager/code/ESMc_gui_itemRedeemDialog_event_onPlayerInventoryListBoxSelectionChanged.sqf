@@ -28,7 +28,7 @@ if !(uiNameSpace getVariable ["RscRedeemDialogIsInitialized", false]) exitWith {
 _listBox = _this select 0;
 _index = _this select 1;
 _dialog = uiNameSpace getVariable ["RscEsmItemRedeemDialog", displayNull];
-_sellButton = _dialog displayCtrl IDC_ITEM_DIALOG_REDEEM_BUTTON;
+_sellButton = _dialog displayCtrl const!(IDC_ITEM_DIALOG_REDEEM_BUTTON);
 
 // If we are waiting for the server to respond, disable the button
 if (ExileClientIsWaitingForServerTradeResponse) then
@@ -45,7 +45,7 @@ else
 		_sellButton ctrlEnable !(_listBox lbValue _index isEqualTo -1);
 
 		// Deselect store list
-		_storeListBox = _dialog displayCtrl IDC_ITEM_DIALOG_STORE_LISTBOX;
+		_storeListBox = _dialog displayCtrl const!(IDC_ITEM_DIALOG_STORE_LIST);
 		_storeListBox lbSetCurSel -1;
 	}
 	else
