@@ -50,7 +50,7 @@ fn query() -> &'static str {
     ORDER BY
         MIN(created_at) ASC
     LIMIT
-        100;
+        25;
     "#
 }
 
