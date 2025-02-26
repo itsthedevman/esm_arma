@@ -207,7 +207,10 @@ pub fn build_receiver(builder: &mut Builder) -> BuildResult {
 }
 
 pub fn prepare_to_build(builder: &mut Builder) -> BuildResult {
-    kill_arma(builder)?;
+    if builder.args.start_server() {
+        kill_arma(builder)?;
+    }
+
     prepare_directories(builder)?;
 
     if builder.args.release {
@@ -926,6 +929,21 @@ destination_file="{server_path}/exile.tanoa.pbo";
         .add_error_detection("Failed to build")
         .add_error_detection("missing file")
         .execute(None)?;
+
+    // Copy the mission source over for review
+    Directory::transfer(
+        builder,
+        mission_path,
+        builder.remote_build_path().to_owned(),
+    )?;
+
+    // Copy the mission over
+    File::transfer(
+        builder,
+        server_path,
+        builder.remote_build_path().to_owned(),
+        "exile.tanoa.pbo",
+    )?;
 
     Ok(())
 }
