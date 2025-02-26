@@ -4,7 +4,19 @@ set -euo pipefail
 
 git_root=$(pwd)
 
-cargo build --release --target x86_64-pc-windows-gnu --manifest-path $git_root/src/build/receiver/Cargo.toml
+rm -rf $HOME/Public/exile_server_manager/build/receiver
+rm -rf $HOME/Public/exile_server_manager/build/common
+rm -rf $HOME/Public/exile_server_manager/build/compiler
 
-cd $git_root/target/x86_64-pc-windows-gnu/release
-mv receiver.exe $HOME/Public/exile_server_manager/esm_build_receiver.exe
+cp -r $git_root/src/build/receiver $HOME/Public/exile_server_manager/build/
+cp -r $git_root/src/build/common $HOME/Public/exile_server_manager/build/
+cp -r $git_root/src/build/compiler $HOME/Public/exile_server_manager/build/
+
+echo '
+@echo on
+cargo build --release --manifest-path receiver\Cargo.toml
+xcopy /Y receiver\target\release\receiver.exe Z:\exile_server_manager\esm_build_receiver.exe
+start %USERPROFILE%\Desktop\esm_arma_receiver.bat
+' > $HOME/Public/exile_server_manager/build/build.bat
+
+echo "Build files are located at Z:\exile_server_manager\build on your Window's machine"
