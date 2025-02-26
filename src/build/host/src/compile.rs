@@ -9,16 +9,13 @@ use serde_json::Value;
 
 lazy_static! {
     static ref CONSTANTS: HashMap<String, Value> = {
-        let file_path = crate::builder::GIT_PATH
-            .join("src")
-            .join("@esm")
-            .join("constants.yml");
+        let file_path = crate::builder::GIT_PATH.join("src").join("constants.yml");
 
         let contents = std::fs::read_to_string(file_path)
-            .expect("Missing file esm_arma/src/@esm/constants.yml");
+            .expect("Missing file esm_arma/src/constants.yml");
 
         serde_yaml::from_str(&contents)
-            .expect("Failed to parse content in constants.jsonc")
+            .expect("Failed to parse content in constants.yml")
     };
 }
 
