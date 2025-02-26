@@ -31,30 +31,30 @@ class RscEsmItemRedeemDialog
 		{
 			idc = const!(IDC_ITEM_DIALOG_CAPTION_LEFT);
 
-			x = -4 * GUI_GRID_W + GUI_GRID_X;
-			y = -0.1 * GUI_GRID_H + GUI_GRID_Y;
-			w = 17.5 * GUI_GRID_W;
-			h = 1 * GUI_GRID_H;
+			x = -4 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = -0.1 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 17.5 * const!(GUI_GRID_W);
+			h = 1 * const!(GUI_GRID_H);
 			colorBackground[] = {0.1,0.1,0.1,1};
 		};
 		class DialogBackgroundLeft: RscEsmText
 		{
 			idc = const!(IDC_ITEM_DIALOG_BACKGROUND_LEFT);
 
-			x = -4 * GUI_GRID_W + GUI_GRID_X;
-			y = 1 * GUI_GRID_H + GUI_GRID_Y;
-			w = 17.5 * GUI_GRID_W;
-			h = 24 * GUI_GRID_H;
+			x = -4 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 1 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 17.5 * const!(GUI_GRID_W);
+			h = 24 * const!(GUI_GRID_H);
 			colorBackground[] = {0.05,0.05,0.05,0.7};
 		};
 		class DialogBackgroundMiddle: RscEsmText
 		{
 			idc = const!(IDC_ITEM_DIALOG_BACKGROUND_MIDDLE);
 
-			x = 14 * GUI_GRID_W + GUI_GRID_X;
-			y = 1 * GUI_GRID_H + GUI_GRID_Y;
-			w = 26 * GUI_GRID_W;
-			h = 24 * GUI_GRID_H;
+			x = 14 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 1 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 26 * const!(GUI_GRID_W);
+			h = 24 * const!(GUI_GRID_H);
 			colorBackground[] = {0.05,0.05,0.05,0.7};
 		};
 		class DialogCaptionMiddle: RscEsmText
@@ -62,10 +62,10 @@ class RscEsmItemRedeemDialog
 			idc = const!(IDC_ITEM_DIALOG_CAPTION_MIDDLE);
 
 			text = "REDEEM";
-			x = 14 * GUI_GRID_W + GUI_GRID_X;
-			y = -0.1 * GUI_GRID_H + GUI_GRID_Y;
-			w = 26 * GUI_GRID_W;
-			h = 1 * GUI_GRID_H;
+			x = 14 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = -0.1 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 26 * const!(GUI_GRID_W);
+			h = 1 * const!(GUI_GRID_H);
 			colorBackground[] = {0.1,0.1,0.1,1};
 		};
 		class TextPlayerMoney: RscEsmStructuredText
@@ -73,10 +73,10 @@ class RscEsmItemRedeemDialog
 			idc = const!(IDC_ITEM_DIALOG_PLAYER_MONEY);
 
 			text = "0";
-			x = 5.5 * GUI_GRID_W + GUI_GRID_X;
-			y = -0.1 * GUI_GRID_H + GUI_GRID_Y;
-			w = 8 * GUI_GRID_W;
-			h = 1 * GUI_GRID_H;
+			x = 5.5 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = -0.1 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 8 * const!(GUI_GRID_W);
+			h = 1 * const!(GUI_GRID_H);
 		};
 		class CloseCross: RscEsmActiveText
 		{
@@ -86,10 +86,10 @@ class RscEsmItemRedeemDialog
 			color[] = {1,1,1,0.7};
 
 			text = "\A3\Ui_f\data\GUI\Rsc\RscDisplayArcadeMap\icon_exit_cross_ca.paa";
-			x = 38.8 * GUI_GRID_W + GUI_GRID_X;
-			y = 0.2 * GUI_GRID_H + GUI_GRID_Y;
-			w = 1 * GUI_GRID_W;
-			h = 0.5 * GUI_GRID_H;
+			x = 38.8 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 0.2 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 1 * const!(GUI_GRID_W);
+			h = 0.5 * const!(GUI_GRID_H);
 			colorText[] = {1,1,1,0.7};
 			colorActive[] = {1,1,1,1};
 			tooltip = "Close";
@@ -99,22 +99,22 @@ class RscEsmItemRedeemDialog
 			idc = const!(IDC_ITEM_DIALOG_INVENTORY_DROPDOWN);
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onPlayerInventoryDropDownSelectionChanged";
 
-			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
-			y = 1.5 * GUI_GRID_H + GUI_GRID_Y;
-			w = 16.5 * GUI_GRID_W;
-			h = 1 * GUI_GRID_H;
+			x = -3.5 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 1.5 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 16.5 * const!(GUI_GRID_W);
+			h = 1 * const!(GUI_GRID_H);
 		};
 		class InventoryListBox: RscEsmListBox
 		{
 			idc = const!(IDC_ITEM_DIALOG_INVENTORY_LIST);
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onPlayerInventoryListBoxSelectionChanged";
 
-			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
-			y = 3 * GUI_GRID_H + GUI_GRID_Y;
-			w = 16.5 * GUI_GRID_W;
-			h = 20 * GUI_GRID_H;
+			x = -3.5 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 3 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 16.5 * const!(GUI_GRID_W);
+			h = 20 * const!(GUI_GRID_H);
 			colorBackground[] = {1,1,1,0.1};
-			sizeEx = 0.8 *    (   (   ((safezoneW / safezoneH) min 1.2) / 1.2) / 25) * GUI_GRID_H;
+			sizeEx = 0.8 *    (   (   ((safezoneW / safezoneH) min 1.2) / 1.2) / 25) * const!(GUI_GRID_H);
 		};
 		class CancelButton: RscEsmButtonMenu
 		{
@@ -122,10 +122,10 @@ class RscEsmItemRedeemDialog
 			action = "closeDialog 0;";
 
 			text = "Cancel";
-			x = 32.5 * GUI_GRID_W + GUI_GRID_X;
-			y = 23.5 * GUI_GRID_H + GUI_GRID_Y;
-			w = 7 * GUI_GRID_W;
-			h = 1 * GUI_GRID_H;
+			x = 32.5 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 23.5 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 7 * const!(GUI_GRID_W);
+			h = 1 * const!(GUI_GRID_H);
 			colorText[] = {1,1,1,1};
 			colorBackground[] = {0,0,0,0.8};
 		};
@@ -134,10 +134,10 @@ class RscEsmItemRedeemDialog
 			idc = const!(IDC_ITEM_DIALOG_STORE_DROPDOWN);
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onStoreDropDownSelectionChanged";
 
-			x = 14.5 * GUI_GRID_W + GUI_GRID_X;
-			y = 1.5 * GUI_GRID_H + GUI_GRID_Y;
-			w = 12 * GUI_GRID_W;
-			h = 1 * GUI_GRID_H;
+			x = 14.5 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 1.5 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 12 * const!(GUI_GRID_W);
+			h = 1 * const!(GUI_GRID_H);
 		};
 		class StoreListBox: RscEsmListBox
 		{
@@ -145,12 +145,12 @@ class RscEsmItemRedeemDialog
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onStoreListBoxSelectionChanged";
 			onLBDblClick = "_this call ESMc_gui_itemRedeemDialog_event_onStoreListBoxItemDoubleClick";
 
-			x = 14.5 * GUI_GRID_W + GUI_GRID_X;
-			y = 3 * GUI_GRID_H + GUI_GRID_Y;
-			w = 25 * GUI_GRID_W;
-			h = 20 * GUI_GRID_H;
+			x = 14.5 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 3 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 25 * const!(GUI_GRID_W);
+			h = 20 * const!(GUI_GRID_H);
 			colorBackground[] = {1,1,1,0.1};
-			sizeEx = 0.8 *    (   (   ((safezoneW / safezoneH) min 1.2) / 1.2) / 25) * GUI_GRID_H;
+			sizeEx = 0.8 *    (   (   ((safezoneW / safezoneH) min 1.2) / 1.2) / 25) * const!(GUI_GRID_H);
 		};
 		class RedeemButton: RscEsmButtonMenu
 		{
@@ -158,10 +158,10 @@ class RscEsmItemRedeemDialog
 			onMouseButtonClick = "_this call ESMc_gui_itemRedeemDialog_event_onRedeemButtonClick";
 
 			text = "Redeem";
-			x = 23 * GUI_GRID_W + GUI_GRID_X;
-			y = 23.5 * GUI_GRID_H + GUI_GRID_Y;
-			w = 9 * GUI_GRID_W;
-			h = 1 * GUI_GRID_H;
+			x = 23 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 23.5 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 9 * const!(GUI_GRID_W);
+			h = 1 * const!(GUI_GRID_H);
 			colorText[] = {1,1,1,1};
 			colorBackground[] = {0,0,0,0.8};
 		};
@@ -169,20 +169,20 @@ class RscEsmItemRedeemDialog
 		{
 			idc = const!(IDC_ITEM_DIALOG_BACKGROUND_PLAYER_LOAD);
 
-			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
-			y = 23.5 * GUI_GRID_H + GUI_GRID_Y;
-			w = 16.5 * GUI_GRID_W;
-			h = 1 * GUI_GRID_H;
+			x = -3.5 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 23.5 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 16.5 * const!(GUI_GRID_W);
+			h = 1 * const!(GUI_GRID_H);
 			colorBackground[] = {0,0,0,0.5};
 		};
 		class PlayerLoadProgress: RscEsmProgress
 		{
 			idc = const!(IDC_ITEM_DIALOG_PROGRESS_PLAYER_LOAD);
 
-			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
-			y = 23.5 * GUI_GRID_H + GUI_GRID_Y;
-			w = 16.5 * GUI_GRID_W;
-			h = 1 * GUI_GRID_H;
+			x = -3.5 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 23.5 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 16.5 * const!(GUI_GRID_W);
+			h = 1 * const!(GUI_GRID_H);
 			colorText[] = {1,1,1,0.25};
 			colorBackground[] = {1,1,1,0.25};
 		};
@@ -191,30 +191,30 @@ class RscEsmItemRedeemDialog
 			idc = const!(IDC_ITEM_DIALOG_LOAD_LABEL);
 
 			text = "LOAD";
-			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
-			y = 23.5 * GUI_GRID_H + GUI_GRID_Y;
-			w = 16.5 * GUI_GRID_W;
-			h = 1 * GUI_GRID_H;
+			x = -3.5 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 23.5 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 16.5 * const!(GUI_GRID_W);
+			h = 1 * const!(GUI_GRID_H);
 		};
 		class PlayerLoadValue: RscEsmStructuredText
 		{
 			idc = const!(IDC_ITEM_DIALOG_LOAD_VALUE);
 
 			text = "100%";
-			x = -3.5 * GUI_GRID_W + GUI_GRID_X;
-			y = 23.5 * GUI_GRID_H + GUI_GRID_Y;
-			w = 16.5 * GUI_GRID_W;
-			h = 1 * GUI_GRID_H;
+			x = -3.5 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 23.5 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 16.5 * const!(GUI_GRID_W);
+			h = 1 * const!(GUI_GRID_H);
 		};
 		class FilterDropdown: RscEsmCombo
 		{
 			idc = const!(IDC_ITEM_DIALOG_FILTER_DROPDOWN);
 			onLBSelChanged = "_this call ESMc_gui_itemRedeemDialog_event_onStoreDropDownSelectionChanged";
 
-			x = 27 * GUI_GRID_W + GUI_GRID_X;
-			y = 1.5 * GUI_GRID_H + GUI_GRID_Y;
-			w = 12.5 * GUI_GRID_W;
-			h = 1 * GUI_GRID_H;
+			x = 27 * const!(GUI_GRID_W) + const!(GUI_GRID_X);
+			y = 1.5 * const!(GUI_GRID_H) + const!(GUI_GRID_Y);
+			w = 12.5 * const!(GUI_GRID_W);
+			h = 1 * const!(GUI_GRID_H);
 		};
 
 	};
