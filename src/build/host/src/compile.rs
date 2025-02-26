@@ -560,16 +560,13 @@ fn replace_const(_context: &Data, matches: &Captures) -> CompilerResult {
 
     let replacement = match constant {
         Value::Null => "nil".to_owned(),
-        Value::Bool(b) => format!("{b}"),
-        Value::Number(n) => format!("{n}"),
-        Value::String(s) => format!("\"{s}\""),
-        _ => {
+        Value::Object(_) => {
             return Err(format!(
-                "\"{content}\" contains an object/array. These are not supported at this time",
-
-            )
+            "\"{content}\" contains an object. These are not supported at this time",
+        )
             .into())
         }
+        v => serde_json::to_string(v).unwrap(),
     };
 
     // Replace
@@ -1120,6 +1117,15 @@ mod tests {
         );
 
         assert_eq!(output, r#""Hello world!";"#);
+
+        let output = compile!(
+            r#"const!(EXAMPLE_ARRAY);"#,
+            NAME_CONST,
+            PATTERN_CONST,
+            replace_const
+        );
+
+        assert_eq!(output, r#"[1,2,3];"#);
 
         let output = compile!(
             r#"const!(EXAMPLE_NUMBER);"#,
